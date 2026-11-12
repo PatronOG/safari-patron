@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "safari-patron",
+  "version": "${version}",
+  "name": "Safari Patron",
+  "description": "QoL Critter Safari mod for Hypixel Skyblock.",
+  "authors": ["PatronOG"],
+  "license": "MIT",
+  "icon": "assets/safari-patron/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      { "value": "safaripatron.SafariPatron", "adapter": "kotlin" }
+    ]
+  },
+  "mixins": ["safari-patron.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "${minecraft}",
+    "java": ">=25",
+    "fabric-api": "*",
+    "fabric-language-kotlin": "*"
+  }
+}

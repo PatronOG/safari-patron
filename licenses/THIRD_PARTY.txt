@@ -1,0 +1,18 @@
+Third-party code and data used in Safari Patron
+================================================
+
+Nebulune (Copyright (c) 2025, Starred) - BSD 3-Clause, see Nebulune-BSD-3-Clause.txt
+  Critter detection, floor drop detection and ESP colors
+  (esp/CritterId.kt, esp/Esp.kt, data/Critters.kt)
+
+CritterMod (Copyright (c) 2026 MrCloudy2) - MIT, see CritterMod-MIT.txt
+  https://github.com/MrCloudy2/critterMod
+  Biome list and rarity groups, bee nest and Snoozle wall positions
+  (data/Critters.kt, esp/Structures.kt)
+
+SkyHanni - LGPL-2.1, see SkyHanni-LGPL-2.1.txt
+  https://github.com/hannibal002/SkyHanni
+  Critter Safari area graph nodes (assets/safari-patron/safari_areas.txt, data/AreaMap.kt)
+
+hm-api (AzureAaron) - Apache-2.0
+  Bundled inside the jar with its own license.

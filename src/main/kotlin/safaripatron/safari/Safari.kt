@@ -1,0 +1,132 @@
+package safaripatron.safari
+
+import net.minecraft.client.Minecraft
+import net.minecraft.world.phys.Vec3
+import safaripatron.data.Biome
+import safaripatron.config.Config
+import safaripatron.data.AreaMap
+import safaripatron.party.Party
+import safaripatron.sparkling.SparklingFinder
+
+/**
+ * Safari'de olup olmadığımızı, hangi bölgede olduğumuzu ve run'ın ne zaman başlayıp bittiğini takip eder.
+ *
+ * Yeni run başlangıcı (art arda run'lar dahil):
+ *  1. Safari dışından Safari'ye girildiğinde,
+ *  2. Safari'deyken oyun yeni bir dünya yüklediğinde (yeni instance),
+ *  3. "{lider} entered Critter Safari!" mesajından sonraki 20 sn içinde büyük bir ışınlanma olduğunda,
+ *  4. Scoreboard'daki "Captured Mobs" sayısı 0'a düştüğünde,
+ *  5. Run bitmişken (ödül özetinden sonra) Safari'de yeni bir yakalama geldiğinde.
+ * Run bitişi: "SAFARI REWARD SUMMARY" mesajı ya da Safari'den çıkış.
+ */
+object Safari {
+    var inSafari = false
+        private set
+    var biome: Biome? = null
+        private set
+    var capturedMobs: Int? = null
+        private set
+
+    private var lastLevel: Any? = null
+    private var freshWorld = false
+    private var freshWorldTicks = 0
+    private var outsideTicks = 0
+    private var entryArmedAt = 0L
+    private var lastPos: Vec3? = null
+
+    private val capturedPattern = Regex("""^Captured Mobs:\s*([\d,]+)""", RegexOption.IGNORE_CASE)
+    private val locationPattern = Regex("""(^|\s)Critter Safari$""", RegexOption.IGNORE_CASE)
+
+    fun tick(client: Minecraft) {
+        val level = client.level
+        val player = client.player
+        if (level == null || player == null) {
+            if (inSafari) leave()
+            lastLevel = null; lastPos = null
+            return
+        }
+        if (level !== lastLevel) {
+            lastLevel = level
+            freshWorld = true; freshWorldTicks = 0
+            lastPos = null
+        }
+
+        val lines = Sidebar.lines(client)
+        // Warp sırasında scoreboard bir süre boş gelebilir: o an karar verme.
+        if (lines.isNotEmpty()) {
+            val here = lines.any { locationPattern.containsMatchIn(it) }
+            if (here) {
+                outsideTicks = 0
+                if (!inSafari) { inSafari = true; startRun("enter") }
+                else if (freshWorld) startRun("new world")
+            } else if (inSafari && ++outsideTicks >= 20) {
+                leave()
+            }
+            freshWorld = false
+
+            val newCaptured = lines.firstNotNullOfOrNull { capturedPattern.find(it)?.groupValues?.get(1)?.replace(",", "")?.toIntOrNull() }
+            if (inSafari && newCaptured == 0 && (capturedMobs ?: 0) > 0 && Run.caught.isNotEmpty()) startRun("counter reset")
+            capturedMobs = newCaptured
+        } else if (freshWorld && ++freshWorldTicks > 200) {
+            freshWorld = false
+        }
+
+        // Işınlanma ile yeni run (aynı sunucuda kalınan art arda run'lar)
+        val pos = player.position()
+        val prev = lastPos
+        if (inSafari && prev != null && entryArmedAt != 0L &&
+            System.currentTimeMillis() - entryArmedAt < 20_000 && prev.distanceToSqr(pos) > 16.0 * 16.0) {
+            startRun("teleport")
+        }
+        lastPos = pos
+        if (entryArmedAt != 0L && System.currentTimeMillis() - entryArmedAt >= 20_000) entryArmedAt = 0L
+
+        // Orta alan ve başlangıç gemisi hiçbir bölge sayılmaz (panel 2 ve ESP gizlenir)
+        biome = if (inSafari) AreaMap.biomeAt(player.x, player.y, player.z) else null
+    }
+
+    private fun startRun(@Suppress("UNUSED_PARAMETER") reason: String) {
+        entryArmedAt = 0L
+        Run.start()
+        SparklingFinder.clear()
+        Party.onRunStart()
+    }
+
+    private fun leave() {
+        inSafari = false
+        biome = null
+        outsideTicks = 0
+        Run.end()
+        SparklingFinder.clear()
+    }
+
+    fun onChat(event: ChatParser.Event, selfName: String) {
+        when (event) {
+            is ChatParser.Capture -> {
+                if (inSafari && !Run.running) startRun("capture")
+                Run.record(selfName, event.critter)
+            }
+            is ChatParser.LootShare -> {
+                if (inSafari && !Run.running) startRun("capture")
+                Run.record(event.player, event.critter)
+            }
+            is ChatParser.SparklingCaught -> {
+                SparklingFinder.caught(event.critter, byMe = event.player.equals(selfName, ignoreCase = true))
+                if (Run.running) {
+                    Run.sparklingsCaught.add(event.player to event.critter)
+                    Run.record(event.player, event.critter)
+                }
+            }
+            is ChatParser.Entered -> { entryArmedAt = System.currentTimeMillis(); Party.request() }
+            is ChatParser.Hotspot -> {
+                val name = event.biome.lowercase().replaceFirstChar { it.uppercase() }
+                // Once per run, even if the message shows up twice
+                if (Config.s.hotspotAnnounce && Run.markHotspotAnnounced()) Party.chat("[✦Safari Patron✦] Hotspot: $name")
+            }
+            ChatParser.RewardSummary -> {
+                Run.end()
+                SparklingFinder.clear()
+            }
+        }
+    }
+}

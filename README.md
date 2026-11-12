@@ -42,7 +42,7 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 1. Install **Fabric Loader 0.19.5 or newer** for your Minecraft version (26.3 or 26.2) using the [Fabric installer](https://fabricmc.net/use/installer/).
 2. Download these mods and put them in your `mods` folder:
    - **Safari Patron**: pick the jar that matches your Minecraft version from the [Releases](../../releases) page
-     - Minecraft 26.3 → `safari-patron-1.0.0.jar`
+     - Minecraft 26.3 → `safari-patron-1.0.0+26.3.jar`
      - Minecraft 26.2 → `safari-patron-1.0.0+26.2.jar`
    - [**Fabric API**](https://modrinth.com/mod/fabric-api), for the same Minecraft version
    - [**Fabric Language Kotlin**](https://modrinth.com/mod/fabric-language-kotlin)

@@ -1,0 +1,205 @@
+package safaripatron.hud
+
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.Font
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.resources.Identifier
+import safaripatron.SafariPatron
+import safaripatron.config.Config
+import safaripatron.config.PanelPos
+import safaripatron.config.Settings
+import safaripatron.data.Biome
+import safaripatron.safari.Run
+import safaripatron.safari.Safari
+import safaripatron.sparkling.SparklingFinder
+
+/** Short-lived on-screen notifications (warp check, announcements). */
+object Toasts {
+    class Toast(val text: String, val color: Int, val until: Long, val start: Long)
+    val list = ArrayList<Toast>()
+
+    fun show(text: String, color: Int, ms: Long) {
+        val now = System.currentTimeMillis()
+        list.add(Toast(text, color, now + ms, now))
+    }
+
+    fun active(): List<Toast> {
+        val now = System.currentTimeMillis()
+        list.removeIf { it.until <= now }
+        return list
+    }
+}
+
+/**
+ * A movable, scalable HUD element. draw() always draws at (0,0) in unscaled units;
+ * the caller applies position and scale. preview = draw sample content for the HUD editor.
+ */
+interface HudElement {
+    val name: String
+    val pos: PanelPos
+    val defaultPos: PanelPos
+    /** Draws (or only measures when g == null) and returns the unscaled size. */
+    fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size
+    /** Whether there is something to show right now (outside the editor). */
+    fun visible(): Boolean
+}
+
+object RunElement : HudElement {
+    override val name = "Run panel"
+    override val pos get() = Config.s.runPanel
+    override val defaultPos get() = Settings.DEFAULT_RUN
+    override fun visible() = Safari.inSafari && Run.running
+    override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
+        val self = Minecraft.getInstance().player?.name?.string
+        val data = if (preview && !visible()) Panels.demoRun(self) else Panels.runData(self)
+        return Panels.drawRun(g, font, 0, 0, data)
+    }
+}
+
+object BiomeElement : HudElement {
+    override val name = "Biome panel"
+    override val pos get() = Config.s.biomePanel
+    override val defaultPos get() = Settings.DEFAULT_BIOME
+    override fun visible() = Safari.inSafari && Run.running && Safari.biome != null
+    override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
+        val biome = Safari.biome
+        val data = if (preview && (!visible() || biome == null)) Panels.demoBiome() else Panels.biomeData(biome ?: Biome.ICY)
+        return Panels.drawBiome(g, font, 0, 0, data)
+    }
+}
+
+/** Stays on screen until the sparkling is caught. */
+object SparklingElement : HudElement {
+    override val name = "Sparkling panel"
+    override val pos get() = Config.s.sparklingPanel
+    override val defaultPos get() = Settings.DEFAULT_SPARKLING
+    override fun visible() = Config.s.sparklingFinder && SparklingFinder.sparks.isNotEmpty()
+
+    private const val TITLE_SCALE = 2.2f
+    private const val NAME_SCALE = 1.6f
+
+    override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
+        val names = if (preview && !visible()) listOf("Litterbug") else SparklingFinder.sparks.map { it.species }
+        val foundAt = SparklingFinder.sparks.firstOrNull()?.foundAt ?: 0L
+        val main = names.firstOrNull() ?: "Litterbug"
+        val extra = names.drop(1).map { "✦ $it" }
+        val title = "✦ SPARKLING ✦"
+
+        var w = maxOf(font.width(title) * TITLE_SCALE, font.width(main) * NAME_SCALE).toInt()
+        for (e in extra) w = maxOf(w, font.width(e))
+        w += 40
+        val h = (font.lineHeight * (TITLE_SCALE + NAME_SCALE) + 12 + extra.size * (font.lineHeight + 2)).toInt()
+        if (g == null) return Panels.Size(w, h)
+
+        val alphaF = if (preview) 1.0 else ((System.currentTimeMillis() - foundAt) / 250.0).coerceIn(0.0, 1.0)
+        val alpha = (alphaF * 255).toInt().coerceAtLeast(5)
+        fun c(rgb: Int) = (alpha shl 24) or (rgb and 0xFFFFFF)
+        g.fill(0, 0, w, h, ((alphaF * 0x90).toInt() shl 24))
+        g.fill(0, 0, w, 1, c(0xFFAA00))
+        g.fill(0, h - 1, w, h, c(0xFFAA00))
+
+        var y = 6f
+        fun centered(text: String, scale: Float, color: Int) {
+            g.pose().pushMatrix()
+            g.pose().translate(w / 2f, y)
+            g.pose().scale(scale, scale)
+            g.text(font, text, -font.width(text) / 2, 0, color, true)
+            g.pose().popMatrix()
+            y += font.lineHeight * scale + 2
+        }
+        centered(title, TITLE_SCALE, c(0xFFAA00))
+        centered(main, NAME_SCALE, c(0xFFFF55))
+        for (e in extra) centered(e, 1f, c(0xFFD27F))
+        return Panels.Size(w, h)
+    }
+}
+
+/** Warp check and announcement boxes, stacked. */
+object NotificationsElement : HudElement {
+    override val name = "Notifications"
+    override val pos get() = Config.s.notifications
+    override val defaultPos get() = Settings.DEFAULT_NOTIFICATIONS
+    override fun visible() = Toasts.active().isNotEmpty()
+
+    private const val SCALE = 2f
+    private const val PAD_X = 16
+    private const val PAD_Y = 8
+    private const val GAP = 6
+
+    override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
+        val now = System.currentTimeMillis()
+        val items = if (preview && !visible())
+            listOf(Toasts.Toast("4/4 Players in Safari", 0xFF55FF55.toInt(), Long.MAX_VALUE, 0),
+                   Toasts.Toast("Forest Done!", 0xFF55FF55.toInt(), Long.MAX_VALUE, 0))
+        else Toasts.active()
+        if (items.isEmpty()) return Panels.Size(0, 0)
+        val lineH = (font.lineHeight * SCALE).toInt()
+        val boxH = lineH + PAD_Y * 2
+        val w = items.maxOf { (font.width(it.text) * SCALE).toInt() + PAD_X * 2 }
+        val h = items.size * boxH + (items.size - 1) * GAP
+        if (g == null) return Panels.Size(w, h)
+
+        var top = 0
+        for (t in items) {
+            val a = if (preview) 1.0 else minOf(1.0, (now - t.start) / 200.0, (t.until - now) / 500.0).coerceIn(0.0, 1.0)
+            val alpha = (a * 255).toInt().coerceAtLeast(5)
+            val color = (alpha shl 24) or (t.color and 0xFFFFFF)
+            val boxW = (font.width(t.text) * SCALE).toInt() + PAD_X * 2
+            val x0 = (w - boxW) / 2
+            g.fill(x0, top, x0 + boxW, top + boxH, ((a * 0xA0).toInt() shl 24))
+            g.fill(x0, top, x0 + boxW, top + 2, color)
+            g.fill(x0, top + boxH - 2, x0 + boxW, top + boxH, color)
+            g.pose().pushMatrix()
+            g.pose().translate(w / 2f, (top + PAD_Y + 1).toFloat())
+            g.pose().scale(SCALE, SCALE)
+            g.text(font, t.text, -font.width(t.text) / 2, 0, color, true)
+            g.pose().popMatrix()
+            top += boxH + GAP
+        }
+        return Panels.Size(w, h)
+    }
+}
+
+object Hud {
+    val elements: List<HudElement> = listOf(RunElement, BiomeElement, SparklingElement, NotificationsElement)
+
+    fun init() {
+        HudElementRegistry.attachElementBefore(
+            VanillaHudElements.CHAT,
+            Identifier.fromNamespaceAndPath(SafariPatron.MOD_ID, "hud"),
+        ) { g, _ -> render(g) }
+    }
+
+    /** Scaled on-screen rectangle (x, y, w, h) of an element of unscaled size [size]. */
+    fun rect(pos: PanelPos, size: Panels.Size, width: Int, height: Int): IntArray {
+        val w = (size.w * pos.scale).toInt()
+        val h = (size.h * pos.scale).toInt()
+        val x = if (pos.x < 0) (width - w) / 2 else (pos.x * width).toInt().coerceIn(0, (width - w).coerceAtLeast(0))
+        val y = (pos.y * height).toInt().coerceIn(0, (height - h).coerceAtLeast(0))
+        return intArrayOf(x, y, w, h)
+    }
+
+    /** Draws an element at its saved position and scale; returns its on-screen rectangle. */
+    fun drawAt(g: GuiGraphicsExtractor, font: Font, e: HudElement, preview: Boolean, width: Int, height: Int): IntArray {
+        val size = e.draw(null, font, preview)
+        val r = rect(e.pos, size, width, height)
+        if (size.w <= 0 || size.h <= 0) return r
+        g.pose().pushMatrix()
+        g.pose().translate(r[0].toFloat(), r[1].toFloat())
+        g.pose().scale(e.pos.scale, e.pos.scale)
+        e.draw(g, font, preview)
+        g.pose().popMatrix()
+        return r
+    }
+
+    private fun render(g: GuiGraphicsExtractor) {
+        val client = Minecraft.getInstance()
+        if (client.gui.hud.isHidden) return
+        if (client.gui.screen() is HudEditScreen) return
+        val width = client.window.guiScaledWidth
+        val height = client.window.guiScaledHeight
+        for (e in elements) if (e.visible()) drawAt(g, client.font, e, false, width, height)
+    }
+}

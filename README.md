@@ -16,6 +16,7 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Sparkling ESP:** Spots Sparkling critters and boxes.
 - **Sparkling Waypoint:** Marks the critter with a box in the world when seen. Waypoint disappears after catching.
 - **Sparkling Share:** One-click buttons to share its location in party or all chat.
+- **Auto Share:** Optionally sends every Sparkling straight to party chat.
 
 ### ➶ Capsule Helper
 - Shows where your capsule will fly and whether it will hit a critter.
@@ -24,6 +25,7 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Warp Check:** Sends if someone missing or not in party chat.
 - **Hotspot Sharing:** It shares the hotspot area assigned to you in the party chat.
 - **Biome Announcements:** {Area} Done!, Everything except Macaw done!, Everything Done!
+- **Alert panels:** Each alert can go to party chat, your screen, or both. 
 
 ### ◈ ESP System
 - **Sparkling ESP:** Spots Sparkling critters and alerts you in chat with their distance and coordinates. Marks the critter with a box in the world.
@@ -33,7 +35,7 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Snoozle Walls:** Breakable walls in Cavern.
 
 ### ✨ Quality of Life
-- **HUD Editor:** `/sp hud` lets you drag and resize every panel
+- **HUD Editor:** /sp hud lets you drag and resize every panel, with center guides that snap.
 - **Menu:** `/sp` opens every setting in one place, with search
 - **Hideyho:** Click anywhere in screen to pick `[Sure]`
 
@@ -42,10 +44,11 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 1. Install **Fabric Loader 0.19.5 or newer** for your Minecraft version (26.3 or 26.2) using the [Fabric installer](https://fabricmc.net/use/installer/).
 2. Download these mods and put them in your `mods` folder:
    - **Safari Patron**: pick the jar that matches your Minecraft version from the [Releases](../../releases) page
-     - Minecraft 26.3 → `safari-patron-1.0.0+26.3.jar`
-     - Minecraft 26.2 → `safari-patron-1.0.0+26.2.jar`
+     - Minecraft 26.3 → the jar ending in `+26.3.jar`
+     - Minecraft 26.2 → the jar ending in `+26.2.jar`
    - [**Fabric API**](https://modrinth.com/mod/fabric-api), for the same Minecraft version
    - [**Fabric Language Kotlin**](https://modrinth.com/mod/fabric-language-kotlin)
+   - *Optional:* [**Mod Menu**](https://modrinth.com/mod/modmenu), for a settings button in the mod list
 3. Launch the game, join Hypixel and type `/sp` to open the menu.
 
 ## Commands
@@ -63,10 +66,9 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 | `/sp esp biome` | Only show ESP in your current biome |
 | `/sp floor` | Toggle floor drop ESP |
 | `/sp capsule` | Toggle the Capsule Helper |
-| `/sp warp` | Toggle the party warp check |
-| `/sp hotspot` | Toggle Hunting Hotspot sharing |
-| `/sp announce` | Toggle biome announcements |
-| `/sp announce screen` | Also show announcements on screen |
+| `/sp warp` | Toggle the warp check in party chat |
+| `/sp hotspot` | Toggle Hotspot sharing in party chat |
+| `/sp announce` | Toggle biome announcements in party chat |
 | `/sp prefix <style>` | Chat prefix style: `safari`, `gold`, `emerald`, `sunset`, `aurora` |
 | `/sp status` | Show your current run status |
 | `/sp newrun` | Manually reset the run |

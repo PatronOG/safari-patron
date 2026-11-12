@@ -2,11 +2,9 @@ package safaripatron.render
 
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.renderpearl.api.pipeline.BlendFunction
-import com.mojang.renderpearl.api.pipeline.ColorTargetState
-import com.mojang.renderpearl.api.pipeline.CompareOp
-import com.mojang.renderpearl.api.pipeline.DepthStencilState
-import com.mojang.renderpearl.api.pipeline.RenderPipeline
+import com.mojang.blaze3d.pipeline.DepthStencilState
+import com.mojang.blaze3d.pipeline.RenderPipeline
+import com.mojang.blaze3d.platform.CompareOp
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents
 import net.minecraft.ChatFormatting
@@ -16,6 +14,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.util.LightCoordsUtil
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.client.renderer.rendertype.LayeringTransform
+import net.minecraft.client.renderer.rendertype.OutputTarget
 import net.minecraft.client.renderer.rendertype.RenderSetup
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.resources.Identifier
@@ -29,7 +28,7 @@ import safaripatron.sparkling.SparklingFinder
 
 /**
  * Dünyaya çizilen her şey (ESP kutuları, sparkling kutuları, kapsül yörüngesi) tek geçişte çizilir.
- * Minecraft 26.3 render API'si.
+ * Minecraft 26.2 render API'si.
  * Çizgiler duvarların arkasından da görünür.
  */
 object WorldRender {
@@ -41,10 +40,10 @@ object WorldRender {
         val builder = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath(SafariPatron.MOD_ID, "pipeline/lines"))
             .withDepthStencilState(DepthStencilState(CompareOp.ALWAYS_PASS, false))
-            .withColorTargetState(ColorTargetState(BlendFunction.TRANSLUCENT))
             .withCull(false)
         val pipeline = RenderPipelines.register(builder.build())
         val setup = RenderSetup.builder(pipeline).setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+        setup.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
         lines = RenderType.create("${SafariPatron.MOD_ID}:lines", setup.createRenderSetup())
 
         LevelRenderEvents.COLLECT_SUBMITS.register(::render)
@@ -126,7 +125,7 @@ object WorldRender {
             val comp = Component.literal(l.text).let { if (l.bold) it.withStyle(ChatFormatting.BOLD) else it }
             poses.pushPose()
             poses.translate(dx, dy, dz)
-            poses.rotate(camera.rotation())
+            poses.mulPose(camera.rotation())
             poses.scale(scale, -scale, scale)
             context.submitNodeCollector().submitText(poses, -font.width(comp) / 2f, (l.line * (font.lineHeight + 1)).toFloat(),
                 comp.visualOrderText, false, Font.DisplayMode.SEE_THROUGH, LightCoordsUtil.FULL_BRIGHT, l.color, 0x40000000, 0)

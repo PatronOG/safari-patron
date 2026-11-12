@@ -23,6 +23,7 @@ class Settings {
     // Sparkling
     var sparklingFinder = true
     var sparklingSound = true
+    var sparklingAutoShare = false
 
     // ESP
     var esp = true
@@ -32,10 +33,15 @@ class Settings {
     var snoozleWalls = true
 
     // Party
+    // Party chat
     var warpCheck = true
     var hotspotAnnounce = true
     var biomeAnnouncements = true
-    var screenAnnouncements = false
+
+    // Show on screen (works even when the party message is off)
+    var warpScreen = true
+    var hotspotScreen = false
+    var biomeScreen = false
 
     // Chat prefix color style (safari, gold, emerald, sunset, aurora)
     var prefixStyle = "safari"
@@ -44,13 +50,18 @@ class Settings {
     var runPanel = PanelPos(0.01f, 0.28f)
     var biomePanel = PanelPos(0.01f, 0.60f)
     var sparklingPanel = PanelPos(-1f, 0.12f)
-    var notifications = PanelPos(-1f, 0.36f)
+    var warpPanel = PanelPos(-1f, 0.30f)
+    var announcePanel = PanelPos(-1f, 0.40f)
+
+    /** 1 = centered panels store their center x (not their left edge). */
+    var hudVersion = 0
 
     companion object {
         val DEFAULT_RUN = PanelPos(0.01f, 0.28f)
         val DEFAULT_BIOME = PanelPos(0.01f, 0.60f)
         val DEFAULT_SPARKLING = PanelPos(-1f, 0.12f)
-        val DEFAULT_NOTIFICATIONS = PanelPos(-1f, 0.36f)
+        val DEFAULT_WARP = PanelPos(-1f, 0.30f)
+        val DEFAULT_ANNOUNCE = PanelPos(-1f, 0.40f)
     }
 }
 
@@ -66,8 +77,13 @@ object Config {
             if (Files.exists(path)) gson.fromJson(Files.readString(path), Settings::class.java) else null
         }.getOrNull() ?: Settings()
         // Older files may lack new fields or have scale 0
-        for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.notifications)) {
+        for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel)) {
             if (p.scale !in 0.5f..2f) p.scale = 1f
+        }
+        // 1.0.1: the sparkling panel is now anchored by its center; a moved one goes back to default once
+        if (s.hudVersion < 1) {
+            if (s.sparklingPanel.x >= 0f) s.sparklingPanel.set(Settings.DEFAULT_SPARKLING)
+            s.hudVersion = 1
         }
         save()
     }

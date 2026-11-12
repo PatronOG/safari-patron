@@ -16,7 +16,7 @@ import safaripatron.safari.Safari
  * Sabit yapılar için waypoint'ler:
  *  - Forest: Honeybug'ların çıktığı arı yuvaları (BEE_NEST). Vurduğun yuva o run için listeden çıkar.
  *  - Cavern: Snoozle'ların arkasında saklandığı kırılabilir duvarlar (blok hâlâ duruyorsa gösterilir).
- * İlgili critter parti tarafından yakalanınca işaretler kaybolur.
+ * Arı yuvaları Honeybug yakalanınca kaybolur; Snoozle duvarları sadece kırılınca (blok hava olunca) kaybolur.
  * Konumlar CritterMod (MIT) verisinden.
  */
 object Structures {
@@ -60,7 +60,7 @@ object Structures {
                     out.box(AABB(pos).inflate(0.005), NEST_COLOR)
                 }
             }
-            Biome.CAVERN -> if (Config.s.snoozleWalls && "Snoozle" !in Run.caught) {
+            Biome.CAVERN -> if (Config.s.snoozleWalls) {
                 for (pos in snoozleWalls) {
                     if (pos.distToCenterSqr(cam) > RANGE_SQ) continue
                     if (level.isLoaded(pos) && level.getBlockState(pos).isAir) continue

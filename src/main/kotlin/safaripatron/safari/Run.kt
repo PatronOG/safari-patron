@@ -81,6 +81,6 @@ object Run {
     private fun announce(key: String, text: String, color: Int) {
         if (!announced.add(key)) return
         if (Config.s.biomeAnnouncements) Party.chat(text)
-        if (Config.s.screenAnnouncements) Toasts.show(text, color, 4000)
+        if (Config.s.biomeScreen) Toasts.show(Toasts.Kind.ANNOUNCE, text, color, 4000)
     }
 }

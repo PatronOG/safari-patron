@@ -39,9 +39,8 @@ object Commands {
         "§e/sp esp §7— toggle critter ESP",
         "§e/sp esp biome §7— only show ESP in your current biome",
         "§e/sp floor §7— toggle floor drop ESP",
-        "§e/sp announce §7— toggle biome announcements (Forest Done! ...)",
-        "§e/sp announce screen §7— also show announcements on screen",
-        "§e/sp warp §7— toggle the party warp check",
+        "§e/sp announce §7— toggle biome announcements in party chat (Forest Done! ...)",
+        "§e/sp warp §7— toggle the warp check in party chat",
         "§e/sp hotspot §7— toggle sharing your Hunting Hotspot in party chat",
         "§e/sp prefix <safari|gold|emerald|sunset|aurora> §7— chat prefix colors",
         "§e/sp status §7— show mod status",
@@ -83,8 +82,7 @@ object Commands {
                     .then(toggle("esp", "Critter ESP", { s().esp }, { s().esp = it })
                         .then(toggle("biome", "ESP only in current biome", { s().espOnlyInBiome }, { s().espOnlyInBiome = it })))
                     .then(toggle("floor", "Floor drop ESP", { s().floorDrops }, { s().floorDrops = it }))
-                    .then(toggle("announce", "Biome announcements", { s().biomeAnnouncements }, { s().biomeAnnouncements = it })
-                        .then(toggle("screen", "On-screen announcements", { s().screenAnnouncements }, { s().screenAnnouncements = it })))
+                    .then(toggle("announce", "Biome announcements", { s().biomeAnnouncements }, { s().biomeAnnouncements = it }))
                     .then(toggle("warp", "Warp check", { s().warpCheck }, { s().warpCheck = it }))
                     .then(toggle("hotspot", "Hotspot sharing", { s().hotspotAnnounce }, { s().hotspotAnnounce = it }))
                     .then(prefixCommand())

@@ -26,7 +26,7 @@ object MenuNav {
 }
 
 /** /sp — main menu. */
-class MainMenuScreen : Screen(Component.literal("Safari Patron")) {
+class MainMenuScreen(private val parent: Screen? = null) : Screen(Component.literal("Safari Patron")) {
     private val hits = ArrayList<Ui.Hit>()
     private val version = FabricLoader.getInstance().getModContainer(SafariPatron.MOD_ID)
         .map { it.metadata.version.friendlyString }.orElse("")
@@ -99,7 +99,11 @@ class MainMenuScreen : Screen(Component.literal("Safari Patron")) {
             }
             Ui.text(g, font, Ui.fit(font, c.title, cw - 14), cx + 7, cy + 19, Ui.WHITE)
             Ui.text(g, font, Ui.fit(font, c.summary, cw - 14), cx + 7, cy + 29, Ui.MUTED)
-            hits.add(Ui.Hit(cx, cy, cw, cardH) { MenuNav.open(SettingsScreen(id, this)) })
+            // A category with a single switch (Capsule Helper) toggles right here instead of opening settings
+            val single = c.items().singleOrNull() as? SettingsModel.Toggle
+            hits.add(Ui.Hit(cx, cy, cw, cardH) {
+                if (single != null) single.set(!single.get()) else MenuNav.open(SettingsScreen(id, this))
+            })
         }
         y += cardH * 2 + gap * 2
 
@@ -115,4 +119,9 @@ class MainMenuScreen : Screen(Component.literal("Safari Patron")) {
     }
 
     override fun isPauseScreen() = false
+
+    override fun onClose() {
+        // Opened from Mod Menu: go back to the mod list
+        if (parent != null) minecraft.gui.setScreen(parent) else super.onClose()
+    }
 }

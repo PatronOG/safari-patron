@@ -16,6 +16,10 @@ repositories {
         forRepository { maven("https://maven.azureaaron.net/releases") }
         filter { includeModule("net.azureaaron", "hm-api") }
     }
+    exclusiveContent {
+        forRepository { maven("https://api.modrinth.com/maven") }
+        filter { includeGroup("maven.modrinth") }
+    }
 }
 
 dependencies {
@@ -25,6 +29,8 @@ dependencies {
     implementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
     // Hypixel Mod API (parti üyeleri için). Jar'ın içine gömülür, ayrıca kurmaya gerek yok.
     implementation(include("net.azureaaron:hm-api:${property("hm_api_version")}")!!)
+    // Mod Menu: only needed to compile the config button, not bundled
+    compileOnly("maven.modrinth:modmenu:${property("modmenu_version")}")
 }
 
 tasks.processResources {

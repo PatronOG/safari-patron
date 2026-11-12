@@ -15,20 +15,21 @@ import safaripatron.safari.Run
 import safaripatron.safari.Safari
 import safaripatron.sparkling.SparklingFinder
 
-/** Short-lived on-screen notifications (warp check, announcements). */
+/** Short-lived on-screen notifications. Each kind has its own panel. */
 object Toasts {
-    class Toast(val text: String, val color: Int, val until: Long, val start: Long)
+    enum class Kind { WARP, ANNOUNCE }
+    class Toast(val text: String, val color: Int, val until: Long, val start: Long, val kind: Kind)
     val list = ArrayList<Toast>()
 
-    fun show(text: String, color: Int, ms: Long) {
+    fun show(kind: Kind, text: String, color: Int, ms: Long) {
         val now = System.currentTimeMillis()
-        list.add(Toast(text, color, now + ms, now))
+        list.add(Toast(text, color, now + ms, now, kind))
     }
 
-    fun active(): List<Toast> {
+    fun active(kind: Kind): List<Toast> {
         val now = System.currentTimeMillis()
         list.removeIf { it.until <= now }
-        return list
+        return list.filter { it.kind == kind }
     }
 }
 
@@ -44,6 +45,8 @@ interface HudElement {
     fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size
     /** Whether there is something to show right now (outside the editor). */
     fun visible(): Boolean
+    /** true = pos.x is the panel's center, so it stays centered when its width changes. */
+    val centered: Boolean get() = false
 }
 
 object RunElement : HudElement {
@@ -76,6 +79,7 @@ object SparklingElement : HudElement {
     override val pos get() = Config.s.sparklingPanel
     override val defaultPos get() = Settings.DEFAULT_SPARKLING
     override fun visible() = Config.s.sparklingFinder && SparklingFinder.sparks.isNotEmpty()
+    override val centered get() = true
 
     private const val TITLE_SCALE = 2.2f
     private const val NAME_SCALE = 1.6f
@@ -116,24 +120,21 @@ object SparklingElement : HudElement {
     }
 }
 
-/** Warp check and announcement boxes, stacked. */
-object NotificationsElement : HudElement {
-    override val name = "Notifications"
-    override val pos get() = Config.s.notifications
-    override val defaultPos get() = Settings.DEFAULT_NOTIFICATIONS
-    override fun visible() = Toasts.active().isNotEmpty()
+/** Stacked notification boxes of one kind, centered on the panel's center. */
+abstract class ToastElement(private val kind: Toasts.Kind, private val sample: String) : HudElement {
+    override fun visible() = Toasts.active(kind).isNotEmpty()
+    override val centered get() = true
 
-    private const val SCALE = 2f
-    private const val PAD_X = 16
-    private const val PAD_Y = 8
-    private const val GAP = 6
+    private val SCALE = 2f
+    private val PAD_X = 16
+    private val PAD_Y = 8
+    private val GAP = 6
 
     override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
         val now = System.currentTimeMillis()
         val items = if (preview && !visible())
-            listOf(Toasts.Toast("4/4 Players in Safari", 0xFF55FF55.toInt(), Long.MAX_VALUE, 0),
-                   Toasts.Toast("Forest Done!", 0xFF55FF55.toInt(), Long.MAX_VALUE, 0))
-        else Toasts.active()
+            listOf(Toasts.Toast(sample, 0xFF55FF55.toInt(), Long.MAX_VALUE, 0, kind))
+        else Toasts.active(kind)
         if (items.isEmpty()) return Panels.Size(0, 0)
         val lineH = (font.lineHeight * SCALE).toInt()
         val boxH = lineH + PAD_Y * 2
@@ -162,8 +163,22 @@ object NotificationsElement : HudElement {
     }
 }
 
+/** 4/4 Players in Safari / Someone missing! */
+object WarpElement : ToastElement(Toasts.Kind.WARP, "4/4 Players in Safari") {
+    override val name = "Warp check panel"
+    override val pos get() = Config.s.warpPanel
+    override val defaultPos get() = Settings.DEFAULT_WARP
+}
+
+/** Forest Done!, Everything Done!, Hotspot: Haunted ... */
+object AnnounceElement : ToastElement(Toasts.Kind.ANNOUNCE, "Forest Done!") {
+    override val name = "Biome announce panel"
+    override val pos get() = Config.s.announcePanel
+    override val defaultPos get() = Settings.DEFAULT_ANNOUNCE
+}
+
 object Hud {
-    val elements: List<HudElement> = listOf(RunElement, BiomeElement, SparklingElement, NotificationsElement)
+    val elements: List<HudElement> = listOf(RunElement, BiomeElement, SparklingElement, WarpElement, AnnounceElement)
 
     fun init() {
         HudElementRegistry.attachElementBefore(
@@ -173,10 +188,15 @@ object Hud {
     }
 
     /** Scaled on-screen rectangle (x, y, w, h) of an element of unscaled size [size]. */
-    fun rect(pos: PanelPos, size: Panels.Size, width: Int, height: Int): IntArray {
+    fun rect(pos: PanelPos, size: Panels.Size, width: Int, height: Int, centered: Boolean = false): IntArray {
         val w = (size.w * pos.scale).toInt()
         val h = (size.h * pos.scale).toInt()
-        val x = if (pos.x < 0) (width - w) / 2 else (pos.x * width).toInt().coerceIn(0, (width - w).coerceAtLeast(0))
+        val maxX = (width - w).coerceAtLeast(0)
+        val x = when {
+            pos.x < 0 -> (width - w) / 2
+            centered -> (pos.x * width - w / 2f).toInt().coerceIn(0, maxX)
+            else -> (pos.x * width).toInt().coerceIn(0, maxX)
+        }
         val y = (pos.y * height).toInt().coerceIn(0, (height - h).coerceAtLeast(0))
         return intArrayOf(x, y, w, h)
     }
@@ -184,7 +204,7 @@ object Hud {
     /** Draws an element at its saved position and scale; returns its on-screen rectangle. */
     fun drawAt(g: GuiGraphicsExtractor, font: Font, e: HudElement, preview: Boolean, width: Int, height: Int): IntArray {
         val size = e.draw(null, font, preview)
-        val r = rect(e.pos, size, width, height)
+        val r = rect(e.pos, size, width, height, e.centered)
         if (size.w <= 0 || size.h <= 0) return r
         g.pose().pushMatrix()
         g.pose().translate(r[0].toFloat(), r[1].toFloat())

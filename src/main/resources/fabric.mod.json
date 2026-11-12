@@ -11,6 +11,9 @@
   "entrypoints": {
     "client": [
       { "value": "safaripatron.SafariPatron", "adapter": "kotlin" }
+    ],
+    "modmenu": [
+      { "value": "safaripatron.compat.ModMenuIntegration", "adapter": "kotlin" }
     ]
   },
   "mixins": ["safari-patron.mixins.json"],
@@ -20,5 +23,8 @@
     "java": ">=25",
     "fabric-api": "*",
     "fabric-language-kotlin": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
   }
 }

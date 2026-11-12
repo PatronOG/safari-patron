@@ -3,6 +3,7 @@ package safaripatron.safari
 import net.minecraft.client.Minecraft
 import net.minecraft.world.phys.Vec3
 import safaripatron.data.Biome
+import safaripatron.hud.Toasts
 import safaripatron.config.Config
 import safaripatron.data.AreaMap
 import safaripatron.party.Party
@@ -121,7 +122,13 @@ object Safari {
             is ChatParser.Hotspot -> {
                 val name = event.biome.lowercase().replaceFirstChar { it.uppercase() }
                 // Once per run, even if the message shows up twice
-                if (Config.s.hotspotAnnounce && Run.markHotspotAnnounced()) Party.chat("[✦Safari Patron✦] Hotspot: $name")
+                if ((Config.s.hotspotAnnounce || Config.s.hotspotScreen) && Run.markHotspotAnnounced()) {
+                    if (Config.s.hotspotAnnounce) Party.chat("[✦Safari Patron✦] Hotspot: $name")
+                    if (Config.s.hotspotScreen) {
+                        val color = Biome.entries.firstOrNull { it.label.equals(name, true) }?.color ?: 0xFFFFAA00.toInt()
+                        Toasts.show(Toasts.Kind.ANNOUNCE, "Hotspot: $name", color, 4000)
+                    }
+                }
             }
             ChatParser.RewardSummary -> {
                 Run.end()

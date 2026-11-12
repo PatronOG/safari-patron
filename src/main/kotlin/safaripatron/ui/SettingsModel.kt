@@ -12,6 +12,9 @@ object SettingsModel {
     class Action(name: String, desc: String, val label: String, val run: () -> Unit) : Item(name, desc)
     class Prefix(val style: Brand.Style) : Item(style.id, "Chat prefix style")
     class Info(name: String, desc: String) : Item(name, desc)
+    /** Dropdown where several options can be picked at once. */
+    class Multi(name: String, desc: String, val options: List<Option>) : Item(name, desc)
+    class Option(val label: String, val get: () -> Boolean, val set: (Boolean) -> Unit)
 
     class Category(
         val id: String,
@@ -29,11 +32,15 @@ object SettingsModel {
     private fun toggle(name: String, desc: String, get: () -> Boolean, set: (Boolean) -> Unit) =
         Toggle(name, desc, get) { set(it); Config.save() }
 
+    private fun option(label: String, get: () -> Boolean, set: (Boolean) -> Unit) =
+        Option(label, get) { set(it); Config.save() }
+
     val categories: List<Category> = listOf(
         Category("sparkling", "Sparkling", "✦", 0xFFFFB627.toInt(), "Finder, panel, sharing", { s.sparklingFinder }) {
             listOf(
                 toggle("Sparkling finder", "Alert, box and waypoint when one appears", { s.sparklingFinder }) { s.sparklingFinder = it },
                 toggle("Sound", "Ding when a sparkling is found", { s.sparklingSound }) { s.sparklingSound = it },
+                toggle("Auto share to party", "Instantly sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
                 Action("Clear panel", "Remove all tracked sparklings now", "Clear") { SparklingFinder.clear() },
             )
         },
@@ -47,12 +54,17 @@ object SettingsModel {
             )
         },
         Category("party", "Party", "⚑", 0xFFC9A0F0.toInt(), "Warp check, hotspot",
-            { s.warpCheck || s.hotspotAnnounce || s.biomeAnnouncements }) {
+            { s.warpCheck || s.hotspotAnnounce || s.biomeAnnouncements || s.warpScreen || s.hotspotScreen || s.biomeScreen }) {
             listOf(
+                Info("Party chat", "Sent to your party"),
                 toggle("Warp check", "4/4 Players in Safari.", { s.warpCheck }) { s.warpCheck = it },
                 toggle("Hotspot sharing", "Hotspot: Haunted", { s.hotspotAnnounce }) { s.hotspotAnnounce = it },
                 toggle("Biome announcements", "Forest Done! and more", { s.biomeAnnouncements }) { s.biomeAnnouncements = it },
-                toggle("Show on screen", "Also show announcements on screen", { s.screenAnnouncements }) { s.screenAnnouncements = it },
+                Multi("Show on screen", "Only you see these", listOf(
+                    option("Warp check", { s.warpScreen }) { s.warpScreen = it },
+                    option("Hotspot", { s.hotspotScreen }) { s.hotspotScreen = it },
+                    option("Biome announcements", { s.biomeScreen }) { s.biomeScreen = it },
+                )),
             )
         },
         Category("capsule", "Capsule Helper", "➶", 0xFF85B7EB.toInt(), "Path and hit indicator", { s.capsuleTrajectory }) {
@@ -68,7 +80,8 @@ object SettingsModel {
                 Action("Move panels", "Drag, scroll to resize, right click to reset", "Open") { MenuNav.openHud() },
                 Action("Reset all panels", "Put every panel back to its default place", "Reset") {
                     s.runPanel.set(Settings.DEFAULT_RUN); s.biomePanel.set(Settings.DEFAULT_BIOME)
-                    s.sparklingPanel.set(Settings.DEFAULT_SPARKLING); s.notifications.set(Settings.DEFAULT_NOTIFICATIONS)
+                    s.sparklingPanel.set(Settings.DEFAULT_SPARKLING)
+                    s.warpPanel.set(Settings.DEFAULT_WARP); s.announcePanel.set(Settings.DEFAULT_ANNOUNCE)
                     Config.save()
                 },
             )

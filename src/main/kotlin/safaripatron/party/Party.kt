@@ -105,7 +105,7 @@ object Party {
 
     /** true = kontrol bitti (duyuru yapıldı ya da gerek yok). */
     private fun warpCheck(client: Minecraft, deadline: Boolean): Boolean {
-        if (!Config.s.warpCheck) return true
+        if (!Config.s.warpCheck && !Config.s.warpScreen) return true
         if (!known) {
             if (deadline) return true
             request()
@@ -121,13 +121,13 @@ object Party {
         val total = members.size
         val here = members.count { it in present }
         if (here >= total) {
-            chat("[✦Safari Patron✦] $here/$total Players in Safari.")
-            Toasts.show("$here/$total Players in Safari", 0xFF55FF55.toInt(), 3000)
+            if (Config.s.warpCheck) chat("[✦Safari Patron✦] $here/$total Players in Safari.")
+            if (Config.s.warpScreen) Toasts.show(Toasts.Kind.WARP, "$here/$total Players in Safari", 0xFF55FF55.toInt(), 3000)
             return true
         }
         if (!deadline) return false
-        chat("[✦Safari Patron✦] Someone missing!")
-        Toasts.show("Someone missing! ($here/$total)", 0xFFFF5555.toInt(), 6000)
+        if (Config.s.warpCheck) chat("[✦Safari Patron✦] Someone missing!")
+        if (Config.s.warpScreen) Toasts.show(Toasts.Kind.WARP, "Someone missing! ($here/$total)", 0xFFFF5555.toInt(), 6000)
         return true
     }
 }

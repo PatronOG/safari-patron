@@ -10,16 +10,26 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Missing Critters Hud:** Shows the remaining uncaptured unique critters in the biome.
 - **Sparkling HUD:** When a Sparkling Critter is spotted, it appears on the screen. It remains there until it is caught.
 - **Alert HUD:** It alerts you as to whether all players have warped into the area or someone missing.
-- **Done HUD:** Biome completion alerts. Includes per biome or every area. (with and without Macaw) On-screen “Done” alerts are off by default.
+- **Done HUD:** Biome completion alerts. Includes per biome or every area. (with and without Macaw)
+- **Sparklings HUD:** Shows which sparklings you have caught in your current biome. Can list only the missing ones.
+- **Total Sparklings HUD:** All 37 sparklings in four columns, shown in the middle area between the biomes.
+- **Contest HUD:** Miria's Contest time left, bracket, score and ticket status. 
 
 ### ✦ Sparkling Finder
 - **Sparkling ESP:** Spots Sparkling critters and boxes.
 - **Sparkling Waypoint:** Marks the critter with a box in the world when seen. Waypoint disappears after catching.
 - **Sparkling Share:** One-click buttons to share its location in party or all chat.
 - **Auto Share:** Optionally sends every Sparkling straight to party chat.
+- **Critterdex Sync:** Opening the Sparkling Critterdex in game updates your sparklings list automatically.
 
 ### ➶ Capsule Helper
 - Shows where your capsule will fly and whether it will hit a critter.
+
+### ✪ Miria's Contest
+- **Contest Tracker:** Time left, bracket and score, read from the scoreboard.
+- **Ticket Message:** Sends `r` (or your own text) to party chat when your Basic or First-Class ticket is earned.
+- **Start Message:** Sends `!dt contest` (or your own text) to party chat when a new contest starts.
+- **Incomplete Warnings:** Title and sound at 5, 3 and 1 minute left if your ticket isn't done.
 
 ### ⚑ Party Messages
 - **Warp Check:** Sends if someone missing or not in party chat.
@@ -37,7 +47,8 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 ### ✨ Quality of Life
 - **HUD Editor:** /sp hud lets you drag and resize every panel, with center guides that snap.
 - **Menu:** `/sp` opens every setting in one place, with search
-- **Hideyho:** Click anywhere in screen to pick `[Sure]`
+- **Hideyho:** With chat open, click anywhere in it to pick `[Sure]`
+- **Update Checker:** Tells you in chat when a new version is out. Can be turned off on the main menu.
 
 ## Installing
 
@@ -66,6 +77,7 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 | `/sp esp biome` | Only show ESP in your current biome |
 | `/sp floor` | Toggle floor drop ESP |
 | `/sp capsule` | Toggle the Capsule Helper |
+| `/sp contest` | Toggle the Miria's Contest tracker |
 | `/sp warp` | Toggle the warp check in party chat |
 | `/sp hotspot` | Toggle Hotspot sharing in party chat |
 | `/sp announce` | Toggle biome announcements in party chat |
@@ -77,6 +89,7 @@ Every toggle is also available in the `/sp` menu.
 
 ## License
 
-Safari Patron is released under the [MIT License](LICENSE).
+Safari Patron is licensed under the [Apache License 2.0](LICENSE). If you use or redistribute it, keep the [NOTICE](NOTICE) file.
+Versions up to 1.0.1 were released under the MIT License.
 
 Some parts are based on code and data from other open-source projects, which keep their own licenses. See the [`licenses`](licenses) folder for details.

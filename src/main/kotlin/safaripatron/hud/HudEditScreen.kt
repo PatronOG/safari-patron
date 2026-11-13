@@ -26,6 +26,7 @@ class HudEditScreen(private val parent: Screen? = null) : Screen(Component.liter
 
     override fun extractRenderState(g: GuiGraphicsExtractor, mx: Int, my: Int, delta: Float) {
         super.extractRenderState(g, mx, my, delta)
+        Hud.ensureLayout()
         g.fill(0, 0, width, height, 0x50000000)
 
         // Center guides: faint normally, green while a dragged panel is snapped to them
@@ -83,7 +84,7 @@ class HudEditScreen(private val parent: Screen? = null) : Screen(Component.liter
                 return true
             }
             if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT) {
-                e.pos.set(e.defaultPos)
+                e.pos.set(Hud.defaultPos(e))
                 Config.save()
                 return true
             }

@@ -34,6 +34,7 @@ object SafariPatron : ClientModInitializer {
         HideyhoClick.init()
         Commands.init()
         UpdateChecker.init()
+        safaripatron.profit.Profit.init()
 
         ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> Contest.reset() }
 

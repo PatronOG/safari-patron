@@ -12,6 +12,6 @@ import safaripatron.hud.Hud
 abstract class ContainerScrollMixin {
     @Inject(method = ["mouseScrolled"], at = [At("HEAD")], cancellable = true)
     private fun safaripatronScroll(mouseX: Double, mouseY: Double, scrollX: Double, scrollY: Double, cir: CallbackInfoReturnable<Boolean>) {
-        if (Hud.scrollTotalPanelAt(mouseX, mouseY, scrollY, "inventory")) cir.returnValue = true
+        if (Hud.scrollTotalPanelAt(mouseX, mouseY, scrollY)) cir.returnValue = true
     }
 }

@@ -13,7 +13,8 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Done HUD:** Biome completion alerts. Includes per biome or every area. (with and without Macaw)
 - **Sparklings HUD:** Shows which sparklings you have caught in your current biome. Can list only the missing ones.
 - **Total Sparklings HUD:** All 37 sparklings in four columns, shown in the middle area between the biomes.
-- **Contest HUD:** Miria's Contest time left, bracket, score and ticket status. 
+- **Contest HUD:** Miria's Contest time left, bracket, score and ticket status.
+- **Completion Times:** Biome announcements show your time and personal best, e.g. `Forest Done! Completed in 2:31 (PB 2:20 by IGN)`.
 
 ### ✦ Sparkling Finder
 - **Sparkling ESP:** Spots Sparkling critters and boxes.
@@ -21,15 +22,24 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Sparkling Share:** One-click buttons to share its location in party or all chat.
 - **Auto Share:** Optionally sends every Sparkling straight to party chat.
 - **Critterdex Sync:** Opening the Sparkling Critterdex in game updates your sparklings list automatically.
+- **Last Sparkling:** When a Sparkling is caught, tells you how many runs and how long ago the previous one was.
 
 ### ➶ Capsule Helper
 - Shows where your capsule will fly and whether it will hit a critter.
 
 ### ✪ Miria's Contest
 - **Contest Tracker:** Time left, bracket and score, read from the scoreboard.
-- **Ticket Message:** Sends `r` (or your own text) to party chat when your Basic or First-Class ticket is earned.
-- **Start Message:** Sends `!dt contest` (or your own text) to party chat when a new contest starts.
-- **Incomplete Warnings:** Title and sound at 5, 3 and 1 minute left if your ticket isn't done.
+- **Ticket Message:** Sends `Ticket earned.`, `r` or your own text to party chat when your Basic or First-Class ticket is earned.
+- **Start Message:** Sends `New Miria's Contest started.`, `!dt contest` or your own text to party chat when a new contest starts.
+- **Incomplete Warnings:** Title and sound if your ticket isn't done. 5 minutes left by default, 3 and 1 minute can be turned on too.
+
+### ♦ Profit Tracker
+- **Session Profit:** Shard, Safari Essence and Rainbow Feather profits, total, run count, average run time and profit per hour.
+- **Session Clock:** Starts when the Safari Manager takes your ticket and pauses when you're away from the Safari.
+- **Total Profit Tracker:** All-time profit item by item, in rarity colors, with total runs and total profit. Shows at the Critter Safari Entrance by default, or everywhere outside the Safari. Never inside the Safari.
+- **Scroll Support:** Shows 10 items at a time; scroll with your mouse wheel over the panel while an inventory is open.
+- **Bazaar Prices:** Choose Instant Sell or Sell Offer prices. Warns you when prices can't be loaded instead of showing 0.
+- **Safe Data:** Profit data is saved separately and is kept between updates.
 
 ### ⚑ Party Messages
 - **Warp Check:** Sends if someone missing or not in party chat.
@@ -43,6 +53,7 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Floor Drop ESP:** Marks floor drop spots.
 - **Bee Nest ESP:** Honeybug nests in Forest.
 - **Snoozle Walls:** Breakable walls in Cavern.
+- **Clear Water:** See through the water in the Safari, with adjustable opacity.
 
 ### ✨ Quality of Life
 - **HUD Editor:** /sp hud lets you drag and resize every panel, with center guides that snap.
@@ -78,6 +89,9 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 | `/sp floor` | Toggle floor drop ESP |
 | `/sp capsule` | Toggle the Capsule Helper |
 | `/sp contest` | Toggle the Miria's Contest tracker |
+| `/sp sessionprofit` | Show your session profit in chat (click to copy) |
+| `/sp totalprofit` | Show your all-time Safari profit in chat (click to copy) |
+| `/sp resetsession` | Start a new profit session |
 | `/sp warp` | Toggle the warp check in party chat |
 | `/sp hotspot` | Toggle Hotspot sharing in party chat |
 | `/sp announce` | Toggle biome announcements in party chat |
@@ -89,7 +103,6 @@ Every toggle is also available in the `/sp` menu.
 
 ## License
 
-Safari Patron is licensed under the [Apache License 2.0](LICENSE). If you use or redistribute it, keep the [NOTICE](NOTICE) file.
-Versions up to 1.0.1 were released under the MIT License.
+Safari Patron is released under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
 
 Some parts are based on code and data from other open-source projects, which keep their own licenses. See the [`licenses`](licenses) folder for details.

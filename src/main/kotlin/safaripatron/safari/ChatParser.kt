@@ -27,7 +27,7 @@ object ChatParser {
 
     /** Kalıp tutmazsa yedek: satırda geçen bilinen bir critter adını bul (uzun isimler önce). */
     private val namesLongestFirst = Critters.all.map { it.name }.sortedByDescending { it.length }
-    private fun findCritter(text: String): String? = namesLongestFirst.firstOrNull { text.contains(it, ignoreCase = true) }
+    fun findCritter(text: String): String? = namesLongestFirst.firstOrNull { text.contains(it, ignoreCase = true) }
     private val lootFrom = Regex("""\bfrom $RANK$IGN\b""")
 
     // [MVP+] PatronOG entered Critter Safari!

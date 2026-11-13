@@ -19,6 +19,8 @@ class ProfitData {
     var sessionStart = 0L
     var lastActive = 0L
     var sessionRuns = 0
+    /** Summed length of the session's finished runs (for the average run time). */
+    var sessionRunMs = 0L
     var sessionItems: MutableMap<String, Long> = LinkedHashMap()
     var totalRuns = 0
     var totalItems: MutableMap<String, Long> = LinkedHashMap()
@@ -90,6 +92,8 @@ class Settings {
     // Profit tracker
     var profitTracker = true
     var profitHud = true
+    /** Item-by-item all-time panel, shown in SkyBlock outside the Safari. */
+    var totalProfitHud = true
     /** false = Instant Sell price, true = Sell Offer price. */
     var profitSellOffer = false
     var profit = ProfitData()
@@ -119,6 +123,7 @@ class Settings {
     var contestPanel = PanelPos(0.01f, 0.05f)
     var totalPanel = PanelPos(-1f, 0.10f)
     var profitPanel = PanelPos(0.83f, 0.05f)
+    var totalProfitPanel = PanelPos(0.83f, 0.05f)
 
     /** 1 = centered panels store their center x (not their left edge). */
     var hudVersion = 0
@@ -133,6 +138,7 @@ class Settings {
         val DEFAULT_CONTEST = PanelPos(0.01f, 0.05f)
         val DEFAULT_TOTAL = PanelPos(-1f, 0.10f)
         val DEFAULT_PROFIT = PanelPos(0.83f, 0.05f)
+        val DEFAULT_TOTAL_PROFIT = PanelPos(0.83f, 0.05f)
     }
 }
 
@@ -155,6 +161,7 @@ object Config {
             if (s.contestPanel == null) s.contestPanel = Settings.DEFAULT_CONTEST.copy()
             if (s.totalPanel == null) s.totalPanel = Settings.DEFAULT_TOTAL.copy()
             if (s.profitPanel == null) s.profitPanel = Settings.DEFAULT_PROFIT.copy()
+            if (s.totalProfitPanel == null) s.totalProfitPanel = Settings.DEFAULT_TOTAL_PROFIT.copy()
             if (s.profit == null) s.profit = ProfitData()
             if (s.profit.sessionItems == null) s.profit.sessionItems = LinkedHashMap()
             if (s.profit.totalItems == null) s.profit.totalItems = LinkedHashMap()
@@ -168,7 +175,7 @@ object Config {
             if (s.contestTicketChoice == null) s.contestTicketChoice = "r"
             if (s.contestTicketCustom == null) s.contestTicketCustom = ""
         }
-        for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel)) {
+        for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel, s.totalProfitPanel)) {
             if (p.scale !in 0.5f..2f) p.scale = 1f
         }
         // 1.0.1: the sparkling panel is now anchored by its center; a moved one goes back to default once

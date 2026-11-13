@@ -35,6 +35,8 @@ object Commands {
         "§e/sp capsule §7— toggle Capsule Helper",
         "§e/sp contest §7— toggle the Miria's Contest tracker",
         "§e/sp resetsession §7— reset your session profit",
+        "§e/sp sessionprofit §7— show your session profit in chat",
+        "§e/sp totalprofit §7— show your total Safari profit in chat",
         "§e/sp sparkling §7— toggle sparkling finder",
         "§e/sp sparkling sound §7— toggle sparkling sound",
         "§e/sp sparkling clear §7— clear the sparkling panel",
@@ -75,6 +77,12 @@ object Commands {
                     .then(ClientCommands.literal("hud").executes { MenuNav.open(HudEditScreen()); 1 })
                     .then(toggle("capsule", "Capsule Helper", { s().capsuleTrajectory }, { s().capsuleTrajectory = it }))
                     .then(toggle("contest", "Miria's Contest", { s().contest }, { s().contest = it }))
+                    .then(ClientCommands.literal("sessionprofit").executes {
+                        it.source.sendFeedback(copyable(safaripatron.profit.Profit.sessionLine())); 1
+                    })
+                    .then(ClientCommands.literal("totalprofit").executes {
+                        it.source.sendFeedback(copyable(safaripatron.profit.Profit.totalLine())); 1
+                    })
                     .then(ClientCommands.literal("resetsession").executes {
                         safaripatron.profit.Profit.newSession()
                         it.source.sendFeedback(msg("Session profit reset."))
@@ -122,6 +130,15 @@ object Commands {
                         1
                     })
             )
+        }
+    }
+
+    /** Prefixed line; clicking it copies the text (prefix included) to the clipboard. */
+    private fun copyable(text: String): net.minecraft.network.chat.MutableComponent {
+        val plain = "[✦Safari Patron✦] " + text.replace(Regex("§."), "")
+        return Brand.msg(text).withStyle {
+            it.withClickEvent(net.minecraft.network.chat.ClickEvent.CopyToClipboard(plain))
+                .withHoverEvent(net.minecraft.network.chat.HoverEvent.ShowText(net.minecraft.network.chat.Component.literal("Click to copy")))
         }
     }
 }

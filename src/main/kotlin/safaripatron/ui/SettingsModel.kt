@@ -160,6 +160,8 @@ object SettingsModel {
                 Info("/sp capsule", "Toggle Capsule Helper"),
                 Info("/sp contest", "Toggle Miria's Contest tracker"),
                 Info("/sp resetsession", "Reset your session profit"),
+                Info("/sp sessionprofit", "Session profit in chat"),
+                Info("/sp totalprofit", "Total Safari profit in chat"),
                 Info("/sp sparkling", "Toggle sparkling finder"),
                 Info("/sp esp", "Toggle critter ESP"),
                 Info("/sp warp", "Toggle warp check"),

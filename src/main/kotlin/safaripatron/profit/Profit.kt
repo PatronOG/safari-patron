@@ -11,11 +11,10 @@ import safaripatron.safari.ChatParser
  *
  * Items are stored, not coins, so the values follow the current Bazaar price.
  * The session starts when the Safari Manager takes your ticket ("I already saw your ticket..."), i.e. when a run
- * really starts. Its clock pauses after 1 minute outside the Safari and resumes on the next run;
- * after 30 minutes away the next run starts a new session ("New session" resets it by hand).
+ * really starts. Its clock pauses after 30 seconds outside the Safari and resumes on the next run.
+ * Only "New session" (Reset) starts a new one.
  */
 object Profit {
-    private const val SESSION_GAP_MS = 30 * 60 * 1000L
     private const val SUMMARY = "SAFARI REWARD SUMMARY"
 
     private val shardRe = Regex("""(?:(\d+)x |\ban? )([A-Z][A-Za-z' ]*?) Shard\b""")
@@ -23,7 +22,7 @@ object Profit {
     private val essenceRe = Regex("""^\+([0-9,]+) Safari Essence$""")
     private const val MACAW_BONUS = "MACAW! You found a bonus Rainbow Feather!"
     private val ticketRe = Regex("^\\[NPC] Safari Manager: .*\\bticket\\b.*free to go")
-    private const val PAUSE_AFTER_MS = 60_000L
+    private const val PAUSE_AFTER_MS = 30_000L
 
     /** Items of the run in progress (not saved; a restart mid-run loses only this run's part). */
     val run = LinkedHashMap<String, Long>()
@@ -75,7 +74,7 @@ object Profit {
     fun onRunStart() {
         if (!Config.s.profitTracker) return
         val now = System.currentTimeMillis()
-        if (d.sessionStart == 0L || now - d.lastActive > SESSION_GAP_MS) newSession(save = false)
+        if (d.sessionStart == 0L) newSession(save = false)
         runStartAt = now
         d.lastActive = now
         Bazaar.ensureFresh()
@@ -173,18 +172,32 @@ object Profit {
     val sessionMs get() = d.sessionActiveMs + (if (awayMs <= PAUSE_AFTER_MS) awayMs else 0L)
     val perHour get() = sessionMs.takeIf { it >= 60_000 }?.let { sessionValue / (it / 3_600_000.0) } ?: 0.0
 
+    /** Always one decimal: 12.3M, 900.0k */
     fun coins(v: Double): String = when {
-        v >= 1e9 -> "%.2fB".format(v / 1e9)
-        v >= 1e6 -> "%.2fM".format(v / 1e6)
+        v >= 1e9 -> "%.1fB".format(v / 1e9)
+        v >= 1e6 -> "%.1fM".format(v / 1e6)
         v >= 1e3 -> "%.1fk".format(v / 1e3)
         else -> "%.0f".format(v)
+    }
+
+    /** Legacy color code of an item's rarity (shards follow their critter). */
+    fun itemColor(id: String): String = when (id) {
+        Bazaar.FEATHER -> "§d"
+        Bazaar.ESSENCE -> "§d"
+        else -> when (Critters.all.firstOrNull { Bazaar.shardId(it.name) == id }?.rarity) {
+            safaripatron.data.Rarity.UNCOMMON -> "§a"
+            safaripatron.data.Rarity.RARE -> "§9"
+            safaripatron.data.Rarity.EPIC -> "§5"
+            safaripatron.data.Rarity.LEGENDARY -> "§6"
+            else -> "§f"
+        }
     }
 
     /** 12.3M — one decimal, for numbers that change often */
     fun coinsShort(v: Double): String = when {
         v >= 1e9 -> "%.1fB".format(v / 1e9)
         v >= 1e6 -> "%.1fM".format(v / 1e6)
-        v >= 1e3 -> "%.0fk".format(v / 1e3)
+        v >= 1e3 -> "%.1fk".format(v / 1e3)
         else -> "%.0f".format(v)
     }
 

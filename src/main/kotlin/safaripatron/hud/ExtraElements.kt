@@ -123,9 +123,9 @@ object TotalElement : HudElement {
     }
 }
 
-/** Session profit: current run, session, per run, per hour and total. */
+/** Session profit, shown in the Safari. */
 object ProfitElement : HudElement {
-    override val name = "Profit panel"
+    override val name = "Session profit panel"
     override val pos get() = Config.s.profitPanel
     override val defaultPos get() = Settings.DEFAULT_PROFIT
     override fun visible() = Config.s.profitTracker && Config.s.profitHud && Safari.inSafari
@@ -134,18 +134,51 @@ object ProfitElement : HudElement {
         val p = safaripatron.profit.Profit
         val d = Config.s.profit
         val sample = preview && !visible()
-        val c = p::coins
-        val rows = if (sample) listOf(
-            "Run: 1.24M" to WHITE, "Session: 9.81M (6 runs)" to WHITE, "Per run: 1.43M" to WHITE,
-            "Time: 1h 12m · 8.18M/h" to WHITE, "Total: 154.20M" to GOLD,
-        ) else listOf(
-            "Run: ${c(p.runValue)}" to WHITE,
-            "Session: ${c(p.sessionValue)} (${d.sessionRuns} run${if (d.sessionRuns == 1) "" else "s"})" to WHITE,
-            "Per run: ${c(p.perRun)}" to WHITE,
-            "Time: ${p.duration(p.sessionMs)} · ${c(p.perHour)}/h" to WHITE,
-            "Total: ${c(p.totalValue)}" to GOLD,
-        )
-        val title = if (!sample && !safaripatron.profit.Bazaar.ready()) "Profit · loading prices…" else "Profit"
-        return drawBox(g, font, title, GREEN, rows)
+        val rows: List<Pair<String, Int>>
+        val title: String
+        if (sample) {
+            title = "Session Profit · 4:12"
+            rows = listOf("Shard Profits: 6.12M" to WHITE, "Essence Profits: 2.40M" to WHITE, "Rainbow Feather: 0.66M" to WHITE,
+                "Total: 9.18M (3 runs)" to GOLD, "Profit Per Hour: 94.8M/h" to GREEN)
+        } else {
+            val items = p.sessionItems()
+            val shards = p.valueOf(items, safaripatron.profit.Profit.Kind.SHARD)
+            val essence = p.valueOf(items, safaripatron.profit.Profit.Kind.ESSENCE)
+            val feather = p.valueOf(items, safaripatron.profit.Profit.Kind.FEATHER)
+            val runs = d.sessionRuns
+            title = "Session Profit" + if (runs > 0) " · ${p.clock(p.avgRunMs)}" else ""
+            rows = listOf(
+                "Shard Profits: ${p.coins(shards)}" to WHITE,
+                "Essence Profits: ${p.coins(essence)}" to WHITE,
+                "Rainbow Feather: ${p.coins(feather)}" to WHITE,
+                "Total: ${p.coins(shards + essence + feather)} ($runs run${if (runs == 1) "" else "s"})" to GOLD,
+                "Profit Per Hour: ${p.coinsShort(p.perHour)}/h" to GREEN,
+            )
+        }
+        val shown = if (!sample && !safaripatron.profit.Bazaar.ready()) "$title · loading prices…" else title
+        return drawBox(g, font, shown, GREEN, rows)
+    }
+}
+
+/** All-time Safari profit item by item; shown in SkyBlock outside the Safari. */
+object TotalProfitElement : HudElement {
+    override val name = "Safari profit panel"
+    override val pos get() = Config.s.totalProfitPanel
+    override val defaultPos get() = Settings.DEFAULT_TOTAL_PROFIT
+    override fun visible() = Config.s.profitTracker && Config.s.totalProfitHud && !Safari.inSafari &&
+        Contest.inSkyblock(Minecraft.getInstance()) && Config.s.profit.totalItems.isNotEmpty()
+
+    override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
+        val p = safaripatron.profit.Profit
+        val sample = preview && !visible()
+        val items: List<Pair<String, Double>> = if (sample) listOf(
+            "64x Hideonwall Shard" to 2.1e6, "12x Rainbow Feather" to 1.3e6, "48,210x Safari Essence" to 0.9e6,
+        ) else p.totalItems().entries
+            .map { (id, n) -> "${"%,d".format(n)}x ${p.itemName(id)}" to p.itemValue(id, n) }
+            .sortedByDescending { it.second }
+        val total = items.sumOf { it.second }
+        val rows = items.map { (label, v) -> "$label §7${p.coins(v)}" to WHITE } +
+            listOf("Total Profit: ${p.coins(total)} coins" to GOLD)
+        return drawBox(g, font, "Safari Profit Tracker", GREEN, rows)
     }
 }

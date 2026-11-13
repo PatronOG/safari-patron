@@ -125,7 +125,8 @@ object SettingsModel {
         Category("profit", "Profit", "♦", 0xFF8FD16A.toInt(), "Session and total", { s.profitTracker }) {
             listOf(
                 toggle("Profit tracker", "Shards, Rainbow Feathers and Safari Essence", { s.profitTracker }) { s.profitTracker = it },
-                toggle("Profit panel", "Run, session, per run and total (move it with /sp hud)", { s.profitHud }) { s.profitHud = it },
+                toggle("Session profit panel", "In the Safari (move it with /sp hud)", { s.profitHud }) { s.profitHud = it },
+                toggle("Safari profit panel", "All-time, item by item, outside the Safari", { s.totalProfitHud }) { s.totalProfitHud = it },
                 choice("Price", "Bazaar price used for values", listOf("instant", "offer"),
                     { if (it == "offer") "Sell Offer" else "Instant Sell" },
                     { if (s.profitSellOffer) "offer" else "instant" }) { s.profitSellOffer = it == "offer" },
@@ -146,7 +147,7 @@ object SettingsModel {
                     s.sparklingPanel.set(Settings.DEFAULT_SPARKLING)
                     s.warpPanel.set(Settings.DEFAULT_WARP); s.announcePanel.set(Settings.DEFAULT_ANNOUNCE)
                     s.collectionPanel.set(Settings.DEFAULT_COLLECTION); s.contestPanel.set(Settings.DEFAULT_CONTEST)
-                    s.totalPanel.set(Settings.DEFAULT_TOTAL); s.profitPanel.set(Settings.DEFAULT_PROFIT)
+                    s.totalPanel.set(Settings.DEFAULT_TOTAL); s.profitPanel.set(Settings.DEFAULT_PROFIT); s.totalProfitPanel.set(Settings.DEFAULT_TOTAL_PROFIT)
                     Config.save()
                 },
             )

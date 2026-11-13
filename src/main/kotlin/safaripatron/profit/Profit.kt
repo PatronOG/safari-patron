@@ -10,7 +10,7 @@ import safaripatron.safari.ChatParser
  * from each SAFARI REWARD SUMMARY, valued at Bazaar prices.
  *
  * Items are stored, not coins, so the values follow the current Bazaar price.
- * A session starts on the first Safari entry and a new one begins after 30 minutes away (or with "New session").
+ * A session starts when a run starts; a new one begins after 30 minutes away (or with "New session").
  */
 object Profit {
     private const val SESSION_GAP_MS = 30 * 60 * 1000L
@@ -24,6 +24,7 @@ object Profit {
     /** Items of the run in progress (not saved; a restart mid-run loses only this run's part). */
     val run = LinkedHashMap<String, Long>()
     private var finishAt = 0L
+    private var runStartAt = 0L
     private var lastSave = 0L
 
     private val d get() = Config.s.profit
@@ -61,12 +62,21 @@ object Profit {
 
     // ---------- run / session ----------
 
+    /** A Safari run started: the session (and its clock) starts here, not at the first catch. */
+    fun onRunStart() {
+        if (!Config.s.profitTracker) return
+        val now = System.currentTimeMillis()
+        if (d.sessionStart == 0L || now - d.lastActive > SESSION_GAP_MS) newSession(save = false)
+        runStartAt = now
+        d.lastActive = now
+        Bazaar.ensureFresh()
+    }
+
     fun tick(client: Minecraft, inSafari: Boolean) {
         if (!Config.s.profitTracker) return
         val now = System.currentTimeMillis()
         if (finishAt in 1..now) { finishAt = 0; finishRun() }
-        if (!inSafari || client.player == null) return
-        if (d.sessionStart == 0L || now - d.lastActive > SESSION_GAP_MS) newSession(save = false)
+        if (!inSafari || client.player == null || d.sessionStart == 0L) return
         d.lastActive = now
         Bazaar.ensureFresh()
         if (now - lastSave > 60_000) { lastSave = now; Config.save() }
@@ -79,6 +89,8 @@ object Profit {
             d.totalItems.merge(id, n) { a, b -> a + b }
         }
         run.clear()
+        if (runStartAt > 0) d.sessionRunMs += System.currentTimeMillis() - runStartAt
+        runStartAt = 0
         d.sessionRuns++
         d.totalRuns++
         Config.save()
@@ -88,6 +100,7 @@ object Profit {
         d.sessionStart = System.currentTimeMillis()
         d.lastActive = d.sessionStart
         d.sessionRuns = 0
+        d.sessionRunMs = 0
         d.sessionItems.clear()
         if (save) Config.save()
     }
@@ -104,6 +117,36 @@ object Profit {
         return items.entries.sumOf { (id, n) -> n * Bazaar.price(id, offer) }
     }
 
+    enum class Kind { SHARD, ESSENCE, FEATHER }
+    fun kind(id: String) = when (id) { Bazaar.ESSENCE -> Kind.ESSENCE; Bazaar.FEATHER -> Kind.FEATHER; else -> Kind.SHARD }
+
+    /** Session items so far: finished runs plus the run in progress. */
+    fun sessionItems(): Map<String, Long> {
+        val all = LinkedHashMap(d.sessionItems)
+        for ((id, n) in run) all.merge(id, n) { a, b -> a + b }
+        return all
+    }
+
+    fun totalItems(): Map<String, Long> {
+        val all = LinkedHashMap(d.totalItems)
+        for ((id, n) in run) all.merge(id, n) { a, b -> a + b }
+        return all
+    }
+
+    fun valueOf(items: Map<String, Long>, kind: Kind) = value(items.filterKeys { kind(it) == kind })
+
+    fun itemValue(id: String, n: Long) = n * Bazaar.price(id, Config.s.profitSellOffer)
+
+    /** "Hideonwall Shard", "Rainbow Feather", "Safari Essence" */
+    fun itemName(id: String) = when (id) {
+        Bazaar.ESSENCE -> "Safari Essence"
+        Bazaar.FEATHER -> "Rainbow Feather"
+        else -> (Critters.all.firstOrNull { Bazaar.shardId(it.name) == id }?.name
+            ?: id.removePrefix("SHARD_").lowercase().split('_').joinToString(" ") { w -> w.replaceFirstChar { it.uppercase() } }) + " Shard"
+    }
+
+    val avgRunMs get() = if (d.sessionRuns > 0) d.sessionRunMs / d.sessionRuns else 0L
+
     val runValue get() = value(run)
     val finishedValue get() = value(d.sessionItems)
     val sessionValue get() = finishedValue + runValue
@@ -118,6 +161,17 @@ object Profit {
         v >= 1e3 -> "%.1fk".format(v / 1e3)
         else -> "%.0f".format(v)
     }
+
+    /** 12.3M — one decimal, for numbers that change often */
+    fun coinsShort(v: Double): String = when {
+        v >= 1e9 -> "%.1fB".format(v / 1e9)
+        v >= 1e6 -> "%.1fM".format(v / 1e6)
+        v >= 1e3 -> "%.0fk".format(v / 1e3)
+        else -> "%.0f".format(v)
+    }
+
+    /** 4:12 */
+    fun clock(ms: Long): String { val s = ms / 1000; return "%d:%02d".format(s / 60, s % 60) }
 
     fun duration(ms: Long): String {
         val m = ms / 60_000

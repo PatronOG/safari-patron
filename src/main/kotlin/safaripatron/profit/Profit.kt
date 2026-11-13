@@ -23,7 +23,16 @@ object Profit {
     private val featherRe = Regex("""(?:(\d+)x |\ban? )Rainbow Feather\b""")
     private val essenceRe = Regex("""^\+([0-9,]+) Safari Essence$""")
     private const val MACAW_BONUS = "MACAW! You found a bonus Rainbow Feather!"
-    private val ticketRe = Regex("^\\[NPC] Safari Manager: .*\\bticket\\b.*free to go")
+    private const val MANAGER = "[NPC] Safari Manager: "
+    /** What the Safari Manager says when he takes a ticket and the run starts (he has other lines too). */
+    private val TICKET_LINES = setOf(
+        "I already saw your ticket, so you're free to go.",
+        "Looks good to me. Have fun out there!",
+    )
+    /** Manager lines that are known and not a run start (no log noise for these). */
+    private val OTHER_MANAGER_LINES = setOf(
+        "Your friends will need to show me their tickets, though.",
+    )
     private const val PAUSE_AFTER_MS = 30_000L
 
     /** Items of the run in progress (not saved; a restart mid-run loses only this run's part). */
@@ -86,7 +95,7 @@ object Profit {
     private fun onLine(line: String) {
         if (line.isEmpty()) return
         when {
-            ticketRe.containsMatchIn(line) -> {
+            isTicket(line) -> {
                 val now = System.currentTimeMillis()
                 if (ticketAt > 0) log.info("New ticket before a reward summary: unfinished run not timed")
                 ticketAt = now
@@ -113,6 +122,16 @@ object Profit {
                 featherRe.find(line)?.let { add(Bazaar.FEATHER, it.groupValues[1].toLongOrNull() ?: 1) }
             }
         }
+    }
+
+    /** A run-start line of the Safari Manager; unknown Manager lines are logged so new ones can be added. */
+    private fun isTicket(line: String): Boolean {
+        if (!line.startsWith(MANAGER)) return false
+        // Same text whatever apostrophe the server uses
+        val text = line.removePrefix(MANAGER).trim().replace('\u2019', '\'')
+        if (text in TICKET_LINES) return true
+        if (text !in OTHER_MANAGER_LINES) log.info("Unknown Safari Manager line: {}", text)
+        return false
     }
 
     private fun add(id: String, count: Long) {

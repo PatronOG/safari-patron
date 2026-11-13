@@ -29,6 +29,7 @@ object SafariPatron : ClientModInitializer {
         Config.load()
         WorldRender.init()
         Hud.init()
+        Hud.initScroll()
         Party.init()
         Structures.init()
         HideyhoClick.init()

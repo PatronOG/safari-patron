@@ -172,6 +172,20 @@ object TotalProfitElement : HudElement {
         Contest.inSkyblock(Minecraft.getInstance()) && safaripatron.profit.Profit.data.totalItems.isNotEmpty()
     override val overScreens get() = true
 
+    /** At most this many item rows; the rest scroll with the mouse wheel while an inventory is open. */
+    const val MAX_ROWS = 10
+    var scroll = 0
+    private var itemCount = 0
+
+    /** Mouse wheel over the panel (inventory open): true if it scrolled. */
+    fun scrollBy(steps: Int): Boolean {
+        val max = (itemCount - MAX_ROWS).coerceAtLeast(0)
+        val next = (scroll + steps).coerceIn(0, max)
+        if (next == scroll) return max > 0
+        scroll = next
+        return true
+    }
+
     override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
         val p = safaripatron.profit.Profit
         val sample = preview && !visible()
@@ -182,9 +196,19 @@ object TotalProfitElement : HudElement {
         ) else p.totalItems().entries.map { (id, n) -> Triple(n, id, p.itemValue(id, n)) }.sortedByDescending { it.third }
         val total = items.sumOf { it.third }
         val runs = if (sample) 128 else safaripatron.profit.Profit.data.totalRuns
+        itemCount = items.size
+        scroll = scroll.coerceIn(0, (items.size - MAX_ROWS).coerceAtLeast(0))
+        val shown = items.drop(scroll).take(MAX_ROWS)
+        val above = scroll
+        val below = items.size - scroll - shown.size
         // §7 count (gray) · item in its rarity color · §6 coins (orange)
-        val rows = items.map { (n, id, v) -> "§7${"%,d".format(n)}x ${p.itemColor(id)}${p.itemName(id)} §6${p.coins(v)}" to WHITE } +
-            listOf("Total Runs: $runs" to GOLD, "Total Profit: ${p.coins(total)} coins" to GOLD)
+        val rows = buildList {
+            if (above > 0) add("▲ $above more" to GRAY)
+            shown.forEach { (n, id, v) -> add("§7${"%,d".format(n)}x ${p.itemColor(id)}${p.itemName(id)} §6${p.coins(v)}" to WHITE) }
+            if (below > 0) add("▼ $below more (scroll)" to GRAY)
+            add("Total Runs: $runs" to GOLD)
+            add("Total Profit: ${p.coins(total)} coins" to GOLD)
+        }
         return drawBox(g, font, "Total Profit Tracker", GREEN, rows)
     }
 }

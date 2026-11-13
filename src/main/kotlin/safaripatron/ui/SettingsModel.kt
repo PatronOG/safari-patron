@@ -53,6 +53,7 @@ object SettingsModel {
                 toggle("Sparkling finder", "Alert, box and waypoint when one appears", { s.sparklingFinder }) { s.sparklingFinder = it },
                 toggle("Sound", "Ding when a sparkling is found", { s.sparklingSound }) { s.sparklingSound = it },
                 toggle("Auto share to party", "Instantly sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
+                toggle("Last sparkling message", "Runs and time since the previous sparkling", { s.sparklingInterval }) { s.sparklingInterval = it },
                 toggle("Sparklings panel", "Sparklings caught in this biome, all time", { s.sparklingCollectionHud }) { s.sparklingCollectionHud = it },
                 toggle("Total sparklings panel", "All 37 in the middle area between the biomes", { s.sparklingTotalHud }) { s.sparklingTotalHud = it },
                 choice("Panel list", "What the sparklings panels list", listOf("all", "missing"),
@@ -81,6 +82,7 @@ object SettingsModel {
                 toggle("Warp check", "4/4 Players in Safari.", { s.warpCheck }) { s.warpCheck = it },
                 toggle("Hotspot sharing", "Hotspot: Haunted", { s.hotspotAnnounce }) { s.hotspotAnnounce = it },
                 toggle("Biome announcements", "Forest Done! and more", { s.biomeAnnouncements }) { s.biomeAnnouncements = it },
+                toggle("Completion times", "Completed in 2:31 (PB 2:05 by IGN)", { s.biomeTimes }) { s.biomeTimes = it },
                 Multi("Show on screen", "Only you see these", listOf(
                     option("Warp check", { s.warpScreen }) { s.warpScreen = it },
                     option("Hotspot", { s.hotspotScreen }) { s.hotspotScreen = it },
@@ -120,6 +122,19 @@ object SettingsModel {
                 add(toggle("Warning sound", "Bell sound", { s.contestWarnSound }) { s.contestWarnSound = it })
             }
         },
+        Category("profit", "Profit", "♦", 0xFF8FD16A.toInt(), "Session and total", { s.profitTracker }) {
+            listOf(
+                toggle("Profit tracker", "Shards, Rainbow Feathers and Safari Essence", { s.profitTracker }) { s.profitTracker = it },
+                toggle("Profit panel", "Run, session, per run and total (move it with /sp hud)", { s.profitHud }) { s.profitHud = it },
+                choice("Price", "Bazaar price used for values", listOf("instant", "offer"),
+                    { if (it == "offer") "Sell Offer" else "Instant Sell" },
+                    { if (s.profitSellOffer) "offer" else "instant" }) { s.profitSellOffer = it == "offer" },
+                Action("New session", "Start counting from zero (also after 30 min away)", "New") {
+                    safaripatron.profit.Profit.newSession()
+                },
+                Action("Reset total", "Forget all-time profit", "Reset") { safaripatron.profit.Profit.resetTotal() },
+            )
+        },
         Category("chat", "Chat prefix", "✎", 0xFF8FD16A.toInt(), "Gradient styles", null) {
             Brand.Style.entries.map { Prefix(it) }
         },
@@ -131,7 +146,7 @@ object SettingsModel {
                     s.sparklingPanel.set(Settings.DEFAULT_SPARKLING)
                     s.warpPanel.set(Settings.DEFAULT_WARP); s.announcePanel.set(Settings.DEFAULT_ANNOUNCE)
                     s.collectionPanel.set(Settings.DEFAULT_COLLECTION); s.contestPanel.set(Settings.DEFAULT_CONTEST)
-                    s.totalPanel.set(Settings.DEFAULT_TOTAL)
+                    s.totalPanel.set(Settings.DEFAULT_TOTAL); s.profitPanel.set(Settings.DEFAULT_PROFIT)
                     Config.save()
                 },
             )
@@ -143,6 +158,7 @@ object SettingsModel {
                 Info("/sp hud", "Move the panels"),
                 Info("/sp capsule", "Toggle Capsule Helper"),
                 Info("/sp contest", "Toggle Miria's Contest tracker"),
+                Info("/sp newsession", "Start a new profit session"),
                 Info("/sp sparkling", "Toggle sparkling finder"),
                 Info("/sp esp", "Toggle critter ESP"),
                 Info("/sp warp", "Toggle warp check"),
@@ -158,5 +174,5 @@ object SettingsModel {
     fun byId(id: String?) = categories.firstOrNull { it.id == id } ?: categories.first()
 
     /** Main menu cards (Panels is reached through its own card). */
-    val cardIds = listOf("sparkling", "esp", "party", "capsule", "contest", "chat")
+    val cardIds = listOf("sparkling", "esp", "party", "capsule", "contest", "profit")
 }

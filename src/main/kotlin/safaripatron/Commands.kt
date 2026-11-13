@@ -34,6 +34,7 @@ object Commands {
         "§e/sp hud §7— move and resize the panels",
         "§e/sp capsule §7— toggle Capsule Helper",
         "§e/sp contest §7— toggle the Miria's Contest tracker",
+        "§e/sp newsession §7— start a new profit session",
         "§e/sp sparkling §7— toggle sparkling finder",
         "§e/sp sparkling sound §7— toggle sparkling sound",
         "§e/sp sparkling clear §7— clear the sparkling panel",
@@ -74,6 +75,11 @@ object Commands {
                     .then(ClientCommands.literal("hud").executes { MenuNav.open(HudEditScreen()); 1 })
                     .then(toggle("capsule", "Capsule Helper", { s().capsuleTrajectory }, { s().capsuleTrajectory = it }))
                     .then(toggle("contest", "Miria's Contest", { s().contest }, { s().contest = it }))
+                    .then(ClientCommands.literal("newsession").executes {
+                        safaripatron.profit.Profit.newSession()
+                        it.source.sendFeedback(msg("New profit session started."))
+                        1
+                    })
                     .then(toggle("sparkling", "Sparkling finder", { s().sparklingFinder }, { s().sparklingFinder = it })
                         .then(toggle("sound", "Sparkling sound", { s().sparklingSound }, { s().sparklingSound = it }))
                         .then(ClientCommands.literal("clear").executes {

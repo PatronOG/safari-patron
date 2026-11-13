@@ -137,7 +137,7 @@ class Settings {
     var profitPanel = PanelPos(0.187f, 0.032f)
     var totalProfitPanel = PanelPos(0.167f, 0.262f)
     /** Where the total profit panel shows outside the Safari: "all" or "entrance" (Critter Safari Entrance). */
-    var totalProfitWhere = "all"
+    var totalProfitWhere = "entrance"
 
     /** 1 = centered panels store their center x (not their left edge). */
     var hudVersion = 0
@@ -191,7 +191,7 @@ object Config {
             if (s.contestStartCustom == null) s.contestStartCustom = ""
             if (s.contestTicketChoice == null) s.contestTicketChoice = "Ticket earned."
             if (s.contestTicketCustom == null) s.contestTicketCustom = ""
-            if (s.totalProfitWhere == null) s.totalProfitWhere = "all"
+            if (s.totalProfitWhere == null) s.totalProfitWhere = "entrance"
         }
         for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel, s.totalProfitPanel)) {
             if (p.scale !in 0.5f..2f) p.scale = 1f

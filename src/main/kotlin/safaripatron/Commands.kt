@@ -78,10 +78,14 @@ object Commands {
                     .then(toggle("capsule", "Capsule Helper", { s().capsuleTrajectory }, { s().capsuleTrajectory = it }))
                     .then(toggle("contest", "Miria's Contest", { s().contest }, { s().contest = it }))
                     .then(ClientCommands.literal("sessionprofit").executes {
-                        it.source.sendFeedback(copyable(safaripatron.profit.Profit.sessionLine())); 1
+                        it.source.sendFeedback(copyable(safaripatron.profit.Profit.sessionLine()))
+                        safaripatron.profit.Bazaar.warning()?.let { w -> it.source.sendFeedback(msg("§c$w")) }
+                        1
                     })
                     .then(ClientCommands.literal("totalprofit").executes {
-                        it.source.sendFeedback(copyable(safaripatron.profit.Profit.totalLine())); 1
+                        it.source.sendFeedback(copyable(safaripatron.profit.Profit.totalLine()))
+                        safaripatron.profit.Bazaar.warning()?.let { w -> it.source.sendFeedback(msg("§c$w")) }
+                        1
                     })
                     .then(ClientCommands.literal("resetsession").executes {
                         safaripatron.profit.Profit.newSession()

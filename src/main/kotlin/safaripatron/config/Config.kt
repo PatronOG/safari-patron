@@ -168,7 +168,7 @@ object Config {
     fun load() {
         val raw = runCatching { if (Files.exists(path)) Files.readString(path) else null }.getOrNull()
         s = runCatching { raw?.let { gson.fromJson(it, Settings::class.java) } }.getOrNull() ?: Settings()
-        // Files from before 1.0.3 keep the panel spots their owner chose
+        // Files from before 1.1.0 keep the panel spots their owner chose
         if (raw != null && !raw.contains("\"layoutPlaced\"")) s.layoutPlaced = true
         // Older files may lack new fields or have scale 0
         // Gson leaves fields missing from older files as null

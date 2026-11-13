@@ -103,6 +103,12 @@ object Profit {
     /** Game start: a fresh session (the total profit is kept). */
     fun init() {
         load()
+        // Old copy in safari-patron.json: emptied once moved, so a reset can never bring it back
+        val old = Config.s.profit
+        if (old.totalItems.isNotEmpty() || old.sessionItems.isNotEmpty() || old.totalRuns > 0) {
+            Config.s.profit = ProfitData()
+            Config.save()
+        }
         archiveSession()
         d.sessionStart = 0L
         d.sessionRuns = 0
@@ -178,6 +184,7 @@ object Profit {
 
     fun resetTotal() {
         d.totalItems.clear(); d.totalRuns = 0
+        d.prevSessionItems.clear(); d.prevSessionMs = 0; d.prevSessionRuns = 0
         save()
     }
 

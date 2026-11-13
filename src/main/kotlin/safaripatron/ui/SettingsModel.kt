@@ -50,20 +50,20 @@ object SettingsModel {
     val categories: List<Category> = listOf(
         Category("sparkling", "Sparkling", "✦", 0xFFFFB627.toInt(), "Finder, panel, sharing", { s.sparklingFinder }) {
             listOf(
-                toggle("Sparkling finder", "Alert, box and waypoint when one appears", { s.sparklingFinder }) { s.sparklingFinder = it },
+                toggle("Sparkling finder", "Alert, box and waypoint", { s.sparklingFinder }) { s.sparklingFinder = it },
                 toggle("Sound", "Ding when a sparkling is found", { s.sparklingSound }) { s.sparklingSound = it },
-                toggle("Auto share to party", "Instantly sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
-                toggle("Last sparkling message", "Runs and time since the previous sparkling", { s.sparklingInterval }) { s.sparklingInterval = it },
-                toggle("Sparklings panel", "Sparklings caught in this biome, all time", { s.sparklingCollectionHud }) { s.sparklingCollectionHud = it },
-                toggle("Total sparklings panel", "All 37 in the middle area between the biomes", { s.sparklingTotalHud }) { s.sparklingTotalHud = it },
+                toggle("Auto share to party", "Sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
+                toggle("Last sparkling message", "Runs and time since the last one", { s.sparklingInterval }) { s.sparklingInterval = it },
+                toggle("Sparklings panel", "Caught in this biome, all time", { s.sparklingCollectionHud }) { s.sparklingCollectionHud = it },
+                toggle("Total sparklings panel", "All 37, in the middle area", { s.sparklingTotalHud }) { s.sparklingTotalHud = it },
                 choice("Panel list", "What the sparklings panels list", listOf("all", "missing"),
                     { if (it == "missing") "Missing only" else "All" },
                     { if (s.sparklingCollectionMissingOnly) "missing" else "all" }) { s.sparklingCollectionMissingOnly = it == "missing" },
                 Info("Critterdex sync", "Open the Sparkling Critterdex"),
-                Action("Reset sparklings", "Forget every sparkling you have caught", "Reset") {
+                Action("Reset sparklings", "Forget all caught sparklings", "Reset") {
                     s.sparklingCollection.clear(); Config.save()
                 },
-                Action("Clear panel", "Remove all tracked sparklings now", "Clear") { SparklingFinder.clear() },
+                Action("Clear panel", "Remove tracked sparklings", "Clear") { SparklingFinder.clear() },
             )
         },
         Category("esp", "ESP", "◈", 0xFF5DCAA5.toInt(), "Critters, drops, nests", { s.esp }) {
@@ -82,7 +82,7 @@ object SettingsModel {
                 toggle("Warp check", "4/4 Players in Safari.", { s.warpCheck }) { s.warpCheck = it },
                 toggle("Hotspot sharing", "Hotspot: Haunted", { s.hotspotAnnounce }) { s.hotspotAnnounce = it },
                 toggle("Biome announcements", "Forest Done! and more", { s.biomeAnnouncements }) { s.biomeAnnouncements = it },
-                toggle("Completion times", "Completed in 2:31 (PB 2:05 by IGN)", { s.biomeTimes }) { s.biomeTimes = it },
+                toggle("Completion times", "Time and PB after Done!", { s.biomeTimes }) { s.biomeTimes = it },
                 Multi("Show on screen", "Only you see these", listOf(
                     option("Warp check", { s.warpScreen }) { s.warpScreen = it },
                     option("Hotspot", { s.hotspotScreen }) { s.hotspotScreen = it },
@@ -98,21 +98,21 @@ object SettingsModel {
         Category("contest", "Miria's Contest", "✪", 0xFFFFCC66.toInt(), "Timer, ticket, alerts", { s.contest }) {
             buildList {
                 add(toggle("Contest tracker", "Timer, bracket, score and ticket", { s.contest }) { s.contest = it })
-                add(toggle("Contest panel", "Show the contest panel (move it with /sp hud)", { s.contestHud }) { s.contestHud = it })
+                add(toggle("Contest panel", "Time, bracket, score, ticket", { s.contestHud }) { s.contestHud = it })
                 add(choice("Ticket", "Which ticket counts as done", listOf("basic", "first"),
                     { if (it == "first") "First-Class" else "Basic" },
                     { if (s.contestFirstClass) "first" else "basic" }) { s.contestFirstClass = it == "first" })
-                add(toggle("Ticket message", "Party message when your ticket is earned", { s.contestTicketAnnounce }) { s.contestTicketAnnounce = it })
+                add(toggle("Ticket message", "When your ticket is earned", { s.contestTicketAnnounce }) { s.contestTicketAnnounce = it })
                 add(choice("Ticket text", "Sent to party chat", Contest.TICKET_CHOICES, ::messageLabel,
                     { s.contestTicketChoice }) { s.contestTicketChoice = it })
                 if (s.contestTicketChoice == "other")
                     add(text("Custom ticket text", "Your own message", { s.contestTicketCustom }) { s.contestTicketCustom = it })
-                add(toggle("Start message", "Party message when a new contest starts", { s.contestStartAnnounce }) { s.contestStartAnnounce = it })
+                add(toggle("Start message", "When a new contest starts", { s.contestStartAnnounce }) { s.contestStartAnnounce = it })
                 add(choice("Start text", "Sent to party chat", Contest.START_CHOICES, ::messageLabel,
                     { s.contestStartChoice }) { s.contestStartChoice = it })
                 if (s.contestStartChoice == "other")
                     add(text("Custom start text", "Your own message", { s.contestStartCustom }) { s.contestStartCustom = it })
-                add(toggle("Incomplete warnings", "Before the contest ends without a ticket", { s.contestWarn }) { s.contestWarn = it })
+                add(toggle("Incomplete warnings", "If your ticket isn't done", { s.contestWarn }) { s.contestWarn = it })
                 add(Multi("Warn at", "Minutes left", listOf(
                     option("5 minutes", { s.contestWarn5 }) { s.contestWarn5 = it },
                     option("3 minutes", { s.contestWarn3 }) { s.contestWarn3 = it },
@@ -124,13 +124,13 @@ object SettingsModel {
         },
         Category("profit", "Profit", "♦", 0xFF8FD16A.toInt(), "Session and total", { s.profitTracker }) {
             listOf(
-                toggle("Profit tracker", "Shards, Rainbow Feathers and Safari Essence", { s.profitTracker }) { s.profitTracker = it },
-                toggle("Session profit panel", "In the Safari (move it with /sp hud)", { s.profitHud }) { s.profitHud = it },
-                toggle("Safari profit panel", "All-time, item by item, outside the Safari", { s.totalProfitHud }) { s.totalProfitHud = it },
+                toggle("Profit tracker", "Shards, feathers and essence", { s.profitTracker }) { s.profitTracker = it },
+                toggle("Session profit panel", "Shown in the Safari", { s.profitHud }) { s.profitHud = it },
+                toggle("Safari profit panel", "All-time, outside the Safari", { s.totalProfitHud }) { s.totalProfitHud = it },
                 choice("Price", "Bazaar price used for values", listOf("instant", "offer"),
                     { if (it == "offer") "Sell Offer" else "Instant Sell" },
                     { if (s.profitSellOffer) "offer" else "instant" }) { s.profitSellOffer = it == "offer" },
-                Action("New session", "Start counting from zero (also after 30 min away)", "New") {
+                Action("New session", "Also starts after 30 min away", "New") {
                     safaripatron.profit.Profit.newSession()
                 },
                 Action("Reset total", "Forget all-time profit", "Reset") { safaripatron.profit.Profit.resetTotal() },
@@ -141,8 +141,8 @@ object SettingsModel {
         },
         Category("panels", "Panels", "✥", 0xFFE3C35A.toInt(), "Move and resize", null) {
             listOf(
-                Action("Move panels", "Drag, scroll to resize, right click to reset", "Open") { MenuNav.openHud() },
-                Action("Reset all panels", "Put every panel back to its default place", "Reset") {
+                Action("Move panels", "Opens the panel editor", "Open") { MenuNav.openHud() },
+                Action("Reset all panels", "Back to default places", "Reset") {
                     s.runPanel.set(Settings.DEFAULT_RUN); s.biomePanel.set(Settings.DEFAULT_BIOME)
                     s.sparklingPanel.set(Settings.DEFAULT_SPARKLING)
                     s.warpPanel.set(Settings.DEFAULT_WARP); s.announcePanel.set(Settings.DEFAULT_ANNOUNCE)

@@ -133,7 +133,7 @@ object ProfitElement : HudElement {
 
     override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
         val p = safaripatron.profit.Profit
-        val d = Config.s.profit
+        val d = safaripatron.profit.Profit.data
         val sample = preview && !visible()
         val rows: List<Pair<String, Int>>
         val title: String
@@ -169,7 +169,7 @@ object TotalProfitElement : HudElement {
     override val pos get() = Config.s.totalProfitPanel
     override val defaultPos get() = Settings.DEFAULT_TOTAL_PROFIT
     override fun visible() = Config.s.profitTracker && Config.s.totalProfitHud && !Safari.inSafari &&
-        Contest.inSkyblock(Minecraft.getInstance()) && Config.s.profit.totalItems.isNotEmpty()
+        Contest.inSkyblock(Minecraft.getInstance()) && safaripatron.profit.Profit.data.totalItems.isNotEmpty()
     override val overScreens get() = true
 
     override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
@@ -181,7 +181,7 @@ object TotalProfitElement : HudElement {
             Triple(48210L, safaripatron.profit.Bazaar.ESSENCE, 0.9e6),
         ) else p.totalItems().entries.map { (id, n) -> Triple(n, id, p.itemValue(id, n)) }.sortedByDescending { it.third }
         val total = items.sumOf { it.third }
-        val runs = if (sample) 128 else Config.s.profit.totalRuns
+        val runs = if (sample) 128 else safaripatron.profit.Profit.data.totalRuns
         // §7 count (gray) · item in its rarity color · §6 coins (orange)
         val rows = items.map { (n, id, v) -> "§7${"%,d".format(n)}x ${p.itemColor(id)}${p.itemName(id)} §6${p.coins(v)}" to WHITE } +
             listOf("Total Runs: $runs" to GOLD, "Total Profit: ${p.coins(total)} coins" to GOLD)

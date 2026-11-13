@@ -57,7 +57,7 @@ object CritterId {
     private fun texture(profile: GameProfile?): String? =
         hash(profile?.properties()?.get("textures")?.firstOrNull()?.value())
 
-    private fun texture(stack: ItemStack): String? = texture(stack.get(DataComponents.PROFILE)?.partialProfile())
+    fun texture(stack: ItemStack): String? = texture(stack.get(DataComponents.PROFILE)?.partialProfile())
 
     private fun playerTexture(p: Player): String? =
         texture(Minecraft.getInstance().connection?.getPlayerInfo(p.uuid)?.profile ?: p.gameProfile)

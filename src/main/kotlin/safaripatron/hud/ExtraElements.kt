@@ -122,3 +122,30 @@ object TotalElement : HudElement {
         return Panels.Size(w, h)
     }
 }
+
+/** Session profit: current run, session, per run, per hour and total. */
+object ProfitElement : HudElement {
+    override val name = "Profit panel"
+    override val pos get() = Config.s.profitPanel
+    override val defaultPos get() = Settings.DEFAULT_PROFIT
+    override fun visible() = Config.s.profitTracker && Config.s.profitHud && Safari.inSafari
+
+    override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
+        val p = safaripatron.profit.Profit
+        val d = Config.s.profit
+        val sample = preview && !visible()
+        val c = p::coins
+        val rows = if (sample) listOf(
+            "Run: 1.24M" to WHITE, "Session: 9.81M (6 runs)" to WHITE, "Per run: 1.43M" to WHITE,
+            "Time: 1h 12m · 8.18M/h" to WHITE, "Total: 154.20M" to GOLD,
+        ) else listOf(
+            "Run: ${c(p.runValue)}" to WHITE,
+            "Session: ${c(p.sessionValue)} (${d.sessionRuns} run${if (d.sessionRuns == 1) "" else "s"})" to WHITE,
+            "Per run: ${c(p.perRun)}" to WHITE,
+            "Time: ${p.duration(p.sessionMs)} · ${c(p.perHour)}/h" to WHITE,
+            "Total: ${c(p.totalValue)}" to GOLD,
+        )
+        val title = if (!sample && !safaripatron.profit.Bazaar.ready()) "Profit · loading prices…" else "Profit"
+        return drawBox(g, font, title, GREEN, rows)
+    }
+}

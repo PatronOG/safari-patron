@@ -47,6 +47,8 @@ interface HudElement {
     fun visible(): Boolean
     /** true = pos.x is the panel's center, so it stays centered when its width changes. */
     val centered: Boolean get() = false
+    /** true = drawn on top of inventories/chests too, instead of behind their dimmed background. */
+    val overScreens: Boolean get() = false
 }
 
 object RunElement : HudElement {
@@ -221,6 +223,16 @@ object Hud {
         if (client.gui.screen() is HudEditScreen) return
         val width = client.window.guiScaledWidth
         val height = client.window.guiScaledHeight
-        for (e in elements) if (e.visible()) drawAt(g, client.font, e, false, width, height)
+        val container = client.gui.screen() is net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<*>
+        for (e in elements) if (e.visible() && !(container && e.overScreens)) drawAt(g, client.font, e, false, width, height)
+    }
+
+    /** Called from an open inventory/chest (ContainerOverlayMixin): panels that stay sharp on top of it. */
+    fun renderOverScreen(g: GuiGraphicsExtractor) {
+        val client = Minecraft.getInstance()
+        if (client.gui.hud.isHidden) return
+        val width = client.window.guiScaledWidth
+        val height = client.window.guiScaledHeight
+        for (e in elements) if (e.overScreens && e.visible()) drawAt(g, client.font, e, false, width, height)
     }
 }

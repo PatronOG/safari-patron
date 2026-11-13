@@ -126,7 +126,7 @@ object SettingsModel {
             listOf(
                 toggle("Profit tracker", "Shards, feathers and essence", { s.profitTracker }) { s.profitTracker = it },
                 toggle("Session profit panel", "Shown in the Safari", { s.profitHud }) { s.profitHud = it },
-                toggle("Safari profit panel", "All-time, outside the Safari", { s.totalProfitHud }) { s.totalProfitHud = it },
+                toggle("Total profit panel", "All-time, outside the Safari", { s.totalProfitHud }) { s.totalProfitHud = it },
                 choice("Price", "Bazaar price used for values", listOf("instant", "offer"),
                     { if (it == "offer") "Sell Offer" else "Instant Sell" },
                     { if (s.profitSellOffer) "offer" else "instant" }) { s.profitSellOffer = it == "offer" },

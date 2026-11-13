@@ -113,6 +113,8 @@ object Safari {
             }
             is ChatParser.SparklingCaught -> {
                 SparklingFinder.caught(event.critter, byMe = event.player.equals(selfName, ignoreCase = true))
+                // All-time sparkling collection (you or your party)
+                if (Config.s.sparklingCollection.add(event.critter)) Config.save()
                 if (Run.running) {
                     Run.sparklingsCaught.add(event.player to event.critter)
                     Run.record(event.player, event.critter)

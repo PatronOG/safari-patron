@@ -24,6 +24,13 @@ class Settings {
     var sparklingFinder = true
     var sparklingSound = true
     var sparklingAutoShare = false
+    /** Sparkling collection panel: which critters' sparkling form has been caught (by you or your party), all time. */
+    var sparklingCollectionHud = true
+    /** true = list only the ones still missing (shorter panel). */
+    var sparklingCollectionMissingOnly = false
+    /** All 37 in four columns, only in the middle area between the biomes. */
+    var sparklingTotalHud = true
+    var sparklingCollection: MutableSet<String> = linkedSetOf()
 
     // ESP
     var esp = true
@@ -43,6 +50,30 @@ class Settings {
     var hotspotScreen = false
     var biomeScreen = false
 
+    // Miria's Contest
+    var contest = true
+    var contestHud = true
+    /** false = Basic ticket (Uncommon), true = First-Class ticket (Legendary / 5,000 points). */
+    var contestFirstClass = false
+    var contestStartAnnounce = true
+    var contestStartChoice = "!dt contest"
+    var contestStartCustom = ""
+    var contestTicketAnnounce = true
+    var contestTicketChoice = "r"
+    var contestTicketCustom = ""
+    var contestWarn = true
+    var contestWarnTitle = true
+    var contestWarnSound = true
+    var contestWarn5 = true
+    var contestWarn3 = true
+    var contestWarn1 = true
+    /** Announced contest windows, so a restart doesn't send twice: key -> window. */
+    var contestStartSent: MutableMap<String, Long> = HashMap()
+    var contestTicketSent: MutableMap<String, Long> = HashMap()
+
+    // General
+    var updateChecker = true
+
     // Chat prefix color style (safari, gold, emerald, sunset, aurora)
     var prefixStyle = "safari"
 
@@ -52,6 +83,9 @@ class Settings {
     var sparklingPanel = PanelPos(-1f, 0.12f)
     var warpPanel = PanelPos(-1f, 0.30f)
     var announcePanel = PanelPos(-1f, 0.40f)
+    var collectionPanel = PanelPos(0.83f, 0.30f)
+    var contestPanel = PanelPos(0.01f, 0.05f)
+    var totalPanel = PanelPos(-1f, 0.10f)
 
     /** 1 = centered panels store their center x (not their left edge). */
     var hudVersion = 0
@@ -62,6 +96,9 @@ class Settings {
         val DEFAULT_SPARKLING = PanelPos(-1f, 0.12f)
         val DEFAULT_WARP = PanelPos(-1f, 0.30f)
         val DEFAULT_ANNOUNCE = PanelPos(-1f, 0.40f)
+        val DEFAULT_COLLECTION = PanelPos(0.83f, 0.30f)
+        val DEFAULT_CONTEST = PanelPos(0.01f, 0.05f)
+        val DEFAULT_TOTAL = PanelPos(-1f, 0.10f)
     }
 }
 
@@ -77,7 +114,21 @@ object Config {
             if (Files.exists(path)) gson.fromJson(Files.readString(path), Settings::class.java) else null
         }.getOrNull() ?: Settings()
         // Older files may lack new fields or have scale 0
-        for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel)) {
+        // Gson leaves fields missing from older files as null
+        @Suppress("SENSELESS_COMPARISON")
+        run {
+            if (s.collectionPanel == null) s.collectionPanel = Settings.DEFAULT_COLLECTION.copy()
+            if (s.contestPanel == null) s.contestPanel = Settings.DEFAULT_CONTEST.copy()
+            if (s.totalPanel == null) s.totalPanel = Settings.DEFAULT_TOTAL.copy()
+            if (s.sparklingCollection == null) s.sparklingCollection = linkedSetOf()
+            if (s.contestStartSent == null) s.contestStartSent = HashMap()
+            if (s.contestTicketSent == null) s.contestTicketSent = HashMap()
+            if (s.contestStartChoice == null) s.contestStartChoice = "!dt contest"
+            if (s.contestStartCustom == null) s.contestStartCustom = ""
+            if (s.contestTicketChoice == null) s.contestTicketChoice = "r"
+            if (s.contestTicketCustom == null) s.contestTicketCustom = ""
+        }
+        for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel)) {
             if (p.scale !in 0.5f..2f) p.scale = 1f
         }
         // 1.0.1: the sparkling panel is now anchored by its center; a moved one goes back to default once

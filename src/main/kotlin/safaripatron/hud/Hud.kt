@@ -184,7 +184,6 @@ object Hud {
         CollectionElement, TotalElement, ContestElement, ProfitElement, TotalProfitElement)
 
     fun init() {
-        registerScrolling()
         HudElementRegistry.attachElementBefore(
             VanillaHudElements.CHAT,
             Identifier.fromNamespaceAndPath(SafariPatron.MOD_ID, "hud"),
@@ -241,16 +240,19 @@ object Hud {
     /** Where the over-screen panels were drawn last frame (for mouse scrolling). */
     val overRects = HashMap<HudElement, IntArray>()
 
-    /** Mouse wheel in an inventory: scrolls the total profit panel when the mouse is over it. */
-    fun registerScrolling() {
-        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register { _, screen, _, _ ->
-            if (screen !is net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<*>) return@register
-            net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents.allowMouseScroll(screen).register { _, mx, my, _, vertical ->
-                val r = overRects[TotalProfitElement] ?: return@register true
-                val over = mx >= r[0] && mx < r[0] + r[2] && my >= r[1] && my < r[1] + r[3]
-                if (!over || vertical == 0.0) true
-                else !TotalProfitElement.scrollBy(if (vertical > 0) -1 else 1)
-            }
-        }
+    /** Mouse wheel (from MouseScrollMixin): true if it scrolled the total profit panel, so it's used up. */
+    fun scrollTotalPanel(vertical: Double): Boolean {
+        val client = Minecraft.getInstance()
+        if (vertical == 0.0 || client.gui.screen() !is net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<*>) return false
+        val e = TotalProfitElement
+        if (!e.visible() || client.gui.hud.isHidden) return false
+        val window = client.window
+        if (window.screenWidth <= 0 || window.screenHeight <= 0) return false
+        val mx = client.mouseHandler.xpos() * window.guiScaledWidth / window.screenWidth
+        val my = client.mouseHandler.ypos() * window.guiScaledHeight / window.screenHeight
+        val r = rect(e.pos, e.draw(null, client.font, false), window.guiScaledWidth, window.guiScaledHeight, e.centered)
+        if (mx < r[0] || mx >= r[0] + r[2] || my < r[1] || my >= r[1] + r[3]) return false
+        e.scrollBy(if (vertical > 0) -1 else 1)
+        return true
     }
 }

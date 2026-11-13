@@ -109,6 +109,19 @@ class MainMenuScreen(private val parent: Screen? = null) : Screen(Component.lite
 
         val credit = "Made by PatronOG"
         g.text(font, credit, x0 + (w - font.width(credit)) / 2, y + 2, Ui.FAINT, false)
+
+        // Update checker switch, bottom right
+        val on = safaripatron.config.Config.s.updateChecker
+        val label = "Update checker"
+        val sx = ix + iw - 20
+        val lx = sx - 5 - font.width(label)
+        val hoverUpd = Ui.inside(mx, my, lx - 2, y, ix + iw - lx + 2, 12)
+        g.text(font, label, lx, y + 2, if (hoverUpd) Ui.WHITE else Ui.FAINT, false)
+        Ui.switch(g, sx, y + 1, on)
+        hits.add(Ui.Hit(lx - 2, y, ix + iw - lx + 2, 12) {
+            safaripatron.config.Config.s.updateChecker = !on
+            safaripatron.config.Config.save()
+        })
     }
 
     override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {

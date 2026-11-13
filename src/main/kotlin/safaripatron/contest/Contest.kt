@@ -31,8 +31,8 @@ object Contest {
     val EARNED_TIERS = setOf("UNCOMMON", "RARE", "EPIC", "LEGENDARY", "MYTHIC", "DIVINE", "SPECIAL")
     private val FIRST_CLASS_TIERS = setOf("LEGENDARY", "MYTHIC", "DIVINE", "SPECIAL")
 
-    val TICKET_CHOICES = listOf("r", "other")
-    val START_CHOICES = listOf("!dt contest", "other")
+    val TICKET_CHOICES = listOf("Ticket earned.", "r", "other")
+    val START_CHOICES = listOf("New Miria's Contest started.", "!dt contest", "other")
 
     private var tickCounter = 0
     private var windowKey = -1L
@@ -184,8 +184,8 @@ object Contest {
         if (s.contestWarnSound) client.soundManager.play(SimpleSoundInstance.forUI(SoundEvents.BELL_BLOCK, 1f, 1f))
     }
 
-    fun ticketMessage() = resolve(s.contestTicketChoice, s.contestTicketCustom, TICKET_CHOICES, "r")
-    fun startMessage() = resolve(s.contestStartChoice, s.contestStartCustom, START_CHOICES, "!dt contest")
+    fun ticketMessage() = resolve(s.contestTicketChoice, s.contestTicketCustom, TICKET_CHOICES, "Ticket earned.")
+    fun startMessage() = resolve(s.contestStartChoice, s.contestStartCustom, START_CHOICES, "New Miria's Contest started.")
 
     /** "other" uses the custom text; blank custom text falls back to the default. */
     private fun resolve(choice: String, custom: String, choices: List<String>, default: String): String {

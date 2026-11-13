@@ -5,6 +5,7 @@ import safaripatron.config.Config
 import safaripatron.config.ProfitData
 import safaripatron.data.Critters
 import safaripatron.safari.ChatParser
+import safaripatron.safari.Run
 
 /**
  * Session and total profit: shards (captures and loot shares), Rainbow Feathers and the Safari Essence
@@ -113,6 +114,7 @@ object Profit {
         d.sessionStart = 0L
         d.sessionRuns = 0
         d.sessionRunMs = 0
+        d.sessionTimedRuns = 0
         d.sessionActiveMs = 0
         d.sessionItems.clear()
         save()
@@ -160,7 +162,9 @@ object Profit {
             d.totalItems.merge(id, n) { a, b -> a + b }
         }
         run.clear()
-        if (runStartAt > 0) d.sessionRunMs += System.currentTimeMillis() - runStartAt
+        // Run length from the run timer (same as the run panel), else from the ticket
+        val ms = Run.elapsedMs.takeIf { it > 0 } ?: if (runStartAt > 0) System.currentTimeMillis() - runStartAt else 0L
+        if (ms in 1..3_600_000) { d.sessionRunMs += ms; d.sessionTimedRuns++ }
         runStartAt = 0
         d.sessionRuns++
         d.totalRuns++
@@ -176,6 +180,7 @@ object Profit {
         runStartAt = 0L
         d.sessionRuns = 0
         d.sessionRunMs = 0
+        d.sessionTimedRuns = 0
         d.sessionActiveMs = 0
         awayMs = 0
         d.sessionItems.clear()
@@ -223,7 +228,7 @@ object Profit {
             ?: id.removePrefix("SHARD_").lowercase().split('_').joinToString(" ") { w -> w.replaceFirstChar { it.uppercase() } }) + " Shard"
     }
 
-    val avgRunMs get() = if (d.sessionRuns > 0) d.sessionRunMs / d.sessionRuns else 0L
+    val avgRunMs get() = if (d.sessionTimedRuns > 0) d.sessionRunMs / d.sessionTimedRuns else 0L
 
     val runValue get() = value(run)
     val finishedValue get() = value(d.sessionItems)

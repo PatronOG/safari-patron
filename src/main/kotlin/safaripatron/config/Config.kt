@@ -21,6 +21,8 @@ class ProfitData {
     var sessionRuns = 0
     /** Summed length of the session's finished runs (for the average run time). */
     var sessionRunMs = 0L
+    /** Runs whose length is known (the average divides by this, not by every run). */
+    var sessionTimedRuns = 0
     /** Time actually spent in the Safari this session (pauses after 1 minute away). */
     var sessionActiveMs = 0L
     var sessionItems: MutableMap<String, Long> = LinkedHashMap()

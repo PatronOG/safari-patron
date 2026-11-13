@@ -3,6 +3,7 @@ package safaripatron.ui
 import safaripatron.Brand
 import safaripatron.config.Config
 import safaripatron.config.Settings
+import safaripatron.contest.Contest
 import safaripatron.sparkling.SparklingFinder
 
 /** Everything the menu can show, grouped by category. */
@@ -12,8 +13,10 @@ object SettingsModel {
     class Action(name: String, desc: String, val label: String, val run: () -> Unit) : Item(name, desc)
     class Prefix(val style: Brand.Style) : Item(style.id, "Chat prefix style")
     class Info(name: String, desc: String) : Item(name, desc)
-    /** Dropdown where several options can be picked at once. */
-    class Multi(name: String, desc: String, val options: List<Option>) : Item(name, desc)
+    /** Dropdown. single = pick exactly one (closes on pick), otherwise several at once. */
+    class Multi(name: String, desc: String, val options: List<Option>, val single: Boolean = false) : Item(name, desc)
+    /** One line of free text, edited in place. */
+    class Text(name: String, desc: String, val get: () -> String, val set: (String) -> Unit) : Item(name, desc)
     class Option(val label: String, val get: () -> Boolean, val set: (Boolean) -> Unit)
 
     class Category(
@@ -35,12 +38,30 @@ object SettingsModel {
     private fun option(label: String, get: () -> Boolean, set: (Boolean) -> Unit) =
         Option(label, get) { set(it); Config.save() }
 
+    private fun choice(name: String, desc: String, values: List<String>, labels: (String) -> String,
+                       get: () -> String, set: (String) -> Unit) =
+        Multi(name, desc, values.map { v -> Option(labels(v), { get() == v }) { if (it) { set(v); Config.save() } } }, single = true)
+
+    private fun text(name: String, desc: String, get: () -> String, set: (String) -> Unit) =
+        Text(name, desc, get) { set(it); Config.save() }
+
+    private fun messageLabel(v: String) = if (v == "other") "Custom" else v
+
     val categories: List<Category> = listOf(
         Category("sparkling", "Sparkling", "✦", 0xFFFFB627.toInt(), "Finder, panel, sharing", { s.sparklingFinder }) {
             listOf(
                 toggle("Sparkling finder", "Alert, box and waypoint when one appears", { s.sparklingFinder }) { s.sparklingFinder = it },
                 toggle("Sound", "Ding when a sparkling is found", { s.sparklingSound }) { s.sparklingSound = it },
                 toggle("Auto share to party", "Instantly sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
+                toggle("Sparklings panel", "Sparklings caught in this biome, all time", { s.sparklingCollectionHud }) { s.sparklingCollectionHud = it },
+                toggle("Total sparklings panel", "All 37 in the middle area between the biomes", { s.sparklingTotalHud }) { s.sparklingTotalHud = it },
+                choice("Panel list", "What the sparklings panels list", listOf("all", "missing"),
+                    { if (it == "missing") "Missing only" else "All" },
+                    { if (s.sparklingCollectionMissingOnly) "missing" else "all" }) { s.sparklingCollectionMissingOnly = it == "missing" },
+                Info("Critterdex sync", "Open the Sparkling Critterdex"),
+                Action("Reset sparklings", "Forget every sparkling you have caught", "Reset") {
+                    s.sparklingCollection.clear(); Config.save()
+                },
                 Action("Clear panel", "Remove all tracked sparklings now", "Clear") { SparklingFinder.clear() },
             )
         },
@@ -72,6 +93,33 @@ object SettingsModel {
                 toggle("Capsule Helper", "Path and hit indicator", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
             )
         },
+        Category("contest", "Miria's Contest", "✪", 0xFFFFCC66.toInt(), "Timer, ticket, alerts", { s.contest }) {
+            buildList {
+                add(toggle("Contest tracker", "Timer, bracket, score and ticket", { s.contest }) { s.contest = it })
+                add(toggle("Contest panel", "Show the contest panel (move it with /sp hud)", { s.contestHud }) { s.contestHud = it })
+                add(choice("Ticket", "Which ticket counts as done", listOf("basic", "first"),
+                    { if (it == "first") "First-Class" else "Basic" },
+                    { if (s.contestFirstClass) "first" else "basic" }) { s.contestFirstClass = it == "first" })
+                add(toggle("Ticket message", "Party message when your ticket is earned", { s.contestTicketAnnounce }) { s.contestTicketAnnounce = it })
+                add(choice("Ticket text", "Sent to party chat", Contest.TICKET_CHOICES, ::messageLabel,
+                    { s.contestTicketChoice }) { s.contestTicketChoice = it })
+                if (s.contestTicketChoice == "other")
+                    add(text("Custom ticket text", "Your own message", { s.contestTicketCustom }) { s.contestTicketCustom = it })
+                add(toggle("Start message", "Party message when a new contest starts", { s.contestStartAnnounce }) { s.contestStartAnnounce = it })
+                add(choice("Start text", "Sent to party chat", Contest.START_CHOICES, ::messageLabel,
+                    { s.contestStartChoice }) { s.contestStartChoice = it })
+                if (s.contestStartChoice == "other")
+                    add(text("Custom start text", "Your own message", { s.contestStartCustom }) { s.contestStartCustom = it })
+                add(toggle("Incomplete warnings", "Before the contest ends without a ticket", { s.contestWarn }) { s.contestWarn = it })
+                add(Multi("Warn at", "Minutes left", listOf(
+                    option("5 minutes", { s.contestWarn5 }) { s.contestWarn5 = it },
+                    option("3 minutes", { s.contestWarn3 }) { s.contestWarn3 = it },
+                    option("1 minute", { s.contestWarn1 }) { s.contestWarn1 = it },
+                )))
+                add(toggle("Warning title", "Big INCOMPLETE! text on screen", { s.contestWarnTitle }) { s.contestWarnTitle = it })
+                add(toggle("Warning sound", "Bell sound", { s.contestWarnSound }) { s.contestWarnSound = it })
+            }
+        },
         Category("chat", "Chat prefix", "✎", 0xFF8FD16A.toInt(), "Gradient styles", null) {
             Brand.Style.entries.map { Prefix(it) }
         },
@@ -82,6 +130,8 @@ object SettingsModel {
                     s.runPanel.set(Settings.DEFAULT_RUN); s.biomePanel.set(Settings.DEFAULT_BIOME)
                     s.sparklingPanel.set(Settings.DEFAULT_SPARKLING)
                     s.warpPanel.set(Settings.DEFAULT_WARP); s.announcePanel.set(Settings.DEFAULT_ANNOUNCE)
+                    s.collectionPanel.set(Settings.DEFAULT_COLLECTION); s.contestPanel.set(Settings.DEFAULT_CONTEST)
+                    s.totalPanel.set(Settings.DEFAULT_TOTAL)
                     Config.save()
                 },
             )
@@ -92,6 +142,7 @@ object SettingsModel {
                 Info("/sp help", "List all commands in chat"),
                 Info("/sp hud", "Move the panels"),
                 Info("/sp capsule", "Toggle Capsule Helper"),
+                Info("/sp contest", "Toggle Miria's Contest tracker"),
                 Info("/sp sparkling", "Toggle sparkling finder"),
                 Info("/sp esp", "Toggle critter ESP"),
                 Info("/sp warp", "Toggle warp check"),
@@ -107,5 +158,5 @@ object SettingsModel {
     fun byId(id: String?) = categories.firstOrNull { it.id == id } ?: categories.first()
 
     /** Main menu cards (Panels is reached through its own card). */
-    val cardIds = listOf("sparkling", "esp", "party", "capsule", "chat", "commands")
+    val cardIds = listOf("sparkling", "esp", "party", "capsule", "contest", "chat")
 }

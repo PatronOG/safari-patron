@@ -3,8 +3,10 @@ package safaripatron
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.minecraft.client.Minecraft
 import safaripatron.config.Config
+import safaripatron.contest.Contest
 import safaripatron.esp.Esp
 import safaripatron.esp.Structures
 import safaripatron.hud.Hud
@@ -31,12 +33,17 @@ object SafariPatron : ClientModInitializer {
         Structures.init()
         HideyhoClick.init()
         Commands.init()
+        UpdateChecker.init()
+
+        ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> Contest.reset() }
 
         ClientTickEvents.END_CLIENT_TICK.register { client ->
             Safari.tick(client)
             Esp.tick(client)
             SparklingFinder.tick(client)
             Party.tick(client)
+            Contest.tick(client)
+            safaripatron.sparkling.Critterdex.tick(client)
         }
 
         // Hypixel bazı NPC mesajlarını oyuncu sohbeti olarak gönderebiliyor; Hideyho seçenekleri için onu da dinle

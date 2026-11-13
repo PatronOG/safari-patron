@@ -36,7 +36,7 @@ object SafariPatron : ClientModInitializer {
         UpdateChecker.init()
         safaripatron.profit.Profit.init()
 
-        ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> Contest.reset() }
+        ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> Contest.reset(); safaripatron.visual.ClearWater.reset() }
 
         ClientTickEvents.END_CLIENT_TICK.register { client ->
             Safari.tick(client)
@@ -46,6 +46,7 @@ object SafariPatron : ClientModInitializer {
             Contest.tick(client)
             safaripatron.sparkling.Critterdex.tick(client)
             safaripatron.profit.Profit.tick(client, Safari.inSafari)
+            safaripatron.visual.ClearWater.tick(client)
         }
 
         // Hypixel bazı NPC mesajlarını oyuncu sohbeti olarak gönderebiliyor; Hideyho seçenekleri için onu da dinle

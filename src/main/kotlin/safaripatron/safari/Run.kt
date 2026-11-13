@@ -1,5 +1,6 @@
 package safaripatron.safari
 
+import safaripatron.config.BestTime
 import safaripatron.config.Config
 import safaripatron.data.Biome
 import safaripatron.data.Critters
@@ -64,23 +65,46 @@ object Run {
         val critter = Critters.named(critterName) ?: return
         caught.add(critter.name)
         byPlayer.getOrPut(player) { LinkedHashMap() }.getOrPut(critter.biome) { LinkedHashSet() }.add(critter.name)
-        checkAnnouncements()
+        checkAnnouncements(player)
     }
 
-    private fun checkAnnouncements() {
+    /** finisher = whoever caught the critter that completed it. */
+    private fun checkAnnouncements(finisher: String) {
         for (biome in Biome.entries) {
-            if (biome.critters.all { it.name in caught }) announce("biome:$biome", "${biome.label} Done!", biome.color)
+            if (biome.critters.all { it.name in caught }) announce("biome:$biome", "${biome.label} Done!", biome.color, finisher)
         }
         if (caught.size >= Critters.TOTAL) {
-            announce("all", "Everything Done!", 0xFFFFAA00.toInt())
+            announce("all", "Everything Done!", 0xFFFFAA00.toInt(), finisher)
         } else if (caught.size == Critters.TOTAL - 1 && Critters.MACAW !in caught) {
-            announce("allButMacaw", "Everything except Macaw done!", 0xFFFFAA00.toInt())
+            announce("allButMacaw", "Everything except Macaw done!", 0xFFFFAA00.toInt(), finisher)
         }
     }
 
-    private fun announce(key: String, text: String, color: Int) {
+    private fun announce(key: String, text: String, color: Int, finisher: String) {
         if (!announced.add(key)) return
-        if (Config.s.biomeAnnouncements) Party.chat(text)
-        if (Config.s.biomeScreen) Toasts.show(Toasts.Kind.ANNOUNCE, text, color, 4000)
+        var full = text
+        var short = text
+        if (Config.s.biomeTimes && state == State.RUNNING) {
+            val ms = elapsedMs
+            val best = Config.s.bestTimes[key]
+            full += " Completed in ${time(ms)}"
+            short += " ${time(ms)}"
+            if (best == null || best.ms <= 0 || ms < best.ms) {
+                if (best != null && best.ms > 0) full += " (New PB! Old: ${time(best.ms)} by ${best.by})" else full += " (New PB!)"
+                short += " (PB!)"
+                Config.s.bestTimes[key] = BestTime(ms, finisher)
+                Config.save()
+            } else {
+                full += " (PB ${time(best.ms)} by ${best.by})"
+            }
+        }
+        if (Config.s.biomeAnnouncements) Party.chat(full)
+        if (Config.s.biomeScreen) Toasts.show(Toasts.Kind.ANNOUNCE, short, color, 4000)
+    }
+
+    /** 2:31 or 1:02:31 */
+    fun time(ms: Long): String {
+        val s = ms / 1000
+        return if (s >= 3600) "%d:%02d:%02d".format(s / 3600, s / 60 % 60, s % 60) else "%d:%02d".format(s / 60, s % 60)
     }
 }

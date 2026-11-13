@@ -87,15 +87,18 @@ object Run {
         if (Config.s.biomeTimes && state == State.RUNNING) {
             val ms = elapsedMs
             val best = Config.s.bestTimes[key]
+            // Biome PBs name who finished it; "Everything" is the whole party's time, so no name
+            val named = key.startsWith("biome:")
+            fun by(b: BestTime): String { val who: String? = b.by; return if (named && !who.isNullOrBlank()) " by $who" else "" }
             full += " Completed in ${time(ms)}"
             short += " ${time(ms)}"
             if (best == null || best.ms <= 0 || ms < best.ms) {
-                if (best != null && best.ms > 0) full += " (New PB! Old: ${time(best.ms)} by ${best.by})" else full += " (New PB!)"
+                if (best != null && best.ms > 0) full += " (New PB! Old: ${time(best.ms)}${by(best)})" else full += " (New PB!)"
                 short += " (PB!)"
                 Config.s.bestTimes[key] = BestTime(ms, finisher)
                 Config.save()
             } else {
-                full += " (PB ${time(best.ms)} by ${best.by})"
+                full += " (PB ${time(best.ms)}${by(best)})"
             }
         }
         if (Config.s.biomeAnnouncements) Party.chat(full)

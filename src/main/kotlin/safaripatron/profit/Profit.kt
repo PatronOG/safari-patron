@@ -84,7 +84,7 @@ object Profit {
     fun onRunStart() {
         if (!Config.s.profitTracker) return
         val now = System.currentTimeMillis()
-        if (d.sessionStart == 0L) newSession(save = false)
+        if (d.sessionStart == 0L) { d.sessionStart = now; awayMs = 0 }
         runStartAt = now
         d.lastActive = now
         Bazaar.ensureFresh()
@@ -121,9 +121,12 @@ object Profit {
         Config.save()
     }
 
+    /** Reset: everything back to zero and the clock stopped until the next run's ticket. */
     fun newSession(save: Boolean = true) {
-        d.sessionStart = System.currentTimeMillis()
-        d.lastActive = d.sessionStart
+        d.sessionStart = 0L
+        d.lastActive = 0L
+        run.clear()
+        runStartAt = 0L
         d.sessionRuns = 0
         d.sessionRunMs = 0
         d.sessionActiveMs = 0

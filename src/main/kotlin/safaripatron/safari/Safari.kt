@@ -88,6 +88,7 @@ object Safari {
 
     private fun startRun(@Suppress("UNUSED_PARAMETER") reason: String) {
         entryArmedAt = 0L
+        Config.s.runCounter++
         Run.start()
         SparklingFinder.clear()
         Party.onRunStart()
@@ -115,6 +116,7 @@ object Safari {
                 SparklingFinder.caught(event.critter, byMe = event.player.equals(selfName, ignoreCase = true))
                 // All-time sparkling collection (you or your party)
                 if (Config.s.sparklingCollection.add(event.critter)) Config.save()
+                sparklingInterval(event.critter)
                 if (Run.running) {
                     Run.sparklingsCaught.add(event.player to event.critter)
                     Run.record(event.player, event.critter)
@@ -138,4 +140,30 @@ object Safari {
             }
         }
     }
+
+    /** "Last Sparkling (Polaris) was 14 runs, 1 day, 3 hours, 52 minutes ago." Sparklings count for the whole party. */
+    private fun sparklingInterval(critter: String) {
+        val s = Config.s
+        val now = System.currentTimeMillis()
+        if (s.sparklingInterval && s.lastSparklingAt > 0) {
+            val runs = (s.runCounter - s.lastSparklingRun).coerceAtLeast(0)
+            val mins = (now - s.lastSparklingAt) / 60_000
+            val days = mins / 1440
+            val hours = mins / 60 % 24
+            val parts = buildList {
+                add(plural(runs.toLong(), "run"))
+                if (days > 0) add(plural(days, "day"))
+                if (days > 0 || hours > 0) add(plural(hours, "hour"))
+                add(plural(mins % 60, "minute"))
+            }
+            Minecraft.getInstance().player?.sendSystemMessage(
+                safaripatron.Brand.msg("§7Last Sparkling §f(${s.lastSparklingCritter}) §7was §f${parts.joinToString("§7, §f")} §7ago."))
+        }
+        s.lastSparklingCritter = critter
+        s.lastSparklingAt = now
+        s.lastSparklingRun = s.runCounter
+        Config.save()
+    }
+
+    private fun plural(n: Long, word: String) = "$n $word" + if (n == 1L) "" else "s"
 }

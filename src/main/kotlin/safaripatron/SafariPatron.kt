@@ -44,6 +44,7 @@ object SafariPatron : ClientModInitializer {
             Party.tick(client)
             Contest.tick(client)
             safaripatron.sparkling.Critterdex.tick(client)
+            safaripatron.profit.Profit.tick(client, Safari.inSafari)
         }
 
         // Hypixel bazı NPC mesajlarını oyuncu sohbeti olarak gönderebiliyor; Hideyho seçenekleri için onu da dinle
@@ -63,6 +64,7 @@ object SafariPatron : ClientModInitializer {
             client.execute {
                 HideyhoClick.onMessage(message)
                 Party.onChatLine(raw)
+                safaripatron.profit.Profit.onMessage(raw)
                 val self = client.player?.name?.string ?: return@execute
                 for (event in ChatParser.parse(raw)) Safari.onChat(event, self)
             }

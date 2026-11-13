@@ -3,7 +3,7 @@
   "package": "safaripatron.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [],
-  "client": ["ChatClickMixin"],
+  "client": ["ChatClickMixin", "ContainerOverlayMixin"],
   "injectors": {
     "defaultRequire": 0
   }

@@ -3,7 +3,7 @@
   "package": "safaripatron.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [],
-  "client": ["ChatClickMixin", "ContainerOverlayMixin"],
+  "client": ["ChatClickMixin", "ContainerOverlayMixin", "WaterFogMixin", "WaterSurfaceMixin", "SodiumWaterMixin", "WaterOverlayMixin"],
   "injectors": {
     "defaultRequire": 0
   }

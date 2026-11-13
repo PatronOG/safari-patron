@@ -97,6 +97,10 @@ class Settings {
     // General
     var updateChecker = true
 
+    /** See-through water in the Safari (no fog/overlay, transparent surface). */
+    var clearWater = false
+    var clearWaterOpacity = 30
+
     // Profit tracker
     var profitTracker = true
     var profitHud = true

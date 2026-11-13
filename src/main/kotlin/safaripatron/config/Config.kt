@@ -26,6 +26,10 @@ class ProfitData {
     var sessionItems: MutableMap<String, Long> = LinkedHashMap()
     var totalRuns = 0
     var totalItems: MutableMap<String, Long> = LinkedHashMap()
+    /** The last session that had something in it, for /sp sessionprofit after a reset. */
+    var prevSessionItems: MutableMap<String, Long> = LinkedHashMap()
+    var prevSessionMs = 0L
+    var prevSessionRuns = 0
 }
 
 /** Fastest completion time of a biome (or everything) and who finished it. */

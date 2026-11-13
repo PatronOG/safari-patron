@@ -130,7 +130,7 @@ object SettingsModel {
                 choice("Price", "Bazaar price used for values", listOf("instant", "offer"),
                     { if (it == "offer") "Sell Offer" else "Instant Sell" },
                     { if (s.profitSellOffer) "offer" else "instant" }) { s.profitSellOffer = it == "offer" },
-                Action("New session", "Also starts after 30 min away", "New") {
+                Action("New session", "Reset your session profit.", "Reset") {
                     safaripatron.profit.Profit.newSession()
                 },
                 Action("Reset total", "Forget all-time profit", "Reset") { safaripatron.profit.Profit.resetTotal() },

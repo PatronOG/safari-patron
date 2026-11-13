@@ -184,6 +184,7 @@ object Hud {
         CollectionElement, TotalElement, ContestElement, ProfitElement, TotalProfitElement)
 
     fun init() {
+        registerScrolling()
         HudElementRegistry.attachElementBefore(
             VanillaHudElements.CHAT,
             Identifier.fromNamespaceAndPath(SafariPatron.MOD_ID, "hud"),
@@ -233,6 +234,23 @@ object Hud {
         if (client.gui.hud.isHidden) return
         val width = client.window.guiScaledWidth
         val height = client.window.guiScaledHeight
-        for (e in elements) if (e.overScreens && e.visible()) drawAt(g, client.font, e, false, width, height)
+        overRects.clear()
+        for (e in elements) if (e.overScreens && e.visible()) overRects[e] = drawAt(g, client.font, e, false, width, height)
+    }
+
+    /** Where the over-screen panels were drawn last frame (for mouse scrolling). */
+    val overRects = HashMap<HudElement, IntArray>()
+
+    /** Mouse wheel in an inventory: scrolls the total profit panel when the mouse is over it. */
+    fun registerScrolling() {
+        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register { _, screen, _, _ ->
+            if (screen !is net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<*>) return@register
+            net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents.allowMouseScroll(screen).register { _, mx, my, _, vertical ->
+                val r = overRects[TotalProfitElement] ?: return@register true
+                val over = mx >= r[0] && mx < r[0] + r[2] && my >= r[1] && my < r[1] + r[3]
+                if (!over || vertical == 0.0) true
+                else !TotalProfitElement.scrollBy(if (vertical > 0) -1 else 1)
+            }
+        }
     }
 }

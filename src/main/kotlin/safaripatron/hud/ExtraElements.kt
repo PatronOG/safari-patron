@@ -129,6 +129,7 @@ object ProfitElement : HudElement {
     override val pos get() = Config.s.profitPanel
     override val defaultPos get() = Settings.DEFAULT_PROFIT
     override fun visible() = Config.s.profitTracker && Config.s.profitHud && Safari.inSafari
+    override val overScreens get() = true
 
     override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
         val p = safaripatron.profit.Profit
@@ -162,23 +163,26 @@ object ProfitElement : HudElement {
 
 /** All-time Safari profit item by item; shown in SkyBlock outside the Safari. */
 object TotalProfitElement : HudElement {
-    override val name = "Safari profit panel"
+    override val name = "Total profit panel"
     override val pos get() = Config.s.totalProfitPanel
     override val defaultPos get() = Settings.DEFAULT_TOTAL_PROFIT
     override fun visible() = Config.s.profitTracker && Config.s.totalProfitHud && !Safari.inSafari &&
         Contest.inSkyblock(Minecraft.getInstance()) && Config.s.profit.totalItems.isNotEmpty()
+    override val overScreens get() = true
 
     override fun draw(g: GuiGraphicsExtractor?, font: Font, preview: Boolean): Panels.Size {
         val p = safaripatron.profit.Profit
         val sample = preview && !visible()
-        val items: List<Pair<String, Double>> = if (sample) listOf(
-            "64x Hideonwall Shard" to 2.1e6, "12x Rainbow Feather" to 1.3e6, "48,210x Safari Essence" to 0.9e6,
-        ) else p.totalItems().entries
-            .map { (id, n) -> "${"%,d".format(n)}x ${p.itemName(id)}" to p.itemValue(id, n) }
-            .sortedByDescending { it.second }
-        val total = items.sumOf { it.second }
-        val rows = items.map { (label, v) -> "$label §7${p.coins(v)}" to WHITE } +
-            listOf("Total Profit: ${p.coins(total)} coins" to GOLD)
-        return drawBox(g, font, "Safari Profit Tracker", GREEN, rows)
+        // (count, item id, coins)
+        val items: List<Triple<Long, String, Double>> = if (sample) listOf(
+            Triple(64L, "SHARD_WUMPA", 2.1e6), Triple(12L, safaripatron.profit.Bazaar.FEATHER, 1.3e6),
+            Triple(48210L, safaripatron.profit.Bazaar.ESSENCE, 0.9e6),
+        ) else p.totalItems().entries.map { (id, n) -> Triple(n, id, p.itemValue(id, n)) }.sortedByDescending { it.third }
+        val total = items.sumOf { it.third }
+        val runs = if (sample) 128 else Config.s.profit.totalRuns
+        // §7 count (gray) · item in its rarity color · §6 coins (orange)
+        val rows = items.map { (n, id, v) -> "§7${"%,d".format(n)}x ${p.itemColor(id)}${p.itemName(id)} §6${p.coins(v)}" to WHITE } +
+            listOf("Total Runs: §f$runs" to GRAY, "Total Profit: §6${p.coins(total)} coins" to GOLD)
+        return drawBox(g, font, "Total Profit Tracker", GREEN, rows)
     }
 }

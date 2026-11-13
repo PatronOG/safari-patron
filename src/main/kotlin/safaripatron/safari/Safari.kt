@@ -39,6 +39,7 @@ object Safari {
     private val locationPattern = Regex("""(^|\s)Critter Safari$""", RegexOption.IGNORE_CASE)
 
     fun tick(client: Minecraft) {
+        runPending()
         val level = client.level
         val player = client.player
         if (level == null || player == null) {
@@ -145,6 +146,7 @@ object Safari {
     private fun sparklingInterval(critter: String) {
         val s = Config.s
         val now = System.currentTimeMillis()
+        val previous = s.lastSparklingCritter
         if (s.sparklingInterval && s.lastSparklingAt > 0) {
             val runs = (s.runCounter - s.lastSparklingRun).coerceAtLeast(0)
             val mins = (now - s.lastSparklingAt) / 60_000
@@ -156,8 +158,11 @@ object Safari {
                 if (days > 0 || hours > 0) add(plural(hours, "hour"))
                 add(plural(mins % 60, "minute"))
             }
-            Minecraft.getInstance().player?.sendSystemMessage(
-                safaripatron.Brand.msg("§7Last Sparkling §f(${s.lastSparklingCritter}) §7was §f${parts.joinToString("§7, §f")} §7ago."))
+            // Sent a moment later so it lands under the SPARKLING! box instead of inside it
+            delayed(400) {
+                Minecraft.getInstance().player?.sendSystemMessage(safaripatron.Brand.msg(
+                    "§7Last Sparkling §f($previous) §7was captured §f${parts.joinToString("§7, §f")} §7ago."))
+            }
         }
         s.lastSparklingCritter = critter
         s.lastSparklingAt = now
@@ -166,4 +171,17 @@ object Safari {
     }
 
     private fun plural(n: Long, word: String) = "$n $word" + if (n == 1L) "" else "s"
+
+    private val pending = ArrayList<Pair<Long, () -> Unit>>()
+
+    private fun delayed(ms: Long, action: () -> Unit) { pending.add(System.currentTimeMillis() + ms to action) }
+
+    /** Runs delayed actions that are due (called every tick). */
+    private fun runPending() {
+        if (pending.isEmpty()) return
+        val now = System.currentTimeMillis()
+        val due = pending.filter { it.first <= now }
+        pending.removeAll(due.toSet())
+        due.forEach { it.second() }
+    }
 }

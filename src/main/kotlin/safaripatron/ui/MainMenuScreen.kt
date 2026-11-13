@@ -98,7 +98,10 @@ class MainMenuScreen(private val parent: Screen? = null) : Screen(Component.lite
                 Ui.pill(g, font, label, cx + cw - pw - 5, cy + 5, if (on) Ui.PILL_ON else Ui.PILL_OFF, if (on) Ui.PILL_ON_TEXT else Ui.PILL_OFF_TEXT)
             }
             Ui.text(g, font, Ui.fit(font, c.title, cw - 14), cx + 7, cy + 19, Ui.WHITE)
-            Ui.text(g, font, Ui.fit(font, c.summary, cw - 14), cx + 7, cy + 29, Ui.MUTED)
+            // Summary: a little smaller if needed so it stays whole instead of being cut off
+            val sw = font.width(c.summary)
+            val sScale = if (sw <= cw - 14) 1f else ((cw - 14).toFloat() / sw).coerceAtLeast(0.8f)
+            Ui.text(g, font, Ui.fit(font, c.summary, ((cw - 14) / sScale).toInt()), cx + 7, cy + 29, Ui.MUTED, sScale)
             // A category with a single switch (Capsule Helper) toggles right here instead of opening settings
             val single = c.items().singleOrNull() as? SettingsModel.Toggle
             hits.add(Ui.Hit(cx, cy, cw, cardH) {

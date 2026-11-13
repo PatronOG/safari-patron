@@ -2,7 +2,6 @@ package safaripatron.ui
 
 import safaripatron.Brand
 import safaripatron.config.Config
-import safaripatron.config.Settings
 import safaripatron.contest.Contest
 import safaripatron.sparkling.SparklingFinder
 
@@ -48,7 +47,7 @@ object SettingsModel {
     private fun messageLabel(v: String) = if (v == "other") "Custom" else v
 
     val categories: List<Category> = listOf(
-        Category("sparkling", "Sparkling", "✦", 0xFFFFB627.toInt(), "Finder, panel, sharing", { s.sparklingFinder }) {
+        Category("sparkling", "Sparkling", "✦", 0xFFFFB627.toInt(), "Finder and panels", { s.sparklingFinder }) {
             listOf(
                 toggle("Sparkling finder", "Alert, box and waypoint", { s.sparklingFinder }) { s.sparklingFinder = it },
                 toggle("Sound", "Ding when a sparkling is found", { s.sparklingSound }) { s.sparklingSound = it },
@@ -66,7 +65,7 @@ object SettingsModel {
                 Action("Clear panel", "Remove tracked sparklings", "Clear") { SparklingFinder.clear() },
             )
         },
-        Category("esp", "ESP", "◈", 0xFF5DCAA5.toInt(), "Critters, drops, nests", { s.esp }) {
+        Category("esp", "ESP", "◈", 0xFF5DCAA5.toInt(), "Critters and drops", { s.esp }) {
             listOf(
                 toggle("Critter ESP", "Boxes around critters", { s.esp }) { s.esp = it },
                 toggle("Only current biome", "Hide ESP for other biomes", { s.espOnlyInBiome }) { s.espOnlyInBiome = it },
@@ -93,7 +92,7 @@ object SettingsModel {
                 )),
             )
         },
-        Category("capsule", "Capsule Helper", "➶", 0xFF85B7EB.toInt(), "Path and hit indicator", { s.capsuleTrajectory }) {
+        Category("capsule", "Capsule Helper", "➶", 0xFF85B7EB.toInt(), "Path and hit mark", { s.capsuleTrajectory }) {
             listOf(
                 toggle("Capsule Helper", "Path and hit indicator", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
             )
@@ -130,6 +129,9 @@ object SettingsModel {
                 toggle("Profit tracker", "Shards, feathers and essence", { s.profitTracker }) { s.profitTracker = it },
                 toggle("Session profit panel", "Shown in the Safari", { s.profitHud }) { s.profitHud = it },
                 toggle("Total profit panel", "All-time, outside the Safari", { s.totalProfitHud }) { s.totalProfitHud = it },
+                choice("Total panel shows", "Never inside the Safari", listOf("all", "entrance"),
+                    { if (it == "entrance") "Critter Safari Entrance" else "All Places" },
+                    { s.totalProfitWhere }) { s.totalProfitWhere = it },
                 choice("Price", "Bazaar price used for values", listOf("instant", "offer"),
                     { if (it == "offer") "Sell Offer" else "Instant Sell" },
                     { if (s.profitSellOffer) "offer" else "instant" }) { s.profitSellOffer = it == "offer" },
@@ -145,14 +147,7 @@ object SettingsModel {
         Category("panels", "Panels", "✥", 0xFFE3C35A.toInt(), "Move and resize", null) {
             listOf(
                 Action("Move panels", "Opens the panel editor", "Open") { MenuNav.openHud() },
-                Action("Reset all panels", "Back to default places", "Reset") {
-                    s.runPanel.set(Settings.DEFAULT_RUN); s.biomePanel.set(Settings.DEFAULT_BIOME)
-                    s.sparklingPanel.set(Settings.DEFAULT_SPARKLING)
-                    s.warpPanel.set(Settings.DEFAULT_WARP); s.announcePanel.set(Settings.DEFAULT_ANNOUNCE)
-                    s.collectionPanel.set(Settings.DEFAULT_COLLECTION); s.contestPanel.set(Settings.DEFAULT_CONTEST)
-                    s.totalPanel.set(Settings.DEFAULT_TOTAL); s.profitPanel.set(Settings.DEFAULT_PROFIT); s.totalProfitPanel.set(Settings.DEFAULT_TOTAL_PROFIT)
-                    Config.save()
-                },
+                Action("Reset all panels", "Back to default places", "Reset") { safaripatron.hud.Hud.resetAll() },
             )
         },
         Category("commands", "Commands", "☰", 0xFFCFDAC6.toInt(), "All /sp commands", null) {

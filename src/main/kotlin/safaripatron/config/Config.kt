@@ -136,9 +136,13 @@ class Settings {
     var totalPanel = PanelPos(-1f, 0.10f)
     var profitPanel = PanelPos(0.187f, 0.032f)
     var totalProfitPanel = PanelPos(0.167f, 0.262f)
+    /** Where the total profit panel shows outside the Safari: "all" or "entrance" (Critter Safari Entrance). */
+    var totalProfitWhere = "all"
 
     /** 1 = centered panels store their center x (not their left edge). */
     var hudVersion = 0
+    /** false on a fresh install: panels are placed at their default spots once the screen size is known. */
+    var layoutPlaced = false
 
     companion object {
         val DEFAULT_RUN = PanelPos(0.01f, 0.28f)
@@ -162,9 +166,10 @@ object Config {
         private set
 
     fun load() {
-        s = runCatching {
-            if (Files.exists(path)) gson.fromJson(Files.readString(path), Settings::class.java) else null
-        }.getOrNull() ?: Settings()
+        val raw = runCatching { if (Files.exists(path)) Files.readString(path) else null }.getOrNull()
+        s = runCatching { raw?.let { gson.fromJson(it, Settings::class.java) } }.getOrNull() ?: Settings()
+        // Files from before 1.0.3 keep the panel spots their owner chose
+        if (raw != null && !raw.contains("\"layoutPlaced\"")) s.layoutPlaced = true
         // Older files may lack new fields or have scale 0
         // Gson leaves fields missing from older files as null
         @Suppress("SENSELESS_COMPARISON")
@@ -186,6 +191,7 @@ object Config {
             if (s.contestStartCustom == null) s.contestStartCustom = ""
             if (s.contestTicketChoice == null) s.contestTicketChoice = "Ticket earned."
             if (s.contestTicketCustom == null) s.contestTicketCustom = ""
+            if (s.totalProfitWhere == null) s.totalProfitWhere = "all"
         }
         for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel, s.totalProfitPanel)) {
             if (p.scale !in 0.5f..2f) p.scale = 1f

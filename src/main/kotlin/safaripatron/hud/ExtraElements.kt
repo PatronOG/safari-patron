@@ -174,7 +174,23 @@ object TotalProfitElement : HudElement {
     override val pos get() = Config.s.totalProfitPanel
     override val defaultPos get() = Settings.DEFAULT_TOTAL_PROFIT
     override fun visible() = Config.s.profitTracker && Config.s.totalProfitHud && !Safari.inSafari &&
-        Contest.inSkyblock(Minecraft.getInstance()) && safaripatron.profit.Profit.data.totalItems.isNotEmpty()
+        Contest.inSkyblock(Minecraft.getInstance()) && safaripatron.profit.Profit.data.totalItems.isNotEmpty() &&
+        (Config.s.totalProfitWhere != "entrance" || atEntrance())
+
+    private var entranceCheckedAt = 0L
+    private var entrance = false
+
+    /** Scoreboard location is the Critter Safari Entrance (checked twice a second). */
+    private fun atEntrance(): Boolean {
+        val now = System.currentTimeMillis()
+        if (now - entranceCheckedAt >= 500) {
+            entranceCheckedAt = now
+            // Letters only: Hypixel sometimes splits sidebar lines with extra symbols
+            entrance = safaripatron.safari.Sidebar.lines(Minecraft.getInstance())
+                .any { line -> line.filter { it.isLetter() }.lowercase().contains("crittersafarientrance") }
+        }
+        return entrance
+    }
     override val overScreens get() = true
 
     /** At most this many item rows; the rest scroll with the mouse wheel while an inventory is open. */

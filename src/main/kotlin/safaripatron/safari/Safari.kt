@@ -90,7 +90,6 @@ object Safari {
         entryArmedAt = 0L
         Config.s.runCounter++
         Run.start()
-        safaripatron.profit.Profit.onRunStart()
         SparklingFinder.clear()
         Party.onRunStart()
     }

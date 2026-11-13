@@ -10,7 +10,9 @@ import safaripatron.safari.ChatParser
  * from each SAFARI REWARD SUMMARY, valued at Bazaar prices.
  *
  * Items are stored, not coins, so the values follow the current Bazaar price.
- * A session starts when a run starts; a new one begins after 30 minutes away (or with "New session").
+ * The session starts when the Safari Manager takes your ticket ("I already saw your ticket..."), i.e. when a run
+ * really starts. Its clock pauses after 1 minute outside the Safari and resumes on the next run;
+ * after 30 minutes away the next run starts a new session ("New session" resets it by hand).
  */
 object Profit {
     private const val SESSION_GAP_MS = 30 * 60 * 1000L
@@ -20,11 +22,16 @@ object Profit {
     private val featherRe = Regex("""(?:(\d+)x |\ban? )Rainbow Feather\b""")
     private val essenceRe = Regex("""^\+([0-9,]+) Safari Essence$""")
     private const val MACAW_BONUS = "MACAW! You found a bonus Rainbow Feather!"
+    private val ticketRe = Regex("^\\[NPC] Safari Manager: .*\\bticket\\b.*free to go")
+    private const val PAUSE_AFTER_MS = 60_000L
 
     /** Items of the run in progress (not saved; a restart mid-run loses only this run's part). */
     val run = LinkedHashMap<String, Long>()
     private var finishAt = 0L
     private var runStartAt = 0L
+    private var lastTick = 0L
+    /** Time outside the Safari not yet counted; counted only if you come back within a minute. */
+    private var awayMs = 0L
     private var lastSave = 0L
 
     private val d get() = Config.s.profit
@@ -39,6 +46,7 @@ object Profit {
     private fun onLine(line: String) {
         if (line.isEmpty()) return
         when {
+            ticketRe.containsMatchIn(line) -> onRunStart()
             line == SUMMARY -> finishAt = System.currentTimeMillis() + 2000 // essence line follows; finish shortly
             finishAt > 0 && essenceRe.matches(line) ->
                 essenceRe.matchEntire(line)?.groupValues?.get(1)?.replace(",", "")?.toLongOrNull()?.let { add(Bazaar.ESSENCE, it) }
@@ -56,6 +64,7 @@ object Profit {
 
     private fun add(id: String, count: Long) {
         if (count <= 0) return
+        if (d.sessionStart == 0L) onRunStart() // ticket message missed: start here instead
         run.merge(id, count) { a, b -> a + b }
         Bazaar.ensureFresh()
     }
@@ -76,7 +85,14 @@ object Profit {
         if (!Config.s.profitTracker) return
         val now = System.currentTimeMillis()
         if (finishAt in 1..now) { finishAt = 0; finishRun() }
-        if (!inSafari || client.player == null || d.sessionStart == 0L) return
+        val dt = if (lastTick == 0L) 0L else (now - lastTick).coerceIn(0, 1000)
+        lastTick = now
+        if (client.player == null || d.sessionStart == 0L) return
+        if (!inSafari) { awayMs += dt; return }
+        // Back in the Safari: a short trip out still counts, a longer one was a pause
+        if (awayMs in 1..PAUSE_AFTER_MS) d.sessionActiveMs += awayMs
+        awayMs = 0
+        d.sessionActiveMs += dt
         d.lastActive = now
         Bazaar.ensureFresh()
         if (now - lastSave > 60_000) { lastSave = now; Config.save() }
@@ -101,6 +117,8 @@ object Profit {
         d.lastActive = d.sessionStart
         d.sessionRuns = 0
         d.sessionRunMs = 0
+        d.sessionActiveMs = 0
+        awayMs = 0
         d.sessionItems.clear()
         if (save) Config.save()
     }
@@ -152,7 +170,7 @@ object Profit {
     val sessionValue get() = finishedValue + runValue
     val totalValue get() = value(d.totalItems) + runValue
     val perRun get() = if (d.sessionRuns > 0) finishedValue / d.sessionRuns else 0.0
-    val sessionMs get() = if (d.sessionStart == 0L) 0L else (d.lastActive - d.sessionStart).coerceAtLeast(0)
+    val sessionMs get() = d.sessionActiveMs + (if (awayMs <= PAUSE_AFTER_MS) awayMs else 0L)
     val perHour get() = sessionMs.takeIf { it >= 60_000 }?.let { sessionValue / (it / 3_600_000.0) } ?: 0.0
 
     fun coins(v: Double): String = when {

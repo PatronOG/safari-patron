@@ -73,6 +73,9 @@ object SettingsModel {
                 toggle("Floor drops", "Mark floor drop spots", { s.floorDrops }) { s.floorDrops = it },
                 toggle("Bee nests", "Honeybug nests in Forest", { s.beeNests }) { s.beeNests = it },
                 toggle("Snoozle walls", "Breakable walls in Cavern", { s.snoozleWalls }) { s.snoozleWalls = it },
+                toggle("Clear water", "See through Safari water", { s.clearWater }) { s.clearWater = it },
+                choice("Water opacity", "With clear water on", listOf("0", "30", "60"), { "$it%" },
+                    { s.clearWaterOpacity.toString() }) { s.clearWaterOpacity = it.toInt() },
             )
         },
         Category("party", "Party", "⚑", 0xFFC9A0F0.toInt(), "Warp check, hotspot",

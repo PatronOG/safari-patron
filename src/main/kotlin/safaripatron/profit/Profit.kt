@@ -29,7 +29,17 @@ object Profit {
     /** Items of the run in progress (not saved; a restart mid-run loses only this run's part). */
     val run = LinkedHashMap<String, Long>()
     private var finishAt = 0L
-    private var runStartAt = 0L
+    /**
+     * Run length for the average, kept in the background: from the Safari Manager's ticket message to the
+     * SAFARI REWARD SUMMARY. A second ticket before a summary drops the unfinished run and starts over;
+     * a summary without a ticket (mod started mid-run) is not timed.
+     */
+    private var ticketAt = 0L
+    /** Length of the run that just ended, waiting for finishRun (0 = not timed). */
+    private var endedRunMs = 0L
+    private const val MIN_RUN_MS = 10_000L
+    private const val MAX_RUN_MS = 3_600_000L
+    private val log = org.slf4j.LoggerFactory.getLogger("safari-patron/profit")
     private var lastTick = 0L
     /** Time outside the Safari not yet counted; counted only if you come back within a minute. */
     private var awayMs = 0L
@@ -76,8 +86,21 @@ object Profit {
     private fun onLine(line: String) {
         if (line.isEmpty()) return
         when {
-            ticketRe.containsMatchIn(line) -> onRunStart()
-            line == SUMMARY -> finishAt = System.currentTimeMillis() + 2000 // essence line follows; finish shortly
+            ticketRe.containsMatchIn(line) -> {
+                val now = System.currentTimeMillis()
+                if (ticketAt > 0) log.info("New ticket before a reward summary: unfinished run not timed")
+                ticketAt = now
+                onRunStart()
+            }
+            line == SUMMARY -> {
+                val now = System.currentTimeMillis()
+                // The run ends right here, not when the items are counted a moment later
+                endedRunMs = if (ticketAt > 0) now - ticketAt else 0L
+                ticketAt = 0L
+                if (endedRunMs > 0) log.info("Run length (ticket to reward summary): {}", Run.time(endedRunMs))
+                else log.info("Reward summary without a ticket: run not timed")
+                finishAt = now + 2000 // essence line follows; finish shortly
+            }
             finishAt > 0 && essenceRe.matches(line) ->
                 essenceRe.matchEntire(line)?.groupValues?.get(1)?.replace(",", "")?.toLongOrNull()?.let { add(Bazaar.ESSENCE, it) }
             line == MACAW_BONUS -> add(Bazaar.FEATHER, 1)
@@ -133,7 +156,6 @@ object Profit {
         if (!Config.s.profitTracker) return
         val now = System.currentTimeMillis()
         if (d.sessionStart == 0L) { d.sessionStart = now; awayMs = 0 }
-        runStartAt = now
         d.lastActive = now
         Bazaar.ensureFresh()
     }
@@ -162,10 +184,9 @@ object Profit {
             d.totalItems.merge(id, n) { a, b -> a + b }
         }
         run.clear()
-        // Run length from the run timer (same as the run panel), else from the ticket
-        val ms = Run.elapsedMs.takeIf { it > 0 } ?: if (runStartAt > 0) System.currentTimeMillis() - runStartAt else 0L
-        if (ms in 1..3_600_000) { d.sessionRunMs += ms; d.sessionTimedRuns++ }
-        runStartAt = 0
+        val ms = endedRunMs
+        endedRunMs = 0L
+        if (ms in MIN_RUN_MS..MAX_RUN_MS) { d.sessionRunMs += ms; d.sessionTimedRuns++ }
         d.sessionRuns++
         d.totalRuns++
         save()
@@ -177,7 +198,8 @@ object Profit {
         d.sessionStart = 0L
         d.lastActive = 0L
         run.clear()
-        runStartAt = 0L
+        ticketAt = 0L
+        endedRunMs = 0L
         d.sessionRuns = 0
         d.sessionRunMs = 0
         d.sessionTimedRuns = 0

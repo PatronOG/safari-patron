@@ -39,7 +39,7 @@ class BestTime(var ms: Long = 0L, var by: String = "")
 
 class Settings {
     // Capsule
-    var capsuleTrajectory = false
+    var capsuleTrajectory = true
     /** Not shown in the menu; per-critter values will replace it in a later update. */
     var hitMargin = 0.1
 
@@ -79,17 +79,17 @@ class Settings {
     /** false = Basic ticket (Uncommon), true = First-Class ticket (Legendary / 5,000 points). */
     var contestFirstClass = false
     var contestStartAnnounce = true
-    var contestStartChoice = "!dt contest"
+    var contestStartChoice = "New Miria's Contest started."
     var contestStartCustom = ""
     var contestTicketAnnounce = true
-    var contestTicketChoice = "r"
+    var contestTicketChoice = "Ticket earned."
     var contestTicketCustom = ""
     var contestWarn = true
     var contestWarnTitle = true
     var contestWarnSound = true
     var contestWarn5 = true
-    var contestWarn3 = true
-    var contestWarn1 = true
+    var contestWarn3 = false
+    var contestWarn1 = false
     /** Announced contest windows, so a restart doesn't send twice: key -> window. */
     var contestStartSent: MutableMap<String, Long> = HashMap()
     var contestTicketSent: MutableMap<String, Long> = HashMap()
@@ -98,7 +98,7 @@ class Settings {
     var updateChecker = true
 
     /** See-through water in the Safari (no fog/overlay, transparent surface). */
-    var clearWater = false
+    var clearWater = true
     var clearWaterOpacity = 30
 
     // Profit tracker
@@ -134,8 +134,8 @@ class Settings {
     var collectionPanel = PanelPos(0.83f, 0.30f)
     var contestPanel = PanelPos(0.01f, 0.05f)
     var totalPanel = PanelPos(-1f, 0.10f)
-    var profitPanel = PanelPos(0.83f, 0.05f)
-    var totalProfitPanel = PanelPos(0.83f, 0.05f)
+    var profitPanel = PanelPos(0.187f, 0.032f)
+    var totalProfitPanel = PanelPos(0.167f, 0.262f)
 
     /** 1 = centered panels store their center x (not their left edge). */
     var hudVersion = 0
@@ -149,8 +149,8 @@ class Settings {
         val DEFAULT_COLLECTION = PanelPos(0.83f, 0.30f)
         val DEFAULT_CONTEST = PanelPos(0.01f, 0.05f)
         val DEFAULT_TOTAL = PanelPos(-1f, 0.10f)
-        val DEFAULT_PROFIT = PanelPos(0.83f, 0.05f)
-        val DEFAULT_TOTAL_PROFIT = PanelPos(0.83f, 0.05f)
+        val DEFAULT_PROFIT = PanelPos(0.187f, 0.032f)
+        val DEFAULT_TOTAL_PROFIT = PanelPos(0.167f, 0.262f)
     }
 }
 
@@ -182,9 +182,9 @@ object Config {
             if (s.sparklingCollection == null) s.sparklingCollection = linkedSetOf()
             if (s.contestStartSent == null) s.contestStartSent = HashMap()
             if (s.contestTicketSent == null) s.contestTicketSent = HashMap()
-            if (s.contestStartChoice == null) s.contestStartChoice = "!dt contest"
+            if (s.contestStartChoice == null) s.contestStartChoice = "New Miria's Contest started."
             if (s.contestStartCustom == null) s.contestStartCustom = ""
-            if (s.contestTicketChoice == null) s.contestTicketChoice = "r"
+            if (s.contestTicketChoice == null) s.contestTicketChoice = "Ticket earned."
             if (s.contestTicketCustom == null) s.contestTicketCustom = ""
         }
         for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel, s.totalProfitPanel)) {

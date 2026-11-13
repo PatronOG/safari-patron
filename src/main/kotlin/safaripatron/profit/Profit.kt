@@ -2,6 +2,7 @@ package safaripatron.profit
 
 import net.minecraft.client.Minecraft
 import safaripatron.config.Config
+import safaripatron.config.ProfitData
 import safaripatron.data.Critters
 import safaripatron.safari.ChatParser
 
@@ -33,7 +34,36 @@ object Profit {
     private var awayMs = 0L
     private var lastSave = 0L
 
-    private val d get() = Config.s.profit
+    /** Saved in its own file (config/safari-patron-profit.json) so updates and settings resets never touch it. */
+    private val file = net.fabricmc.loader.api.FabricLoader.getInstance().configDir.resolve("safari-patron-profit.json")
+    private val gson = com.google.gson.GsonBuilder().setPrettyPrinting().create()
+    var data = ProfitData()
+        private set
+    private val d get() = data
+
+    private fun load() {
+        data = runCatching {
+            if (java.nio.file.Files.exists(file)) gson.fromJson(java.nio.file.Files.readString(file), ProfitData::class.java) else null
+        }.getOrNull() ?: run {
+            // First start with the separate file: take over what older versions kept in safari-patron.json
+            val old = Config.s.profit
+            ProfitData().apply { totalItems.putAll(old.totalItems); totalRuns = old.totalRuns }
+        }
+        @Suppress("SENSELESS_COMPARISON")
+        run {
+            if (data.sessionItems == null) data.sessionItems = LinkedHashMap()
+            if (data.totalItems == null) data.totalItems = LinkedHashMap()
+            if (data.prevSessionItems == null) data.prevSessionItems = LinkedHashMap()
+        }
+    }
+
+    fun save() {
+        runCatching {
+            val tmp = file.resolveSibling("safari-patron-profit.json.tmp")
+            java.nio.file.Files.writeString(tmp, gson.toJson(data))
+            java.nio.file.Files.move(tmp, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE)
+        }.onFailure { runCatching { java.nio.file.Files.writeString(file, gson.toJson(data)) } }
+    }
 
     // ---------- chat ----------
 
@@ -72,12 +102,22 @@ object Profit {
 
     /** Game start: a fresh session (the total profit is kept). */
     fun init() {
+        load()
+        archiveSession()
         d.sessionStart = 0L
         d.sessionRuns = 0
         d.sessionRunMs = 0
         d.sessionActiveMs = 0
         d.sessionItems.clear()
-        Config.save()
+        save()
+    }
+
+    /** Keep the session that is about to be cleared, if it had anything, for /sp sessionprofit. */
+    private fun archiveSession() {
+        if (d.sessionItems.isEmpty() && d.sessionRuns == 0 && run.isEmpty()) return
+        d.prevSessionItems = LinkedHashMap(sessionItems())
+        d.prevSessionMs = sessionMs
+        d.prevSessionRuns = d.sessionRuns
     }
 
     /** A Safari run started: the session (and its clock) starts here, not at the first catch. */
@@ -104,7 +144,7 @@ object Profit {
         d.sessionActiveMs += dt
         d.lastActive = now
         Bazaar.ensureFresh()
-        if (now - lastSave > 60_000) { lastSave = now; Config.save() }
+        if (now - lastSave > 60_000) { lastSave = now; save() }
     }
 
     /** Reward summary: the run's items move into the session and the total, and a new run begins. */
@@ -118,11 +158,12 @@ object Profit {
         runStartAt = 0
         d.sessionRuns++
         d.totalRuns++
-        Config.save()
+        save()
     }
 
     /** Reset: everything back to zero and the clock stopped until the next run's ticket. */
     fun newSession(save: Boolean = true) {
+        archiveSession()
         d.sessionStart = 0L
         d.lastActive = 0L
         run.clear()
@@ -132,12 +173,12 @@ object Profit {
         d.sessionActiveMs = 0
         awayMs = 0
         d.sessionItems.clear()
-        if (save) Config.save()
+        if (save) save()
     }
 
     fun resetTotal() {
         d.totalItems.clear(); d.totalRuns = 0
-        Config.save()
+        save()
     }
 
     // ---------- values ----------
@@ -183,7 +224,20 @@ object Profit {
     val totalValue get() = value(d.totalItems) + runValue
     val perRun get() = if (d.sessionRuns > 0) finishedValue / d.sessionRuns else 0.0
     val sessionMs get() = d.sessionActiveMs + (if (awayMs <= PAUSE_AFTER_MS) awayMs else 0L)
-    val perHour get() = sessionMs.takeIf { it >= 60_000 }?.let { sessionValue / (it / 3_600_000.0) } ?: 0.0
+    val perHour get() = perHour(sessionValue, sessionMs)
+    fun perHour(value: Double, ms: Long) = if (ms >= 1000) value / (ms / 3_600_000.0) else 0.0
+
+    /** Chat lines for /sp sessionprofit and /sp totalprofit (null text part = nothing yet). */
+    fun sessionLine(): String {
+        val empty = d.sessionItems.isEmpty() && d.sessionRuns == 0 && run.isEmpty()
+        if (empty && d.prevSessionItems.isNotEmpty()) {
+            val v = value(d.prevSessionItems)
+            return "Session Total Profit: ${coins(v)} (${coinsShort(perHour(v, d.prevSessionMs))}/h) §7(previous session)"
+        }
+        return "Session Total Profit: ${coins(sessionValue)} (${coinsShort(perHour)}/h)"
+    }
+
+    fun totalLine() = "Total Safari Profit: ${coins(totalValue)} in ${d.totalRuns} run${if (d.totalRuns == 1) "" else "s"}."
 
     /** Always one decimal: 12.3M, 900.0k */
     fun coins(v: Double): String = when {

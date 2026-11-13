@@ -138,21 +138,23 @@ object ProfitElement : HudElement {
         val rows: List<Pair<String, Int>>
         val title: String
         if (sample) {
-            title = "Session Profit · 4:12"
-            rows = listOf("Shard Profits: 6.12M" to WHITE, "Essence Profits: 2.40M" to WHITE, "Rainbow Feather: 0.66M" to WHITE,
-                "Total: 9.18M (3 runs)" to GOLD, "Profit Per Hour: 94.8M/h" to GREEN)
+            title = "Session Profit · 12:36"
+            rows = listOf("Shard Profits: 6.1M" to WHITE, "Essence Profits: 2.4M" to WHITE, "Rainbow Feather: 0.7M" to WHITE,
+                "Total: 9.2M (3 runs · avg 4:12)" to GOLD, "Profit Per Hour: 43.8M/h" to GREEN)
         } else {
             val items = p.sessionItems()
             val shards = p.valueOf(items, safaripatron.profit.Profit.Kind.SHARD)
             val essence = p.valueOf(items, safaripatron.profit.Profit.Kind.ESSENCE)
             val feather = p.valueOf(items, safaripatron.profit.Profit.Kind.FEATHER)
             val runs = d.sessionRuns
-            title = "Session Profit" + if (runs > 0) " · ${p.clock(p.avgRunMs)}" else ""
+            // Live session clock: starts with the ticket, pauses after 30 s away
+            title = if (d.sessionStart == 0L) "Session Profit · waiting for a run" else "Session Profit · ${p.clock(p.sessionMs)}"
             rows = listOf(
                 "Shard Profits: ${p.coins(shards)}" to WHITE,
                 "Essence Profits: ${p.coins(essence)}" to WHITE,
                 "Rainbow Feather: ${p.coins(feather)}" to WHITE,
-                "Total: ${p.coins(shards + essence + feather)} ($runs run${if (runs == 1) "" else "s"})" to GOLD,
+                "Total: ${p.coins(shards + essence + feather)} ($runs run${if (runs == 1) "" else "s"}" +
+                    (if (runs > 0) " · avg ${p.clock(p.avgRunMs)})" else ")") to GOLD,
                 "Profit Per Hour: ${p.coinsShort(p.perHour)}/h" to GREEN,
             )
         }
@@ -182,7 +184,7 @@ object TotalProfitElement : HudElement {
         val runs = if (sample) 128 else Config.s.profit.totalRuns
         // §7 count (gray) · item in its rarity color · §6 coins (orange)
         val rows = items.map { (n, id, v) -> "§7${"%,d".format(n)}x ${p.itemColor(id)}${p.itemName(id)} §6${p.coins(v)}" to WHITE } +
-            listOf("Total Runs: §f$runs" to GRAY, "Total Profit: §6${p.coins(total)} coins" to GOLD)
+            listOf("Total Runs: $runs" to GOLD, "Total Profit: ${p.coins(total)} coins" to GOLD)
         return drawBox(g, font, "Total Profit Tracker", GREEN, rows)
     }
 }

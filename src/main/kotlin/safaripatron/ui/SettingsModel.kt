@@ -159,7 +159,7 @@ object SettingsModel {
                 Info("/sp hud", "Move the panels"),
                 Info("/sp capsule", "Toggle Capsule Helper"),
                 Info("/sp contest", "Toggle Miria's Contest tracker"),
-                Info("/sp newsession", "Start a new profit session"),
+                Info("/sp resetsession", "Reset your session profit"),
                 Info("/sp sparkling", "Toggle sparkling finder"),
                 Info("/sp esp", "Toggle critter ESP"),
                 Info("/sp warp", "Toggle warp check"),

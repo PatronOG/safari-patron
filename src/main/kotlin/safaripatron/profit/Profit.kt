@@ -12,7 +12,7 @@ import safaripatron.safari.ChatParser
  * Items are stored, not coins, so the values follow the current Bazaar price.
  * The session starts when the Safari Manager takes your ticket ("I already saw your ticket..."), i.e. when a run
  * really starts. Its clock pauses after 30 seconds outside the Safari and resumes on the next run.
- * Only "New session" (Reset) starts a new one.
+ * Every game start begins a fresh session; Reset (or /sp resetsession) starts one by hand. The total is kept.
  */
 object Profit {
     private const val SUMMARY = "SAFARI REWARD SUMMARY"
@@ -69,6 +69,16 @@ object Profit {
     }
 
     // ---------- run / session ----------
+
+    /** Game start: a fresh session (the total profit is kept). */
+    fun init() {
+        d.sessionStart = 0L
+        d.sessionRuns = 0
+        d.sessionRunMs = 0
+        d.sessionActiveMs = 0
+        d.sessionItems.clear()
+        Config.save()
+    }
 
     /** A Safari run started: the session (and its clock) starts here, not at the first catch. */
     fun onRunStart() {
@@ -202,7 +212,10 @@ object Profit {
     }
 
     /** 4:12 */
-    fun clock(ms: Long): String { val s = ms / 1000; return "%d:%02d".format(s / 60, s % 60) }
+    fun clock(ms: Long): String {
+        val s = ms / 1000
+        return if (s >= 3600) "%d:%02d:%02d".format(s / 3600, s / 60 % 60, s % 60) else "%d:%02d".format(s / 60, s % 60)
+    }
 
     fun duration(ms: Long): String {
         val m = ms / 60_000

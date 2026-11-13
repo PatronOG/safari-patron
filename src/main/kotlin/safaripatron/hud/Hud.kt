@@ -183,6 +183,54 @@ object Hud {
     val elements: List<HudElement> = listOf(RunElement, BiomeElement, SparklingElement, WarpElement, AnnounceElement,
         CollectionElement, TotalElement, ContestElement, ProfitElement, TotalProfitElement)
 
+    /**
+     * Default spots as panel centers on a 960 x 540 GUI screen (what /sp hud shows while dragging).
+     * Turned into positions with each panel's own size, so they land the same on any screen size.
+     */
+    private val DEFAULT_CENTERS: Map<HudElement, Pair<Int, Int>> = mapOf(
+        RunElement to (106 to 66),
+        BiomeElement to (49 to 186),
+        CollectionElement to (297 to 60),
+        TotalProfitElement to (211 to 164),
+        SparklingElement to (479 to 87),
+        AnnounceElement to (480 to 220),
+        WarpElement to (480 to 220),
+        ProfitElement to (746 to 71),
+        ContestElement to (894 to 75),
+        TotalElement to (794 to 475),
+    )
+
+    /** An element's default position for the current screen size. */
+    fun defaultPos(e: HudElement): PanelPos {
+        val client = Minecraft.getInstance()
+        val width = client.window.guiScaledWidth
+        val height = client.window.guiScaledHeight
+        val center = DEFAULT_CENTERS[e]
+        if (center == null || width <= 0 || height <= 0) return e.defaultPos.copy()
+        val size = e.draw(null, client.font, true)
+        val cx = center.first / 960f * width
+        val cy = center.second / 540f * height
+        val x = if (e.centered) cx / width
+            else ((cx - size.w / 2f) / width).coerceIn(0f, ((width - size.w).toFloat() / width).coerceAtLeast(0f))
+        val y = ((cy - size.h / 2f) / height).coerceIn(0f, ((height - size.h).toFloat() / height).coerceAtLeast(0f))
+        return PanelPos(x, y, 1f)
+    }
+
+    /** Every panel back to its default spot. */
+    fun resetAll() {
+        for (e in elements) e.pos.set(defaultPos(e))
+        Config.save()
+    }
+
+    /** Fresh install: place the panels once the screen size is known. */
+    fun ensureLayout() {
+        if (Config.s.layoutPlaced) return
+        val window = Minecraft.getInstance().window
+        if (window.guiScaledWidth <= 0 || window.guiScaledHeight <= 0) return
+        Config.s.layoutPlaced = true
+        resetAll()
+    }
+
     fun init() {
         HudElementRegistry.attachElementBefore(
             VanillaHudElements.CHAT,
@@ -219,6 +267,7 @@ object Hud {
 
     private fun render(g: GuiGraphicsExtractor) {
         val client = Minecraft.getInstance()
+        ensureLayout()
         if (client.gui.hud.isHidden) return
         if (client.gui.screen() is HudEditScreen) return
         val width = client.window.guiScaledWidth

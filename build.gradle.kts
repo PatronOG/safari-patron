@@ -41,6 +41,7 @@ tasks.processResources {
 
 tasks.jar {
     from("LICENSE")
+    from("NOTICE")
     from("licenses") { into("licenses") }
 }
 

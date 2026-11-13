@@ -240,8 +240,6 @@ object Hud {
     /** Where the over-screen panels were drawn last frame (for mouse scrolling). */
     val overRects = HashMap<HudElement, IntArray>()
 
-    private val scrollLog = org.slf4j.LoggerFactory.getLogger("safari-patron/scroll")
-    private var scrollLogs = 0
     private val SCROLL_FIRST = Identifier.fromNamespaceAndPath(SafariPatron.MOD_ID, "scroll_first")
 
     /**
@@ -255,7 +253,7 @@ object Hud {
             if (screen is net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<*>) {
                 val ev = net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents.allowMouseScroll(screen)
                 ev.addPhaseOrdering(SCROLL_FIRST, net.fabricmc.fabric.api.event.Event.DEFAULT_PHASE)
-                ev.register(SCROLL_FIRST) { _, mx, my, _, vertical -> !scrollTotalPanelAt(mx, my, vertical, "screen event") }
+                ev.register(SCROLL_FIRST) { _, mx, my, _, vertical -> !scrollTotalPanelAt(mx, my, vertical) }
             }
         }
     }
@@ -267,30 +265,18 @@ object Hud {
         val mouse = Minecraft.getInstance().mouseHandler
         val mx = mouse.xpos() * window.guiScaledWidth / window.screenWidth
         val my = mouse.ypos() * window.guiScaledHeight / window.screenHeight
-        return scrollTotalPanelAt(mx, my, vertical, "mouse hook")
+        return scrollTotalPanelAt(mx, my, vertical)
     }
 
     /** Mouse wheel at GUI coordinates [mx], [my]: true if it was over the total profit panel and scrolled it. */
-    fun scrollTotalPanelAt(mx: Double, my: Double, vertical: Double, source: String): Boolean {
+    fun scrollTotalPanelAt(mx: Double, my: Double, vertical: Double): Boolean {
         val client = Minecraft.getInstance()
         val e = TotalProfitElement
         val inContainer = client.gui.screen() is net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<*>
-        if (vertical == 0.0 || !inContainer || !e.visible() || client.gui.hud.isHidden) {
-            if (scrollLogs < 20 && vertical != 0.0) {
-                scrollLogs++
-                scrollLog.info("Scroll via {} skipped: inventory={} panel visible={} hud hidden={}",
-                    source, inContainer, e.visible(), client.gui.hud.isHidden)
-            }
-            return false
-        }
+        if (vertical == 0.0 || !inContainer || !e.visible() || client.gui.hud.isHidden) return false
         val window = client.window
         val r = rect(e.pos, e.draw(null, client.font, false), window.guiScaledWidth, window.guiScaledHeight, e.centered)
         val over = mx >= r[0] && mx < r[0] + r[2] && my >= r[1] && my < r[1] + r[3]
-        if (scrollLogs < 20) {
-            scrollLogs++
-            scrollLog.info("Scroll via {}: mouse {},{} panel {},{} {}x{} over={} scroll={}",
-                source, mx.toInt(), my.toInt(), r[0], r[1], r[2], r[3], over, e.scroll)
-        }
         if (!over) return false
         e.scrollBy(if (vertical > 0) -1 else 1)
         return true

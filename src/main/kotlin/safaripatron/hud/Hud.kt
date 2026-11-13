@@ -179,7 +179,7 @@ object AnnounceElement : ToastElement(Toasts.Kind.ANNOUNCE, "Forest Done!") {
 
 object Hud {
     val elements: List<HudElement> = listOf(RunElement, BiomeElement, SparklingElement, WarpElement, AnnounceElement,
-        CollectionElement, TotalElement, ContestElement, ProfitElement)
+        CollectionElement, TotalElement, ContestElement, ProfitElement, TotalProfitElement)
 
     fun init() {
         HudElementRegistry.attachElementBefore(

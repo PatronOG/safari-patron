@@ -16,6 +16,11 @@ private const val WHITE = 0xFFFFFFFF.toInt()
 private const val GRAY = 0xFF777777.toInt()
 private const val GREEN = 0xFF55FF55.toInt()
 private const val GOLD = 0xFFFFCC66.toInt()
+private const val RED = 0xFFFF5555.toInt()
+
+/** The Bazaar warning (prices unavailable / old) as an extra red row, if there is one. */
+private fun withPriceWarning(rows: List<Pair<String, Int>>): List<Pair<String, Int>> =
+    safaripatron.profit.Bazaar.warning()?.let { rows + (it to RED) } ?: rows
 
 /** Draws a title + rows box. rows: (text, color). */
 private fun drawBox(g: GuiGraphicsExtractor?, font: Font, title: String, titleColor: Int, rows: List<Pair<String, Int>>): Panels.Size {
@@ -158,8 +163,8 @@ object ProfitElement : HudElement {
                 "Profit Per Hour: ${p.coinsShort(p.perHour)}/h" to GREEN,
             )
         }
-        val shown = if (!sample && !safaripatron.profit.Bazaar.ready()) "$title · loading prices…" else title
-        return drawBox(g, font, shown, GREEN, rows)
+        val shown = if (!sample && !safaripatron.profit.Bazaar.ready() && safaripatron.profit.Bazaar.warning() == null) "$title · loading prices…" else title
+        return drawBox(g, font, shown, GREEN, if (sample) rows else withPriceWarning(rows))
     }
 }
 
@@ -204,11 +209,17 @@ object TotalProfitElement : HudElement {
         // §7 count (gray) · item in its rarity color · §6 coins (orange)
         val rows = buildList {
             if (above > 0) add("▲ $above more" to GRAY)
-            shown.forEach { (n, id, v) -> add("§7${"%,d".format(n)}x ${p.itemColor(id)}${p.itemName(id)} §6${p.coins(v)}" to WHITE) }
+            shown.forEach { (n, id, v) ->
+                // No Bazaar price for this item (yet): "?" instead of a misleading 0
+                val worth = if (sample || v > 0) "§6${p.coins(v)}" else "§c?"
+                add("§7${"%,d".format(n)}x ${p.itemColor(id)}${p.itemName(id)} $worth" to WHITE)
+            }
             if (below > 0) add("▼ $below more (scroll)" to GRAY)
             add("Total Runs: $runs" to GOLD)
             add("Total Profit: ${p.coins(total)} coins" to GOLD)
         }
-        return drawBox(g, font, "Total Profit Tracker", GREEN, rows)
+        val title = if (!sample && !safaripatron.profit.Bazaar.ready() && safaripatron.profit.Bazaar.warning() == null)
+            "Total Profit Tracker · loading prices…" else "Total Profit Tracker"
+        return drawBox(g, font, title, GREEN, if (sample) rows else withPriceWarning(rows))
     }
 }

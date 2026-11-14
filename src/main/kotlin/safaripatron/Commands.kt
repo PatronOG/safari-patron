@@ -34,6 +34,7 @@ object Commands {
         "§e/sp hud §7— move and resize the panels",
         "§e/sp history §7— your saved runs",
         "§e/sp topshards §7— the most profitable shards of each biome",
+        "§e/sp bestparty §7— the parties of your Everything PBs",
         "§e/sp capsule §7— toggle Capsule Helper",
         "§e/sp contest §7— toggle the Miria's Contest tracker",
         "§e/sp resetsession §7— reset your session profit",
@@ -78,6 +79,7 @@ object Commands {
                     .then(ClientCommands.literal("hud").executes { MenuNav.open(HudEditScreen()); 1 })
                     .then(ClientCommands.literal("history").executes { MenuNav.open(safaripatron.ui.HistoryScreen()); 1 })
                     .then(ClientCommands.literal("topshards").executes { ctx -> topShards(ctx.source); 1 })
+                    .then(ClientCommands.literal("bestparty").executes { ctx -> bestParty(ctx.source); 1 })
                     .then(toggle("capsule", "Capsule Helper", { s().capsuleTrajectory }, { s().capsuleTrajectory = it }))
                     .then(toggle("contest", "Miria's Contest", { s().contest }, { s().contest = it }))
                     .then(ClientCommands.literal("sessionprofit").executes {
@@ -137,6 +139,36 @@ object Commands {
                     })
             )
         }
+    }
+
+    /** /sp bestparty: the Everything except Macaw and Everything PBs with the players of those runs. */
+    private fun bestParty(source: FabricClientCommandSource) {
+        val separator = Component.literal("§2§m" + "-".repeat(45))
+        source.sendFeedback(msg("§6Best PB Run Parties"))
+        source.sendFeedback(separator)
+        for ((key, title) in listOf("allButMacaw" to "Everything except Macaw Done PB", "all" to "Everything Done PB")) {
+            source.sendFeedback(Component.literal("§f§l$title"))
+            val best = Config.s.bestTimes[key]
+            val line = when {
+                best == null || best.ms <= 0 -> Component.literal("§7No PB yet.")
+                best.party.isNullOrEmpty() -> Component.literal("§fBest PB §a${Run.time(best.ms)}§f. §7(party not recorded yet)")
+                else -> {
+                    val c = Component.literal("§fBest PB §a${Run.time(best.ms)}§f. ")
+                    best.party!!.forEachIndexed { i, m ->
+                        if (i > 0) c.append(Component.literal("§f, "))
+                        c.append(Component.literal(biomeCode(m.biome) + m.name))
+                    }
+                    c.append(Component.literal("§f."))
+                }
+            }
+            source.sendFeedback(line)
+            source.sendFeedback(separator)
+        }
+    }
+
+    /** Chat colour of a biome (by name); grey when unknown. */
+    private fun biomeCode(name: String?) = when (name) {
+        "FOREST" -> "§a"; "CAVERN" -> "§6"; "ICY" -> "§b"; "HAUNTED" -> "§5"; else -> "§7"
     }
 
     /** /sp topshards: a header, then one block per biome (its name, its 5 most profitable shards) between lines. */

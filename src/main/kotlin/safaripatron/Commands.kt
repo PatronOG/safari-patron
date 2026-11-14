@@ -152,20 +152,24 @@ object Commands {
         }
     }
 
-    /** /sp topshards: one header line, then each biome's most profitable shards (hover one for details). */
+    /** /sp topshards: a header, then one block per biome (its name, its 5 most profitable shards) between lines. */
     private fun topShards(source: FabricClientCommandSource) {
         val tops = safaripatron.data.Biome.entries.map { it to safaripatron.profit.TopShards.top(it) }
         if (tops.all { it.second.isEmpty() }) {
             source.sendFeedback(msg(safaripatron.profit.Bazaar.warning() ?: "Loading Bazaar prices… try again in a moment."))
             return
         }
-        source.sendFeedback(msg("§6Most Profitable Shards §7(per catch):"))
+        // Dark green strikethrough line, the mod's colour
+        val separator = Component.literal("§2§m" + "-".repeat(45))
+        source.sendFeedback(msg("§6Most Profitable Shards (per Shard):"))
+        source.sendFeedback(separator)
         for ((biome, list) in tops) {
             val code = when (biome) {
                 safaripatron.data.Biome.FOREST -> "§a"; safaripatron.data.Biome.CAVERN -> "§6"
                 safaripatron.data.Biome.ICY -> "§b"; safaripatron.data.Biome.HAUNTED -> "§5"
             }
-            val line = Component.literal(" $code${biome.label}§7: ")
+            source.sendFeedback(Component.literal("$code§l${biome.label}"))
+            val line = Component.literal("")
             list.forEachIndexed { i, e ->
                 if (i > 0) line.append(Component.literal("§7, "))
                 line.append(Component.literal(safaripatron.profit.TopShards.format(e)).withStyle {
@@ -174,6 +178,7 @@ object Commands {
             }
             if (list.isEmpty()) line.append(Component.literal("§8no prices yet"))
             source.sendFeedback(line)
+            source.sendFeedback(separator)
         }
     }
 

@@ -195,8 +195,13 @@ object History {
             rec.biomeMs["all"] = biomeMs.max()
             rec.hotspot = "Haunted"
             rec.sparklings.add(sparkling)
-            rec.items = linkedMapOf("SHARD_HIDEONWALL" to 6L, "SHARD_WUMPA" to 2L, "SHARD_STRONGARM" to 9L,
-                "SHARD_DOOMSPIRAL" to 1L, "RAINBOW_FEATHER" to 1L, "ESSENCE_SAFARI" to 412L, "DYE_EMERALD" to 1L)
+            // One shard of every critter, plus a feather, the essence and an Emerald Dye
+            rec.items = LinkedHashMap<String, Long>().apply {
+                for (c in Critters.all) put(safaripatron.profit.Bazaar.shardId(c.name), 1L)
+                put(safaripatron.profit.Bazaar.FEATHER, 1L)
+                put(safaripatron.profit.Bazaar.ESSENCE, 412L)
+                put(safaripatron.profit.Bazaar.DYE, 1L)
+            }
             rec.value = safaripatron.profit.Profit.value(rec.items)
             return rec
         }

@@ -11,7 +11,7 @@ import safaripatron.config.Config
 
 /** Settings: categories on the left, rows on the right, search on top. */
 class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Component.literal("Safari Patron Settings")) {
-    private var selected = SettingsModel.byId(initial)
+    private var selected = SettingsModel.byId(initial).takeIf { it in SettingsModel.categories } ?: SettingsModel.categories.first()
     private val hits = ArrayList<Ui.Hit>()
     private lateinit var search: EditBox
     /** Shared text field for Text rows; moved onto the row being edited. */

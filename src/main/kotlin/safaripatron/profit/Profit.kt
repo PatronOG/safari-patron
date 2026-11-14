@@ -23,6 +23,8 @@ object Profit {
     private val featherRe = Regex("""(?:(\d+)x |\ban? )Rainbow Feather\b""")
     private val essenceRe = Regex("""^\+([0-9,]+) Safari Essence$""")
     private const val MACAW_BONUS = "MACAW! You found a bonus Rainbow Feather!"
+    /** WOW! [MVP+] PatronOG found an Emerald Dye! (a broadcast: only your own name counts) */
+    private val dyeRe = Regex("""^WOW! (?:\[[^\]]+]\s*)*([A-Za-z0-9_]{1,16}) found an? Emerald Dye!$""")
     private const val MANAGER = "[NPC] Safari Manager: "
     /** What the Safari Manager says when he takes a ticket and the run starts (he has other lines too). */
     private val TICKET_LINES = setOf(
@@ -109,6 +111,10 @@ object Profit {
             finishAt > 0 && essenceRe.matches(line) ->
                 essenceRe.matchEntire(line)?.groupValues?.get(1)?.replace(",", "")?.toLongOrNull()?.let { add(Bazaar.ESSENCE, it) }
             line == MACAW_BONUS -> add(Bazaar.FEATHER, 1)
+            line.startsWith("WOW!") -> dyeRe.matchEntire(line)?.let { m ->
+                val self = Minecraft.getInstance().player?.name?.string
+                if (self != null && m.groupValues[1].equals(self, ignoreCase = true)) add(Bazaar.DYE, 1)
+            }
             line.startsWith("CAPTURE!") || line.startsWith("LOOT SHARE!") -> {
                 for (m in shardRe.findAll(line)) {
                     val name = m.groupValues[2].trim()
@@ -237,8 +243,10 @@ object Profit {
         return items.entries.sumOf { (id, n) -> n * Bazaar.price(id, offer) }
     }
 
-    enum class Kind { SHARD, ESSENCE, FEATHER }
-    fun kind(id: String) = when (id) { Bazaar.ESSENCE -> Kind.ESSENCE; Bazaar.FEATHER -> Kind.FEATHER; else -> Kind.SHARD }
+    enum class Kind { SHARD, ESSENCE, FEATHER, DYE }
+    fun kind(id: String) = when (id) {
+        Bazaar.ESSENCE -> Kind.ESSENCE; Bazaar.FEATHER -> Kind.FEATHER; Bazaar.DYE -> Kind.DYE; else -> Kind.SHARD
+    }
 
     /** Session items so far: finished runs plus the run in progress. */
     fun sessionItems(): Map<String, Long> {
@@ -261,6 +269,7 @@ object Profit {
     fun itemName(id: String) = when (id) {
         Bazaar.ESSENCE -> "Safari Essence"
         Bazaar.FEATHER -> "Rainbow Feather"
+        Bazaar.DYE -> "Emerald Dye"
         else -> (Critters.all.firstOrNull { Bazaar.shardId(it.name) == id }?.name
             ?: id.removePrefix("SHARD_").lowercase().split('_').joinToString(" ") { w -> w.replaceFirstChar { it.uppercase() } }) + " Shard"
     }
@@ -300,6 +309,7 @@ object Profit {
     fun itemColor(id: String): String = when (id) {
         Bazaar.FEATHER -> "§d"
         Bazaar.ESSENCE -> "§d"
+        Bazaar.DYE -> "§2"
         else -> when (Critters.all.firstOrNull { Bazaar.shardId(it.name) == id }?.rarity) {
             safaripatron.data.Rarity.UNCOMMON -> "§a"
             safaripatron.data.Rarity.RARE -> "§9"

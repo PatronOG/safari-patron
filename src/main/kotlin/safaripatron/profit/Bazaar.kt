@@ -17,6 +17,8 @@ object Bazaar {
     private const val REFRESH_MS = 10 * 60 * 1000L
     const val FEATHER = "RAINBOW_FEATHER"
     const val ESSENCE = "ESSENCE_SAFARI"
+    /** Not a Bazaar item: priced from the Auction House (lowest BIN). */
+    const val DYE = "DYE_EMERALD"
 
     private val log = LoggerFactory.getLogger("safari-patron/bazaar")
     private val http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build()
@@ -47,6 +49,7 @@ object Bazaar {
 
     /** Price of one item, or 0 if unknown. offer = sell offer price instead of instant sell. */
     fun price(id: String, offer: Boolean): Double {
+        if (id == DYE) return Auction.lowestBin(id)
         ensureFresh()
         return prices[id]?.getOrNull(if (offer) 1 else 0)?.takeIf { it.isFinite() && it > 0 } ?: 0.0
     }

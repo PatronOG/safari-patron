@@ -151,17 +151,21 @@ object ProfitElement : HudElement {
             val shards = p.valueOf(items, safaripatron.profit.Profit.Kind.SHARD)
             val essence = p.valueOf(items, safaripatron.profit.Profit.Kind.ESSENCE)
             val feather = p.valueOf(items, safaripatron.profit.Profit.Kind.FEATHER)
+            val dyes = items[safaripatron.profit.Bazaar.DYE] ?: 0L
+            val dye = p.valueOf(items, safaripatron.profit.Profit.Kind.DYE)
             val runs = d.sessionRuns
             // Live session clock: starts with the ticket, pauses after 30 s away
             title = if (d.sessionStart == 0L) "Session Profit · waiting for a run" else "Session Profit · ${p.clock(p.sessionMs)}"
-            rows = listOf(
-                "Shard Profits: ${p.coins(shards)}" to WHITE,
-                "Essence Profits: ${p.coins(essence)}" to WHITE,
-                "Rainbow Feather: ${p.coins(feather)}" to WHITE,
-                "Total: ${p.coins(shards + essence + feather)} ($runs run${if (runs == 1) "" else "s"}" +
-                    (if (runs > 0) " · avg ${p.clock(p.avgRunMs)})" else ")") to GOLD,
-                "Profit Per Hour: ${p.coinsShort(p.perHour)}/h" to GREEN,
-            )
+            rows = buildList {
+                add("Shard Profits: ${p.coins(shards)}" to WHITE)
+                add("Essence Profits: ${p.coins(essence)}" to WHITE)
+                add("Rainbow Feather: ${p.coins(feather)}" to WHITE)
+                // Only once one dropped; "?" while the Auction House price is unknown
+                if (dyes > 0) add("Emerald Dye: ${dyes}x (${if (dye > 0) p.coins(dye) else "?"})" to 0xFF55AA55.toInt())
+                add("Total: ${p.coins(shards + essence + feather + dye)} ($runs run${if (runs == 1) "" else "s"}" +
+                    (if (runs > 0) " · avg ${p.clock(p.avgRunMs)})" else ")") to GOLD)
+                add("Profit Per Hour: ${p.coinsShort(p.perHour)}/h" to GREEN)
+            }
         }
         val shown = if (!sample && !safaripatron.profit.Bazaar.ready() && safaripatron.profit.Bazaar.warning() == null) "$title · loading prices…" else title
         return drawBox(g, font, shown, GREEN, if (sample) rows else withPriceWarning(rows))

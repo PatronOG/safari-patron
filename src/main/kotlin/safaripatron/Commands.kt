@@ -77,18 +77,7 @@ object Commands {
                     .then(ClientCommands.literal("settings").executes { MenuNav.openSettings(); 1 })
                     .then(ClientCommands.literal("help").executes { ctx -> help.forEach { ctx.source.sendFeedback(Component.literal(it)) }; 1 })
                     .then(ClientCommands.literal("hud").executes { MenuNav.open(HudEditScreen()); 1 })
-                    .then(ClientCommands.literal("history").executes { MenuNav.open(safaripatron.ui.HistoryScreen()); 1 }
-                        // Hidden: sample runs to try the screen
-                        .then(ClientCommands.literal("demo").executes { ctx ->
-                            val self = net.minecraft.client.Minecraft.getInstance().player?.name?.string ?: "You"
-                            safaripatron.history.History.addDemo(self)
-                            ctx.source.sendFeedback(msg("Added 2 sample runs. §7/sp history demo clear §fremoves them."))
-                            1
-                        }.then(ClientCommands.literal("clear").executes { ctx ->
-                            val n = safaripatron.history.History.clearDemo()
-                            ctx.source.sendFeedback(msg("Removed $n sample run${if (n == 1) "" else "s"}."))
-                            1
-                        })))
+                    .then(ClientCommands.literal("history").executes { MenuNav.open(safaripatron.ui.HistoryScreen()); 1 })
                     .then(ClientCommands.literal("topshards").executes { ctx -> topShards(ctx.source); 1 })
                     .then(toggle("capsule", "Capsule Helper", { s().capsuleTrajectory }, { s().capsuleTrajectory = it }))
                     .then(toggle("contest", "Miria's Contest", { s().contest }, { s().contest = it }))

@@ -34,6 +34,8 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     private var detailMax = 0
     private var detailRect = intArrayOf(0, 0, 0, 0)
     private var detailRunId = -1
+    /** Last try at pricing runs saved with a total of 0 (prices arrive a few seconds after joining). */
+    private var lastFix = 0L
 
     private val rowH = 12
     private val zone = ZoneId.systemDefault()
@@ -64,6 +66,8 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     override fun extractRenderState(g: GuiGraphicsExtractor, mx: Int, my: Int, delta: Float) {
         super.extractRenderState(g, mx, my, delta)
         hits.clear()
+        val now = System.currentTimeMillis()
+        if (now - lastFix > 3000) { lastFix = now; History.fixZeroValues() }
         val w = minOf(width - 16, 640)
         val h = minOf(height - 12, 340)
         val x0 = (width - w) / 2

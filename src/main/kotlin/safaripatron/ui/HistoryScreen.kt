@@ -140,18 +140,24 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     private val headers = listOf("Run", "When", "Time", "Biomes", "You", "Party", "Caught", "Profit", "")
     private val widest = listOf("#0000", "30 Nov 23:59", "59:59", "", "37/37", "37/37", "000", "999.9M", "✦★♦")
 
-    private fun layoutColumns() {
-        var x = 4
+    /** Columns share the list's width: each as wide as its widest text, the space left spread between them. */
+    private fun layoutColumns(listW: Int) {
+        val widths = headers.indices.map { i ->
+            val content = if (i == 3) 4 * 9 - 2 else font.width(widest[i])
+            maxOf(font.width(headers[i]), content)
+        }
+        val gaps = headers.size - 1
+        val gap = ((listW - 10 - widths.sum()) / gaps).coerceIn(8, 28)
+        var x = 6
         for (i in headers.indices) {
             cols[i] = x
-            val content = if (i == 3) 4 * 9 - 2 else font.width(widest[i])
-            x += maxOf(font.width(headers[i]), content) + 8
+            x += widths[i] + gap
         }
     }
 
     private fun drawList(g: GuiGraphicsExtractor, mx: Int, my: Int, x: Int, y: Int, w: Int, h: Int) {
         Ui.box(g, x, y, w, h, 0xFF161C12.toInt(), Ui.DIVIDER)
-        layoutColumns()
+        layoutColumns(w)
         headers.forEachIndexed { i, t -> if (cols[i] < w - 8) g.text(font, t, x + cols[i], y + 3, Ui.DIM, false) }
         g.fill(x + 1, y + 13, x + w - 1, y + 14, Ui.DIVIDER)
 

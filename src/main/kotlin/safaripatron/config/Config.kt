@@ -136,10 +136,6 @@ class Settings {
     var totalProfitPanel = PanelPos(0.167f, 0.262f)
     /** Where the total profit panel shows outside the Safari: "all" or "entrance" (Critter Safari Entrance). */
     var totalProfitWhere = "entrance"
-    /** Most valuable shards to catch: current biome, or all four in the middle area. */
-    var topShardsHud = true
-    var topShardsCount = 3
-    var topShardsPanel = PanelPos(0.02f, 0.5f)
     /** Honeyhive waypoints and timers (part of Miria's Contest). */
     var honeyhives = true
     var honeyhivesHideWhenDone = true
@@ -160,7 +156,6 @@ class Settings {
         val DEFAULT_TOTAL = PanelPos(-1f, 0.10f)
         val DEFAULT_PROFIT = PanelPos(0.187f, 0.032f)
         val DEFAULT_TOTAL_PROFIT = PanelPos(0.167f, 0.262f)
-        val DEFAULT_TOP_SHARDS = PanelPos(0.02f, 0.5f)
     }
 }
 
@@ -198,10 +193,8 @@ object Config {
             if (s.contestTicketChoice == null) s.contestTicketChoice = "Ticket earned."
             if (s.contestTicketCustom == null) s.contestTicketCustom = ""
             if (s.totalProfitWhere == null) s.totalProfitWhere = "entrance"
-            if (s.topShardsPanel == null) s.topShardsPanel = Settings.DEFAULT_TOP_SHARDS.copy()
-            if (s.topShardsCount !in listOf(3, 5)) s.topShardsCount = 3
         }
-        for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel, s.totalProfitPanel, s.topShardsPanel)) {
+        for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel, s.totalProfitPanel)) {
             if (p.scale !in 0.5f..2f) p.scale = 1f
         }
         // 1.0.1: the sparkling panel is now anchored by its center; a moved one goes back to default once

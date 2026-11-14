@@ -33,6 +33,7 @@ object Commands {
         "§e/sp settings §7— open the settings",
         "§e/sp hud §7— move and resize the panels",
         "§e/sp history §7— your saved runs",
+        "§e/sp topshards §7— the most profitable shards of each biome",
         "§e/sp capsule §7— toggle Capsule Helper",
         "§e/sp contest §7— toggle the Miria's Contest tracker",
         "§e/sp resetsession §7— reset your session profit",
@@ -77,6 +78,7 @@ object Commands {
                     .then(ClientCommands.literal("help").executes { ctx -> help.forEach { ctx.source.sendFeedback(Component.literal(it)) }; 1 })
                     .then(ClientCommands.literal("hud").executes { MenuNav.open(HudEditScreen()); 1 })
                     .then(ClientCommands.literal("history").executes { MenuNav.open(safaripatron.ui.HistoryScreen()); 1 })
+                    .then(ClientCommands.literal("topshards").executes { ctx -> topShards(ctx.source); 1 })
                     .then(toggle("capsule", "Capsule Helper", { s().capsuleTrajectory }, { s().capsuleTrajectory = it }))
                     .then(toggle("contest", "Miria's Contest", { s().contest }, { s().contest = it }))
                     .then(ClientCommands.literal("sessionprofit").executes {
@@ -136,6 +138,31 @@ object Commands {
                         1
                     })
             )
+        }
+    }
+
+    /** /sp topshards: one header line, then each biome's most profitable shards (hover one for details). */
+    private fun topShards(source: FabricClientCommandSource) {
+        val tops = safaripatron.data.Biome.entries.map { it to safaripatron.profit.TopShards.top(it) }
+        if (tops.all { it.second.isEmpty() }) {
+            source.sendFeedback(msg(safaripatron.profit.Bazaar.warning() ?: "Loading Bazaar prices… try again in a moment."))
+            return
+        }
+        source.sendFeedback(msg("§6Most Profitable Shards §7(per catch):"))
+        for ((biome, list) in tops) {
+            val code = when (biome) {
+                safaripatron.data.Biome.FOREST -> "§a"; safaripatron.data.Biome.CAVERN -> "§6"
+                safaripatron.data.Biome.ICY -> "§b"; safaripatron.data.Biome.HAUNTED -> "§5"
+            }
+            val line = Component.literal(" $code${biome.label}§7: ")
+            list.forEachIndexed { i, e ->
+                if (i > 0) line.append(Component.literal("§7, "))
+                line.append(Component.literal(safaripatron.profit.TopShards.format(e)).withStyle {
+                    it.withHoverEvent(net.minecraft.network.chat.HoverEvent.ShowText(Component.literal(safaripatron.profit.TopShards.details(e))))
+                })
+            }
+            if (list.isEmpty()) line.append(Component.literal("§8no prices yet"))
+            source.sendFeedback(line)
         }
     }
 

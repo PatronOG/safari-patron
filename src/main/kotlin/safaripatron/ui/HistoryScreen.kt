@@ -29,6 +29,11 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     private var selectedId = -1
     private var listRect = intArrayOf(0, 0, 0, 0)
     private var maxScroll = 0
+    /** The details panel scrolls on its own when the run has more than fits. */
+    private var detailScroll = 0
+    private var detailMax = 0
+    private var detailRect = intArrayOf(0, 0, 0, 0)
+    private var detailRunId = -1
 
     private val rowH = 12
     private val zone = ZoneId.systemDefault()
@@ -231,25 +236,31 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
             g.text(font, "Select a run", x + 6, y + 6, Ui.DIM, false)
             return
         }
+        if (r.id != detailRunId) { detailRunId = r.id; detailScroll = 0 }
+        detailRect = intArrayOf(x, y, w, h)
         val ix = x + 6
-        val right = x + w - 6
-        var cy = y + 5
-        val bottom = y + h - 4
+        val right = x + w - 8
+        val top = y + 2
+        val bottom = y + h - 2
+        val start = y + 5 - detailScroll
+        var cy = start
+        g.enableScissor(x + 1, top, x + w - 1, bottom)
+        fun visible() = cy + 9 > top && cy < bottom
         fun line(left: String, lc: Int, value: String = "", vc: Int = Ui.TEXT) {
-            if (cy + 9 > bottom) return
-            g.text(font, Ui.fit(font, left, w - 14 - font.width(value)), ix, cy, lc, false)
-            if (value.isNotEmpty()) g.text(font, value, right - font.width(value), cy, vc, false)
+            if (visible()) {
+                g.text(font, Ui.fit(font, left, right - ix - 4 - font.width(value)), ix, cy, lc, false)
+                if (value.isNotEmpty()) g.text(font, value, right - font.width(value), cy, vc, false)
+            }
             cy += 10
         }
         fun divider(title: String) {
-            if (cy + 12 > bottom) return
             cy += 2
-            g.fill(ix, cy, right, cy + 1, Ui.DIVIDER)
+            if (cy in top until bottom) g.fill(ix, cy, right, cy + 1, Ui.DIVIDER)
             cy += 3
             line(title, Ui.DIM)
         }
 
-        Ui.text(g, font, "Run #${r.id}", ix, cy, Ui.WHITE, 1.2f)
+        if (visible()) Ui.text(g, font, "Run #${r.id}", ix, cy, Ui.WHITE, 1.2f)
         cy += 13
         line(dayFmt.format(Instant.ofEpochMilli(r.endedAt).atZone(zone)), Ui.DIM)
         line(if (r.ms > 0) Run.time(r.ms) + (if (r.pb) "  Fastest!" else "") else "Not timed", if (r.pb) Ui.GREEN else Ui.TEXT,
@@ -280,10 +291,21 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
             divider("Loot")
             val loot = r.items.entries.sortedByDescending { (id, n) -> Profit.itemValue(id, n) }
             for ((id, n) in loot) {
-                if (cy + 9 > bottom) break
                 val name = "${"%,d".format(Locale.ROOT, n)}x ${Profit.itemName(id)}"
                 line(name, legacyColor(Profit.itemColor(id)), Profit.coins(Profit.itemValue(id, n)), Ui.GOLD)
             }
+        }
+        g.disableScissor()
+
+        // Scroll: how far the content runs past the panel, and a bar when it does
+        val contentH = cy - start + 4
+        val viewH = bottom - top
+        detailMax = (contentH - viewH).coerceAtLeast(0)
+        detailScroll = detailScroll.coerceIn(0, detailMax)
+        if (detailMax > 0) {
+            val barH = (viewH * viewH / (viewH + detailMax)).coerceAtLeast(10)
+            val barY = top + (viewH - barH) * detailScroll / detailMax
+            g.fill(x + w - 4, barY, x + w - 2, barY + barH, Ui.BORDER_HOVER)
         }
     }
 
@@ -301,6 +323,11 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, scrollX: Double, scrollY: Double): Boolean {
+        val d = detailRect
+        if (mouseX >= d[0] && mouseX < d[0] + d[2] && mouseY >= d[1] && mouseY < d[1] + d[3]) {
+            detailScroll = (detailScroll - (scrollY * 20).toInt()).coerceIn(0, detailMax)
+            return true
+        }
         scroll = (scroll - (scrollY * rowH * 3).toInt()).coerceIn(0, maxScroll)
         return true
     }

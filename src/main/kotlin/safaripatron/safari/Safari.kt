@@ -128,7 +128,7 @@ object Safari {
                 val name = event.biome.lowercase().replaceFirstChar { it.uppercase() }
                 // Once per run, even if the message shows up twice
                 if ((Config.s.hotspotAnnounce || Config.s.hotspotScreen) && Run.markHotspotAnnounced()) {
-                    if (Config.s.hotspotAnnounce) Party.chat("[✦Safari Patron✦] Hotspot: $name")
+                    if (Config.s.hotspotAnnounce) Party.chat("[✦SP✦] Hotspot: $name")
                     if (Config.s.hotspotScreen) {
                         val color = Biome.entries.firstOrNull { it.label.equals(name, true) }?.color ?: 0xFFFFAA00.toInt()
                         Toasts.show(Toasts.Kind.ANNOUNCE, "Hotspot: $name", color, 4000)

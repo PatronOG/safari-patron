@@ -54,8 +54,8 @@ object Profit {
     private var awayMs = 0L
     private var lastSave = 0L
 
-    /** Saved in its own file (config/safari-patron-profit.json) so updates and settings resets never touch it. */
-    private val file = net.fabricmc.loader.api.FabricLoader.getInstance().configDir.resolve("safari-patron-profit.json")
+    /** Saved in its own file (config/safari-patron/profit.json) so updates and settings resets never touch it. */
+    private val file = safaripatron.config.Paths.profit
     private val gson = com.google.gson.GsonBuilder().setPrettyPrinting().create()
     var data = ProfitData()
         private set
@@ -78,11 +78,7 @@ object Profit {
     }
 
     fun save() {
-        runCatching {
-            val tmp = file.resolveSibling("safari-patron-profit.json.tmp")
-            java.nio.file.Files.writeString(tmp, gson.toJson(data))
-            java.nio.file.Files.move(tmp, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE)
-        }.onFailure { runCatching { java.nio.file.Files.writeString(file, gson.toJson(data)) } }
+        safaripatron.config.Paths.write(file, gson.toJson(data))
     }
 
     // ---------- chat ----------

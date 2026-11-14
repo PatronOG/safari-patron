@@ -1,8 +1,6 @@
 package safaripatron.config
 
 import com.google.gson.GsonBuilder
-import net.fabricmc.loader.api.FabricLoader
-import java.nio.file.Files
 
 /**
  * On-screen placement of a HUD element: top-left corner as a fraction of the screen (0..1) and a scale.
@@ -13,7 +11,7 @@ class PanelPos(var x: Float = 0f, var y: Float = 0f, var scale: Float = 1f) {
     fun set(o: PanelPos) { x = o.x; y = o.y; scale = o.scale }
 }
 
-/** Settings saved to config/safari-patron.json. */
+/** Settings saved to config/safari-patron/settings.json. */
 /** Profit tracker data: items, not coins, so values follow the Bazaar. */
 class ProfitData {
     var sessionStart = 0L
@@ -160,13 +158,13 @@ class Settings {
 
 object Config {
     private val gson = GsonBuilder().setPrettyPrinting().create()
-    private val path = FabricLoader.getInstance().configDir.resolve("safari-patron.json")
 
     var s = Settings()
         private set
 
     fun load() {
-        val raw = runCatching { if (Files.exists(path)) Files.readString(path) else null }.getOrNull()
+        Paths.migrate()
+        val raw = Paths.read(Paths.settings)
         s = runCatching { raw?.let { gson.fromJson(it, Settings::class.java) } }.getOrNull() ?: Settings()
         // Files from before 1.1.0 keep the panel spots their owner chose
         if (raw != null && !raw.contains("\"layoutPlaced\"")) s.layoutPlaced = true
@@ -205,6 +203,6 @@ object Config {
     }
 
     fun save() {
-        runCatching { Files.writeString(path, gson.toJson(s)) }
+        Paths.write(Paths.settings, gson.toJson(s))
     }
 }

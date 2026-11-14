@@ -110,6 +110,12 @@ class MainMenuScreen(private val parent: Screen? = null) : Screen(Component.lite
         }
         y += cardH * 2 + gap * 2
 
+        // Run history, bottom left
+        val histLabel = "☰ Run history"
+        val hoverHist = Ui.inside(mx, my, ix - 2, y, font.width(histLabel) + 4, 12)
+        g.text(font, histLabel, ix, y + 2, if (hoverHist) Ui.WHITE else Ui.GREEN, false)
+        hits.add(Ui.Hit(ix - 2, y, font.width(histLabel) + 4, 12) { MenuNav.open(HistoryScreen(this)) })
+
         val credit = "Made by PatronOG"
         g.text(font, credit, x0 + (w - font.width(credit)) / 2, y + 2, Ui.FAINT, false)
 

@@ -55,7 +55,6 @@ class Settings {
 
     // ESP
     var esp = true
-    var espOnlyInBiome = true
     var floorDrops = true
     var beeNests = true
     var snoozleWalls = true

@@ -31,7 +31,7 @@ object Esp {
         val counts = HashMap<BlockPos, Int>()
         for (e in level.entitiesForRendering()) {
             if (e is Display.ItemDisplay && e.itemStack.`is`(Items.STRING)) {
-                if (Config.s.espOnlyInBiome && Critters.biomeAt(e.x, e.z) != playerBiome) continue
+                if (Critters.biomeAt(e.x, e.z) != playerBiome) continue
                 counts.merge(e.blockPosition(), 1, Int::plus)
             }
         }
@@ -52,7 +52,7 @@ object Esp {
         for (e in level.entitiesForRendering()) {
             if (e === player || e.distanceToSqr(player) > RANGE_SQ) continue
             val critter = CritterId.identify(e) ?: continue
-            if (Config.s.espOnlyInBiome && critter.biome != playerBiome) continue
+            if (critter.biome != playerBiome) continue
             out.box(CritterId.box(e), critter.espColor)
         }
     }

@@ -72,12 +72,20 @@ object ContestElement : HudElement {
         val points = if (sample) 1840 else Contest.currentPoints()
         val done = !sample && Contest.isComplete()
         val ticket = if (Config.s.contestFirstClass) "First-Class" else "Basic"
-        val rows = listOf(
-            "${if (gap) "Next contest" else "Time left"}: ${Contest.format(seconds)}" to WHITE,
-            "Bracket: $tier" to WHITE,
-            "Score: ${points.takeIf { it >= 0 }?.let { "%,d".format(it) } ?: "—"}" to WHITE,
-            "$ticket ticket: ${if (done) "Earned" else "Incomplete"}" to if (done) GREEN else WHITE,
-        )
+        val rows = buildList {
+            add("${if (gap) "Next contest" else "Time left"}: ${Contest.format(seconds)}" to WHITE)
+            add("Bracket: $tier" to WHITE)
+            add("Score: ${points.takeIf { it >= 0 }?.let { "%,d".format(it) } ?: "—"}" to WHITE)
+            add("$ticket ticket: ${if (done) "Earned" else "Incomplete"}" to if (done) GREEN else WHITE)
+            if (sample || safaripatron.contest.Honeyhives.enabled()) {
+                val hives = safaripatron.contest.Honeyhives
+                val total = hives.hives.size
+                val ready = if (sample) 14 else hives.readyCount()
+                val next = if (sample || ready > 0) null else hives.nextRefillMs()
+                add("Honeyhives: $ready/$total ready" + (next?.let { " · next ${(it + 59_999) / 60_000}m" } ?: "") to
+                    if (ready > 0) GOLD else GRAY)
+            }
+        }
         return drawBox(g, font, "Miria's Contest", GOLD, rows)
     }
 }

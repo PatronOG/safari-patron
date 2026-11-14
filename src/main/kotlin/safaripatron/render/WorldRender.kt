@@ -102,6 +102,7 @@ object WorldRender {
 
         Esp.collect(client, batch)
         Structures.collect(client, batch)
+        safaripatron.contest.Honeyhives.collect(client, batch)
         SparklingFinder.collect(batch)
         Trajectory.collect(client, batch)
 

@@ -14,5 +14,14 @@ SkyHanni - LGPL-2.1, see SkyHanni-LGPL-2.1.txt
   https://github.com/hannibal002/SkyHanni
   Critter Safari area graph nodes (assets/safari-patron/safari_areas.txt, data/AreaMap.kt)
 
+Sparkling Mutuals (johnceoskyblock) - CC0 1.0
+  https://github.com/johnceoskyblock/sparkling-mutuals
+  Torrhus Canyon honeyhive positions, first surveyed by Shiny Hunter
+  (https://github.com/javabetter/ShinyHunter)
+  (assets/safari-patron/honeyhives.txt)
+
+SkyCofl (https://sky.coflnet.com) - public API
+  Auction House lowest BIN prices for the Emerald Dye (profit/Auction.kt)
+
 hm-api (AzureAaron) - Apache-2.0
   Bundled inside the jar with its own license.

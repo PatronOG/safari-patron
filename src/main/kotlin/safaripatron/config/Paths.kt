@@ -18,7 +18,9 @@ object Paths {
     val dir: Path = configDir.resolve("safari-patron")
     val settings: Path = dir.resolve("settings.json")
     val profit: Path = dir.resolve("profit.json")
+    /** 1.2.0's single history file; moved into [historyDir] on the first start of 1.3.0. */
     val history: Path = dir.resolve("history.json")
+    val historyDir: Path = dir.resolve("history")
     val honeyhives: Path = dir.resolve("honeyhives.json")
 
     private val OLD_FILES = listOf("safari-patron.json" to settings, "safari-patron-profit.json" to profit)

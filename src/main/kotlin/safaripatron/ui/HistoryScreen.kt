@@ -9,6 +9,7 @@ import safaripatron.data.Biome
 import safaripatron.data.Critters
 import safaripatron.history.History
 import safaripatron.history.RunRecord
+import safaripatron.history.Totals
 import safaripatron.profit.Profit
 import safaripatron.safari.Run
 import java.time.Instant
@@ -47,10 +48,30 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     private val whenFmt = DateTimeFormatter.ofPattern("d MMM HH:mm", Locale.ENGLISH)
     private val dayFmt = DateTimeFormatter.ofPattern("d MMM yyyy · HH:mm", Locale.ENGLISH)
 
+    /** The list for the current filter and sort; worked out again only when one of them, the day or the history changes. */
+    private var listCache: List<RunRecord> = emptyList()
+    private var listKey: Any? = null
+
+    private fun startOf(day: LocalDate) = day.atStartOfDay(zone).toInstant().toEpochMilli()
+
     private fun runs(): List<RunRecord> {
         val today = LocalDate.now(zone)
+        // Today / This week need every run of those days loaded
+        when (filter) {
+            Filter.TODAY -> History.ensureSince(startOf(today))
+            Filter.WEEK -> History.ensureSince(startOf(today.minusDays(6)))
+            else -> {}
+        }
+        val key = listOf(filter, sort, today, History.version)
+        if (key == listKey) return listCache
+        listKey = key
+        listCache = computeRuns(today)
+        return listCache
+    }
+
+    private fun computeRuns(today: LocalDate): List<RunRecord> {
         val weekStart = today.minusDays(6)
-        val all = History.data.runs.filter { r ->
+        val all = History.runs.filter { r ->
             val day by lazy { Instant.ofEpochMilli(r.endedAt).atZone(zone).toLocalDate() }
             when (filter) {
                 Filter.ALL -> true
@@ -102,19 +123,18 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
         if (tab == Tab.STATS) { drawStats(g, mx, my, ix, y, iw, y0 + h - 6); return }
 
         // Summary cards
-        val all = History.data.runs
-        val timed = all.filter { it.ms > 0 }
-        val fastest = timed.minByOrNull { it.ms }
-        val sparklings = all.sumOf { it.sparklings.size }
+        // All time, from the saved totals (older runs do not have to be loaded)
+        val t = History.totals
+        val sparklings = t.sparklings
         val cards = listOf(
-            Triple("Runs", "${all.size}", Ui.TEXT),
-            Triple("Played", Profit.duration(timed.sumOf { it.ms }), Ui.TEXT),
-            Triple("Total Profit", Profit.coins(all.sumOf { it.value }), Ui.GOLD),
-            Triple("Fastest Run", fastest?.let { Run.time(it.ms) } ?: "—", Ui.GREEN),
+            Triple("Runs", "${t.runs}", Ui.TEXT),
+            Triple("Played", Profit.duration(t.sumMs), Ui.TEXT),
+            Triple("Total Profit", Profit.coins(t.sumValue), Ui.GOLD),
+            Triple("Fastest Run", if (t.fastestMs > 0) Run.time(t.fastestMs) else "—", Ui.GREEN),
             Triple("Sparklings", "$sparklings", Ui.GOLD),
         )
-        val subs = listOf(null, null, null, fastest?.let { "Run #${it.id}" },
-            if (sparklings > 0) "1 per ${String.format(Locale.ROOT, "%.1f", all.size.toDouble() / sparklings)} runs" else null)
+        val subs = listOf(null, null, null, if (t.fastestMs > 0) "Run #${t.fastestId}" else null,
+            if (sparklings > 0) "1 per ${String.format(Locale.ROOT, "%.1f", t.runs.toDouble() / sparklings)} runs" else null)
         val cw = (iw - 4 * 4) / 5
         cards.forEachIndexed { i, (label, value, color) ->
             val cx = ix + i * (cw + 4)
@@ -183,7 +203,9 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
         val top = y + 15
         val bottom = y + h - 13
         listRect = intArrayOf(x, top, w, bottom - top)
-        maxScroll = (list.size * rowH - (bottom - top)).coerceAtLeast(0)
+        val more = History.moreToLoad
+        val rows = list.size + if (more) 1 else 0
+        maxScroll = (rows * rowH - (bottom - top)).coerceAtLeast(0)
         scroll = scroll.coerceIn(0, maxScroll)
         if (selectedId < 0 || list.none { it.id == selectedId }) selectedId = list.firstOrNull()?.id ?: -1
 
@@ -218,9 +240,20 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
             }
             hits.add(Ui.Hit(x + 1, maxOf(ry, top), w - 2, minOf(ry + rowH, bottom) - maxOf(ry, top)) { selectedId = r.id })
         }
+        // Last row: load the next older file of runs
+        if (more) {
+            val ry = top + list.size * rowH - scroll
+            if (ry + rowH >= top && ry <= bottom) {
+                val hover = Ui.inside(mx, my, x + 1, ry, w - 2, rowH) && my in top until bottom
+                if (hover) g.fill(x + 1, ry, x + w - 1, ry + rowH, Ui.CARD_HOVER)
+                val label = "Load older runs (${"%,d".format(Locale.ROOT, History.olderCount)} more) ›"
+                g.text(font, label, x + (w - font.width(label)) / 2, ry + 2, if (hover) Ui.WHITE else Ui.GREEN, false)
+                hits.add(Ui.Hit(x + 1, maxOf(ry, top), w - 2, minOf(ry + rowH, bottom) - maxOf(ry, top)) { History.loadOlder() })
+            }
+        }
         g.disableScissor()
         if (list.isEmpty()) {
-            val msg = if (History.data.runs.isEmpty()) "No runs yet. Finish a run to see it here." else "No runs match this filter."
+            val msg = if (History.totalRuns == 0) "No runs yet. Finish a run to see it here." else "No loaded runs match this filter."
             g.text(font, msg, x + (w - font.width(msg)) / 2, top + 20, Ui.DIM, false)
         }
         // Scroll bar
@@ -231,7 +264,8 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
             g.fill(x + w - 3, barY, x + w - 1, barY + barH, Ui.BORDER_HOVER)
         }
         g.fill(x + 1, bottom, x + w - 1, bottom + 1, Ui.DIVIDER)
-        val shown = if (list.isEmpty()) "0 runs" else "${list.size} run${if (list.size == 1) "" else "s"}"
+        val shown = (if (list.isEmpty()) "0 runs" else "${list.size} run${if (list.size == 1) "" else "s"}") +
+            if (more) " · latest ${"%,d".format(Locale.ROOT, History.runs.size)} of ${"%,d".format(Locale.ROOT, History.totalRuns)} loaded" else ""
         g.text(font, shown, x + 4, bottom + 3, Ui.FAINT, false)
         val hint = "Click a run for details"
         g.text(font, hint, x + w - 4 - font.width(hint), bottom + 3, Ui.FAINT, false)
@@ -244,7 +278,7 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
 
     private fun drawDetails(g: GuiGraphicsExtractor, x: Int, y: Int, w: Int, h: Int) {
         Ui.box(g, x, y, w, h, Ui.CARD, Ui.BORDER)
-        val r = History.data.runs.firstOrNull { it.id == selectedId }
+        val r = History.byId(selectedId)
         if (r == null) {
             g.text(font, "Select a run", x + 6, y + 6, Ui.DIM, false)
             return
@@ -330,23 +364,43 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
 
     // ---------------- Stats tab ----------------
 
-    private fun rangeRuns(): List<RunRecord> {
-        val runs = History.data.runs.sortedBy { it.id }
+    /** The range's runs (loaded, oldest first: for the graphs and "Last 10"), its totals and the last 10's totals. */
+    private class StatsView(val runs: List<RunRecord>, val totals: Totals, val last10: Totals)
+    private var statsCache: StatsView? = null
+    private var statsKey: Any? = null
+
+    private fun stats(): StatsView {
         val today = LocalDate.now(zone)
+        when (range) {
+            Range.WEEK -> History.ensureSince(startOf(today.minusDays(6)))
+            Range.TODAY -> History.ensureSince(startOf(today))
+            else -> History.ensureCount(50)
+        }
+        val key = listOf(range, today, History.version)
+        statsCache?.let { if (key == statsKey) return it }
+        val runs = History.runs
         fun day(r: RunRecord) = Instant.ofEpochMilli(r.endedAt).atZone(zone).toLocalDate()
-        return when (range) {
-            Range.ALL -> runs
+        val list = when (range) {
+            Range.ALL -> ArrayList(runs)
             Range.WEEK -> runs.filter { !day(it).isBefore(today.minusDays(6)) }
             Range.TODAY -> runs.filter { day(it) == today }
             Range.LAST50 -> runs.takeLast(50)
         }
+        // All time comes from the saved totals, so it counts the runs that are not loaded too
+        val totals = if (range == Range.ALL) History.totals else Totals.of(list)
+        val view = StatsView(list, totals, Totals.of(list.takeLast(10)))
+        statsKey = key
+        statsCache = view
+        return view
     }
 
     private var tooltip: String? = null
 
     private fun drawStats(g: GuiGraphicsExtractor, mx: Int, my: Int, ix: Int, top: Int, iw: Int, bottom: Int) {
         tooltip = null
-        val runs = rangeRuns()
+        val view = stats()
+        val runs = view.runs
+        val t = view.totals
         var y = top
 
         // Range chips and a summary
@@ -360,12 +414,12 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
             hits.add(Ui.Hit(fx, y, fw, 13) { range = r })
             fx += fw + 3
         }
-        val summary = "${runs.size} run${if (runs.size == 1) "" else "s"} · ${Profit.duration(runs.filter { it.ms > 0 }.sumOf { it.ms })} played"
+        val summary = "${t.runs} run${if (t.runs == 1) "" else "s"} · ${Profit.duration(t.sumMs)} played"
         g.text(font, summary, ix + iw - font.width(summary), y + 3, Ui.DIM, false)
         y += 17
 
-        if (runs.isEmpty()) {
-            val msg = if (History.data.runs.isEmpty()) "No runs yet. Finish a run to see your stats." else "No runs in this range."
+        if (t.runs == 0) {
+            val msg = if (History.totalRuns == 0) "No runs yet. Finish a run to see your stats." else "No runs in this range."
             g.text(font, msg, ix + (iw - font.width(msg)) / 2, y + 40, Ui.DIM, false)
             return
         }
@@ -373,16 +427,16 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
         val leftW = (iw * 0.55f).toInt()
         val rightX = ix + leftW + 6
         val rightW = iw - leftW - 6
-        drawCompare(g, runs, ix, y, leftW)
+        drawCompare(g, view, ix, y, leftW)
         val graphH = ((bottom - y - 38 - 8) / 2).coerceAtLeast(50)
         drawTimeGraph(g, runs, ix, y + 38, leftW, graphH)
         drawProfitGraph(g, runs, ix, y + 38 + graphH + 4, leftW, bottom - (y + 38 + graphH + 4))
 
         var ry = y
-        ry = drawClear(g, mx, my, runs, rightX, ry, rightW) + 4
-        ry = drawSparklings(g, runs, rightX, ry, rightW) + 4
-        ry = drawRecords(g, mx, my, runs, rightX, ry, rightW, bottom) + 4
-        drawPlayedWith(g, runs, rightX, ry, rightW, bottom)
+        ry = drawClear(g, mx, my, t, rightX, ry, rightW) + 4
+        ry = drawSparklings(g, t, rightX, ry, rightW) + 4
+        ry = drawRecords(g, mx, my, t, rightX, ry, rightW, bottom) + 4
+        drawPlayedWith(g, t, rightX, ry, rightW, bottom)
 
         tooltip?.let { t ->
             val tw = font.width(t) + 8
@@ -399,19 +453,18 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     }
 
     /** Last 10 runs against the whole range: run time, profit, your uniques, Everything cleared. */
-    private fun drawCompare(g: GuiGraphicsExtractor, runs: List<RunRecord>, x: Int, y: Int, w: Int) {
+    private fun drawCompare(g: GuiGraphicsExtractor, view: StatsView, x: Int, y: Int, w: Int) {
         Ui.box(g, x, y, w, 34, Ui.CARD, Ui.BORDER)
         g.text(font, "Last 10 runs", x + 6, y + 4, Ui.DIM, false)
         g.text(font, "vs ${range.label.lowercase()}", x + 10 + font.width("Last 10 runs"), y + 4, Ui.FAINT, false)
-        val last = runs.takeLast(10)
-        fun avgMs(l: List<RunRecord>) = l.filter { it.ms > 0 }.map { it.ms }.average()
-        fun cleared(l: List<RunRecord>) = l.count { "all" in it.biomeMs } * 100.0 / l.size
+        val last = view.last10
+        val all = view.totals
         val items = listOf(
             // label, value now, change, lower is better, format
-            Quad("Run time", avgMs(last), avgMs(runs), true) { v: Double -> Run.time(v.toLong()) },
-            Quad("Profit/run", last.map { it.value }.average(), runs.map { it.value }.average(), false) { v: Double -> Profit.coins(v) },
-            Quad("Your uniques", last.map { it.mine.toDouble() }.average(), runs.map { it.mine.toDouble() }.average(), false) { v: Double -> String.format(Locale.ROOT, "%.1f", v) },
-            Quad("Cleared", cleared(last), cleared(runs), false) { v: Double -> "${v.toInt()}%" },
+            Quad("Run time", last.averageMs, all.averageMs, true) { v: Double -> Run.time(v.toLong()) },
+            Quad("Profit/run", last.averageValue, all.averageValue, false) { v: Double -> Profit.coins(v) },
+            Quad("Your uniques", last.averageMine, all.averageMine, false) { v: Double -> String.format(Locale.ROOT, "%.1f", v) },
+            Quad("Cleared", last.clearedPercent, all.clearedPercent, false) { v: Double -> "${v.toInt()}%" },
         )
         val cw = (w - 12) / items.size
         items.forEachIndexed { i, q ->
@@ -420,7 +473,7 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
             if (q.now.isNaN()) { g.text(font, "—", cx, y + 23, Ui.DIM, false); return@forEachIndexed }
             val value = q.fmt(q.now)
             g.text(font, value, cx, y + 23, Ui.TEXT, false)
-            if (!q.base.isNaN() && runs.size > last.size) {
+            if (!q.base.isNaN() && all.runs > last.runs) {
                 val diff = q.now - q.base
                 if (kotlin.math.abs(diff) > 1e-9) {
                     val better = if (q.lowerBetter) diff < 0 else diff > 0
@@ -475,6 +528,7 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     private fun drawProfitGraph(g: GuiGraphicsExtractor, runs: List<RunRecord>, x: Int, y: Int, w: Int, h: Int) {
         card(g, "Profit per run · last 30 runs", x, y, w, h)
         val pts = runs.takeLast(30)
+        if (pts.isEmpty()) return
         val gx = x + 30; val gy = y + 15; val gw = w - 38; val gh = h - 34
         val sorted = pts.map { it.value }.sorted()
         val median = sorted[sorted.size / 2]
@@ -506,7 +560,7 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     }
 
     /** Average and best time per biome, and how often it was cleared. Returns the bottom. */
-    private fun drawClear(g: GuiGraphicsExtractor, mx: Int, my: Int, runs: List<RunRecord>, x: Int, y: Int, w: Int): Int {
+    private fun drawClear(g: GuiGraphicsExtractor, mx: Int, my: Int, t: Totals, x: Int, y: Int, w: Int): Int {
         val rows = Biome.entries.map { Triple(it.label, it.color, it.name) } + Triple("Everything", Ui.GOLD, "all")
         val h = 26 + rows.size * 10 + 4
         card(g, "Clear Stats", x, y, w, h)
@@ -518,28 +572,28 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
             val ry = y + 26 + i * 10
             if (key == "all") g.fill(x + 6, ry - 1, x + w - 6, ry, Ui.DIVIDER)
             g.text(font, label, x + 6, ry, color, false)
-            val times = runs.mapNotNull { it.biomeMs[key] }
-            right(times.takeIf { it.isNotEmpty() }?.let { Run.time(it.average().toLong()) } ?: "—", cAvg, ry, Ui.TEXT)
-            right(times.minOrNull()?.let { Run.time(it) } ?: "—", cBest, ry, Ui.GREEN)
-            val cleared = if (key == "all") runs.count { "all" in it.biomeMs }
-                else runs.count { r -> key in r.biomeMs || Biome.valueOf(key).critters.all { c -> r.players.values.any { c.name in it } } }
-            val pct = "${cleared * 100 / runs.size}%"
+            val b = t.biome(key)
+            right(if (b.timed > 0) Run.time(b.average) else "—", cAvg, ry, Ui.TEXT)
+            right(if (b.best > 0) Run.time(b.best) else "—", cBest, ry, Ui.GREEN)
+            val cleared = b.cleared
+            val pct = "${cleared * 100 / t.runs}%"
             right(pct, cClr, ry, Ui.DIM)
             if (Ui.inside(mx, my, cClr - font.width(pct), ry - 1, font.width(pct), 10))
-                tooltip = if (key == "all") "Runs where all ${Critters.TOTAL} critters were caught ($cleared/${runs.size})"
-                    else "Runs where every $label critter was caught ($cleared/${runs.size})"
+                tooltip = if (key == "all") "Runs where all ${Critters.TOTAL} critters were caught ($cleared/${t.runs})"
+                    else "Runs where every $label critter was caught ($cleared/${t.runs})"
         }
         return y + h
     }
 
-    private fun drawSparklings(g: GuiGraphicsExtractor, runs: List<RunRecord>, x: Int, y: Int, w: Int): Int {
+    private fun drawSparklings(g: GuiGraphicsExtractor, t: Totals, x: Int, y: Int, w: Int): Int {
         val h = 16 + 4 * 10 + 4
         card(g, "Sparklings", x, y, w, h)
-        val all = runs.flatMap { r -> r.sparklings.map { r to it } }
-        val yours = all.count { (r, s) -> s.player.equals(r.self, ignoreCase = true) }
-        val topBiome = all.mapNotNull { Critters.named(it.second.critter)?.biome }.groupingBy { it }.eachCount().maxByOrNull { it.value }
-        var current = 0; var longest = 0
-        for (r in runs) { if (r.sparklings.isEmpty()) { current++; longest = maxOf(longest, current) } else current = 0 }
+        val count = t.sparklings
+        val yours = t.yourSparklings
+        val topBiome = t.sparklingBiomes.entries.maxByOrNull { it.value }
+            ?.let { e -> Biome.entries.firstOrNull { it.name == e.key }?.let { it to e.value } }
+        val current = t.dry
+        val longest = t.longestDry
         fun kv(i: Int, k: String, v: String, c: Int, sub: String? = null) {
             val ry = y + 16 + i * 10
             g.text(font, k, x + 6, ry, Ui.DIM, false)
@@ -547,89 +601,85 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
             g.text(font, v, x + w - 6 - subW - font.width(v), ry, c, false)
             sub?.let { Ui.text(g, font, it, x + w - 6 - subW + 4, ry + 1, Ui.FAINT, 0.75f) }
         }
-        kv(0, "Sparklings", "${all.size}", Ui.GOLD,
-            if (all.isNotEmpty()) "1 per ${String.format(Locale.ROOT, "%.1f", runs.size.toDouble() / all.size)} runs" else null)
-        kv(1, "Yours / party", "$yours / ${all.size - yours}", Ui.TEXT)
-        kv(2, "Top biome", topBiome?.let { "${it.key.label} · ${it.value}" } ?: "—", topBiome?.key?.color ?: Ui.DIM)
+        kv(0, "Sparklings", "$count", Ui.GOLD,
+            if (count > 0) "1 per ${String.format(Locale.ROOT, "%.1f", t.runs.toDouble() / count)} runs" else null)
+        kv(1, "Yours / party", "$yours / ${count - yours}", Ui.TEXT)
+        kv(2, "Top biome", topBiome?.let { "${it.first.label} · ${it.second}" } ?: "—", topBiome?.first?.color ?: Ui.DIM)
         kv(3, "Dry streak", "$current runs", Ui.TEXT, "longest $longest")
         return y + h
     }
 
-    /** Clicking a record opens that run in the History tab. */
+    private var playedKey: Totals? = null
+    private var playedVersion = -1
+    private var playedTop: List<safaripatron.history.PlayerTotals> = emptyList()
+
     /** The players you ran with most in the range: runs together and the sparklings they caught in them. */
-    private fun drawPlayedWith(g: GuiGraphicsExtractor, runs: List<RunRecord>, x: Int, y: Int, w: Int, bottom: Int) {
+    private fun drawPlayedWith(g: GuiGraphicsExtractor, t: Totals, x: Int, y: Int, w: Int, bottom: Int) {
         val h = bottom - y
         if (h < 26) return
         card(g, "Played With", x, y, w, h)
-        val together = HashMap<String, Int>()
-        val sparkles = HashMap<String, Int>()
-        val shown = HashMap<String, String>() // lower-case key -> name as written
-        for (r in runs) {
-            for (name in r.players.keys) {
-                if (name.equals(r.self, ignoreCase = true)) continue
-                val key = name.lowercase()
-                shown[key] = name
-                together.merge(key, 1, Int::plus)
-            }
-            for (s in r.sparklings) {
-                val key = s.player.lowercase()
-                if (!s.player.equals(r.self, ignoreCase = true) && key in together) sparkles.merge(key, 1, Int::plus)
-            }
+        if (t.players.isEmpty()) { g.text(font, "No party runs yet", x + 6, y + 16, Ui.FAINT, false); return }
+        val max = ((h - 18) / 10).coerceAtLeast(1)
+        if (playedKey !== t || playedVersion != History.version) {
+            playedKey = t; playedVersion = History.version
+            playedTop = t.players.values.sortedByDescending { it.runs }.take(40)
         }
-        if (together.isEmpty()) { g.text(font, "No party runs yet", x + 6, y + 16, Ui.FAINT, false); return }
-        val rows = together.entries.sortedByDescending { it.value }.take(((h - 18) / 10).coerceAtLeast(1))
-        rows.forEachIndexed { i, (key, count) ->
+        playedTop.take(max).forEachIndexed { i, p ->
             val ry = y + 16 + i * 10
-            val spark = sparkles[key] ?: 0
+            val count = p.runs
+            val spark = p.sparklings
             val sparkText = "✦ $spark"
             val runsText = "$count run${if (count == 1) "" else "s"} · "
             val right = x + w - 6
             g.text(font, sparkText, right - font.width(sparkText), ry, if (spark > 0) Ui.GOLD else Ui.FAINT, false)
             g.text(font, runsText, right - font.width(sparkText) - font.width(runsText), ry, Ui.DIM, false)
             val nameW = w - 12 - font.width(sparkText) - font.width(runsText) - 4
-            g.text(font, Ui.fit(font, shown[key] ?: key, nameW), x + 6, ry, Ui.TEXT, false)
+            g.text(font, Ui.fit(font, p.name, nameW), x + 6, ry, Ui.TEXT, false)
         }
     }
 
-    private fun drawRecords(g: GuiGraphicsExtractor, mx: Int, my: Int, runs: List<RunRecord>, x: Int, y: Int, w: Int, bottom: Int): Int {
+    private fun drawRecords(g: GuiGraphicsExtractor, mx: Int, my: Int, t: Totals, x: Int, y: Int, w: Int, bottom: Int): Int {
         val h = (16 + 4 * 11 + 2).coerceAtMost(bottom - y)
         card(g, "Records", x, y, w, h)
-        val fastest = runs.filter { it.ms > 0 }.minByOrNull { it.ms }
-        val richest = runs.maxByOrNull { it.value }
-        val sparkly = runs.filter { it.sparklings.isNotEmpty() }.maxWithOrNull(compareBy<RunRecord>({ it.sparklings.size }, { it.id }))
-        val busiest = runs.groupBy { Instant.ofEpochMilli(it.endedAt).atZone(zone).toLocalDate() }.maxByOrNull { it.value.size }
-        data class Row(val label: String, val value: String, val color: Int, val sub: String?, val link: String, val run: RunRecord?)
+        val busiest = t.days.entries.maxByOrNull { it.value.runs }
+        val busiestDay = busiest?.key?.toLongOrNull()?.let { LocalDate.ofEpochDay(it) }
+        /** [run] is the id the row opens (0 = none). */
+        data class Row(val label: String, val value: String, val color: Int, val sub: String?, val link: String, val run: Int)
         val rows = listOf(
-            Row("Fastest run", fastest?.let { Run.time(it.ms) } ?: "—", Ui.GREEN, null, fastest?.let { "#${it.id}" } ?: "", fastest),
-            Row("Most profit", richest?.let { Profit.coins(it.value) } ?: "—", Ui.GOLD, null, richest?.let { "#${it.id}" } ?: "", richest),
-            Row("Most sparklings", sparkly?.let { "✦ ${it.sparklings.size}" } ?: "—", Ui.GOLD,
-                sparkly?.let { r -> "(${r.sparklings.count { it.player.equals(r.self, ignoreCase = true) }} yours)" }, sparkly?.let { "#${it.id}" } ?: "", sparkly),
-            Row("Runs in a day", busiest?.value?.size?.toString() ?: "—", Ui.TEXT, null,
-                busiest?.key?.format(DateTimeFormatter.ofPattern("d MMM", Locale.ENGLISH)) ?: "", busiest?.value?.lastOrNull()),
+            Row("Fastest run", if (t.fastestMs > 0) Run.time(t.fastestMs) else "—", Ui.GREEN, null,
+                if (t.fastestMs > 0) "#${t.fastestId}" else "", if (t.fastestMs > 0) t.fastestId else 0),
+            Row("Most profit", if (t.richestId > 0) Profit.coins(t.richestValue) else "—", Ui.GOLD, null,
+                if (t.richestId > 0) "#${t.richestId}" else "", t.richestId),
+            Row("Most sparklings", if (t.sparklyCount > 0) "✦ ${t.sparklyCount}" else "—", Ui.GOLD,
+                if (t.sparklyCount > 0) "(${t.sparklyYours} yours)" else null, if (t.sparklyCount > 0) "#${t.sparklyId}" else "",
+                if (t.sparklyCount > 0) t.sparklyId else 0),
+            Row("Runs in a day", busiest?.value?.runs?.toString() ?: "—", Ui.TEXT, null,
+                busiestDay?.format(DateTimeFormatter.ofPattern("d MMM", Locale.ENGLISH)) ?: "", busiest?.value?.lastId ?: 0),
         )
         rows.forEachIndexed { i, row ->
             val ry = y + 16 + i * 11
             if (ry + 9 > y + h) return@forEachIndexed
             val linkW = font.width(row.link + " ›")
-            val hover = row.run != null && Ui.inside(mx, my, x + 2, ry - 1, w - 4, 11)
+            val hover = row.run > 0 && Ui.inside(mx, my, x + 2, ry - 1, w - 4, 11)
             if (hover) g.fill(x + 2, ry - 1, x + w - 2, ry + 10, Ui.CARD_HOVER)
             g.text(font, row.label, x + 6, ry, Ui.DIM, false)
             var vx = x + w - 6 - linkW - 6
             row.sub?.let { s -> val sw = (font.width(s) * 0.75f).toInt(); Ui.text(g, font, s, vx - sw, ry + 1, Ui.FAINT, 0.75f); vx -= sw + 3 }
             g.text(font, row.value, vx - font.width(row.value), ry, row.color, false)
             if (row.link.isNotEmpty()) g.text(font, row.link + " ›", x + w - 6 - linkW, ry, if (hover) Ui.WHITE else Ui.FAINT, false)
-            row.run?.let { r -> hits.add(Ui.Hit(x + 2, ry - 1, w - 4, 11) { openRun(r) }) }
+            if (row.run > 0) hits.add(Ui.Hit(x + 2, ry - 1, w - 4, 11) { openRun(row.run) })
         }
         return y + h
     }
 
-    /** Shows a run in the History tab (filters cleared so it is in the list). */
-    private fun openRun(r: RunRecord) {
+    /** Shows a run in the History tab: older files loaded if needed, filters cleared so it is in the list. */
+    private fun openRun(id: Int) {
+        History.ensureId(id)
         tab = Tab.HISTORY
         filter = Filter.ALL
         sort = Sort.NEWEST
-        selectedId = r.id
-        val index = runs().indexOfFirst { it.id == r.id }
+        selectedId = id
+        val index = runs().indexOfFirst { it.id == id }
         scroll = (index * rowH - rowH * 3).coerceAtLeast(0)
     }
 

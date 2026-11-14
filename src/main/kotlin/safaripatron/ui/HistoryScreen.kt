@@ -19,7 +19,7 @@ import java.util.Locale
 
 /** /sp history — every saved run: summary cards, filters, the list and the selected run's details. */
 class HistoryScreen(private val parent: Screen? = null) : Screen(Component.literal("Safari Patron Run History")) {
-    private enum class Filter(val label: String) { ALL("All"), SPARKLING("✦ Sparkling"), PB("★ PB"), TODAY("Today"), WEEK("This week") }
+    private enum class Filter(val label: String) { ALL("All"), SPARKLING("✦ Sparkling"), PB("★ PB"), DYE("♦ Dye"), TODAY("Today"), WEEK("This week") }
     private enum class Sort(val label: String) { NEWEST("Newest"), FASTEST("Fastest"), PROFIT("Most profit") }
 
     private val hits = ArrayList<Ui.Hit>()
@@ -44,6 +44,7 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
                 Filter.ALL -> true
                 Filter.SPARKLING -> r.sparklings.isNotEmpty()
                 Filter.PB -> r.pb
+                Filter.DYE -> (r.items[safaripatron.profit.Bazaar.DYE] ?: 0L) > 0
                 Filter.TODAY -> day == today
                 Filter.WEEK -> !day.isBefore(weekStart)
             }
@@ -58,8 +59,8 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     override fun extractRenderState(g: GuiGraphicsExtractor, mx: Int, my: Int, delta: Float) {
         super.extractRenderState(g, mx, my, delta)
         hits.clear()
-        val w = minOf(width - 16, 540)
-        val h = minOf(height - 12, 320)
+        val w = minOf(width - 16, 640)
+        val h = minOf(height - 12, 340)
         val x0 = (width - w) / 2
         val y0 = ((height - h) / 2).coerceAtLeast(4)
         Ui.rounded(g, x0, y0, w, h, Ui.WINDOW)
@@ -128,18 +129,29 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
 
         // Body: list (left) and details (right)
         val bodyBottom = y0 + h - 6
-        val detailW = 168
+        val detailW = 180
         val lw = iw - detailW - 4
         drawList(g, mx, my, ix, y, lw, bodyBottom - y)
         drawDetails(g, ix + lw + 4, y, detailW, bodyBottom - y)
     }
 
-    // Column layout of the list: x offsets inside a row
-    private val cols = intArrayOf(4, 30, 92, 122, 164, 194, 226, 254, 296)
+    // Column layout of the list: x offsets inside a row, from the widest text each column can hold
+    private var cols = IntArray(9)
+    private val headers = listOf("Run", "When", "Time", "Biomes", "You", "Party", "Caught", "Profit", "")
+    private val widest = listOf("#0000", "30 Nov 23:59", "59:59", "", "37/37", "37/37", "000", "999.9M", "✦★♦")
+
+    private fun layoutColumns() {
+        var x = 4
+        for (i in headers.indices) {
+            cols[i] = x
+            val content = if (i == 3) 4 * 9 - 2 else font.width(widest[i])
+            x += maxOf(font.width(headers[i]), content) + 8
+        }
+    }
 
     private fun drawList(g: GuiGraphicsExtractor, mx: Int, my: Int, x: Int, y: Int, w: Int, h: Int) {
         Ui.box(g, x, y, w, h, 0xFF161C12.toInt(), Ui.DIVIDER)
-        val headers = listOf("Run", "When", "Time", "Biomes", "You", "Party", "Caught", "Profit", "")
+        layoutColumns()
         headers.forEachIndexed { i, t -> if (cols[i] < w - 8) g.text(font, t, x + cols[i], y + 3, Ui.DIM, false) }
         g.fill(x + 1, y + 13, x + w - 1, y + 14, Ui.DIVIDER)
 
@@ -174,8 +186,12 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
             col(5, "${r.party}/${Critters.TOTAL}", Ui.TEXT)
             col(6, "${r.caught}", Ui.TEXT)
             col(7, Profit.coins(r.value), Ui.GOLD)
-            val marks = (if (r.sparklings.isNotEmpty()) "✦" else "") + (if (r.pb) "★" else "")
-            col(8, marks, Ui.GOLD)
+            if (cols[8] < w - 8) {
+                var mx2 = x + cols[8]
+                if (r.sparklings.isNotEmpty()) { g.text(font, "✦", mx2, ty, Ui.GOLD, false); mx2 += font.width("✦") + 1 }
+                if (r.pb) { g.text(font, "★", mx2, ty, Ui.GREEN, false); mx2 += font.width("★") + 1 }
+                if ((r.items[safaripatron.profit.Bazaar.DYE] ?: 0L) > 0) g.text(font, "♦", mx2, ty, 0xFF55AA55.toInt(), false)
+            }
             hits.add(Ui.Hit(x + 1, maxOf(ry, top), w - 2, minOf(ry + rowH, bottom) - maxOf(ry, top)) { selectedId = r.id })
         }
         g.disableScissor()

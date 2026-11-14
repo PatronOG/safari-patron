@@ -136,6 +136,8 @@ class Settings {
     var totalProfitPanel = PanelPos(0.167f, 0.262f)
     /** Where the total profit panel shows outside the Safari: "all" or "entrance" (Critter Safari Entrance). */
     var totalProfitWhere = "entrance"
+    /** Items the total profit panel shows at once: 5, 10, 15 or 20. */
+    var totalProfitRows = 15
     /** Honeyhive waypoints and timers (part of Miria's Contest). */
     var honeyhives = true
     var honeyhivesHideWhenDone = true
@@ -193,6 +195,7 @@ object Config {
             if (s.contestTicketChoice == null) s.contestTicketChoice = "Ticket earned."
             if (s.contestTicketCustom == null) s.contestTicketCustom = ""
             if (s.totalProfitWhere == null) s.totalProfitWhere = "entrance"
+            if (s.totalProfitRows !in listOf(5, 10, 15, 20)) s.totalProfitRows = 15
         }
         for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel, s.totalProfitPanel)) {
             if (p.scale !in 0.5f..2f) p.scale = 1f

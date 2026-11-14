@@ -206,13 +206,14 @@ object TotalProfitElement : HudElement {
     override val overScreens get() = true
 
     /** At most this many item rows; the rest scroll with the mouse wheel while an inventory is open. */
-    const val MAX_ROWS = 10
+    /** Items shown at once (5/10/15/20, set in the Profit settings); the rest scroll. */
+    val maxRows get() = Config.s.totalProfitRows.coerceIn(5, 20)
     var scroll = 0
     private var itemCount = 0
 
     /** Mouse wheel over the panel (inventory open): true if it scrolled. */
     fun scrollBy(steps: Int): Boolean {
-        val max = (itemCount - MAX_ROWS).coerceAtLeast(0)
+        val max = (itemCount - maxRows).coerceAtLeast(0)
         val next = (scroll + steps).coerceIn(0, max)
         if (next == scroll) return max > 0
         scroll = next
@@ -230,8 +231,8 @@ object TotalProfitElement : HudElement {
         val total = items.sumOf { it.third }
         val runs = if (sample) 128 else safaripatron.profit.Profit.data.totalRuns
         itemCount = items.size
-        scroll = scroll.coerceIn(0, (items.size - MAX_ROWS).coerceAtLeast(0))
-        val shown = items.drop(scroll).take(MAX_ROWS)
+        scroll = scroll.coerceIn(0, (items.size - maxRows).coerceAtLeast(0))
+        val shown = items.drop(scroll).take(maxRows)
         val above = scroll
         val below = items.size - scroll - shown.size
         // §7 count (gray) · item in its rarity color · §6 coins (orange)

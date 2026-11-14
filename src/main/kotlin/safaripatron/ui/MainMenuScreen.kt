@@ -91,7 +91,10 @@ class MainMenuScreen(private val parent: Screen? = null) : Screen(Component.lite
             val hover = Ui.inside(mx, my, cx, cy, cw, cardH)
             Ui.box(g, cx, cy, cw, cardH, if (hover) Ui.CARD_HOVER else Ui.CARD, if (hover) Ui.BORDER_HOVER else Ui.BORDER)
             Ui.text(g, font, c.icon, cx + 7, cy + 6, c.iconColor, 1.3f)
-            c.enabled?.let { en ->
+            // A category with a single switch (Capsule Helper) shows the switch itself and toggles right here
+            val single = c.items().singleOrNull() as? SettingsModel.Toggle
+            if (single != null) Ui.switch(g, cx + cw - 25, cy + 6, single.get())
+            else c.enabled?.let { en ->
                 val on = en()
                 val label = if (on) "On" else "Off"
                 val pw = font.width(label) + 8
@@ -102,8 +105,6 @@ class MainMenuScreen(private val parent: Screen? = null) : Screen(Component.lite
             val sw = font.width(c.summary)
             val sScale = if (sw <= cw - 14) 1f else ((cw - 14).toFloat() / sw).coerceAtLeast(0.8f)
             Ui.text(g, font, Ui.fit(font, c.summary, ((cw - 14) / sScale).toInt()), cx + 7, cy + 29, Ui.MUTED, sScale)
-            // A category with a single switch (Capsule Helper) toggles right here instead of opening settings
-            val single = c.items().singleOrNull() as? SettingsModel.Toggle
             hits.add(Ui.Hit(cx, cy, cw, cardH) {
                 if (single != null) single.set(!single.get()) else MenuNav.open(SettingsScreen(id, this))
             })

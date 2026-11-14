@@ -101,6 +101,8 @@ object SettingsModel {
             buildList {
                 add(toggle("Contest tracker", "Timer, bracket, score and ticket", { s.contest }) { s.contest = it })
                 add(toggle("Contest panel", "Time, bracket, score, ticket", { s.contestHud }) { s.contestHud = it })
+                add(toggle("Honeyhives", "Waypoints and refill timers", { s.honeyhives }) { s.honeyhives = it })
+                add(toggle("Hide hives when done", "Once your ticket is earned", { s.honeyhivesHideWhenDone }) { s.honeyhivesHideWhenDone = it })
                 add(choice("Ticket", "Which ticket counts as done", listOf("basic", "first"),
                     { if (it == "first") "First-Class" else "Basic" },
                     { if (s.contestFirstClass) "first" else "basic" }) { s.contestFirstClass = it == "first" })

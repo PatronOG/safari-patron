@@ -36,6 +36,7 @@ object SafariPatron : ClientModInitializer {
         Commands.init()
         UpdateChecker.init()
         safaripatron.history.History.init()
+        safaripatron.contest.Honeyhives.init()
         safaripatron.profit.Profit.init()
 
         ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> Contest.reset(); safaripatron.visual.ClearWater.reset() }
@@ -46,6 +47,7 @@ object SafariPatron : ClientModInitializer {
             SparklingFinder.tick(client)
             Party.tick(client)
             Contest.tick(client)
+            safaripatron.contest.Honeyhives.tick(client)
             safaripatron.sparkling.Critterdex.tick(client)
             safaripatron.profit.Profit.tick(client, Safari.inSafari)
             safaripatron.visual.ClearWater.tick(client)
@@ -69,6 +71,7 @@ object SafariPatron : ClientModInitializer {
                 HideyhoClick.onMessage(message)
                 Party.onChatLine(raw)
                 safaripatron.profit.Profit.onMessage(raw)
+                safaripatron.contest.Honeyhives.onMessage(raw)
                 val self = client.player?.name?.string ?: return@execute
                 for (event in ChatParser.parse(raw)) {
                     safaripatron.history.History.onEvent(event, self)

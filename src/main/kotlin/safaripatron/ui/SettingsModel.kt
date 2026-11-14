@@ -126,12 +126,15 @@ object SettingsModel {
         },
         Category("profit", "Profit", "♦", 0xFF8FD16A.toInt(), "Session and total", { s.profitTracker }) {
             listOf(
-                toggle("Profit tracker", "Shards, feathers and essence", { s.profitTracker }) { s.profitTracker = it },
+                toggle("Profit tracker", "Shards, feathers, essence, dyes", { s.profitTracker }) { s.profitTracker = it },
                 toggle("Session profit panel", "Shown in the Safari", { s.profitHud }) { s.profitHud = it },
                 toggle("Total profit panel", "All-time, outside the Safari", { s.totalProfitHud }) { s.totalProfitHud = it },
                 choice("Total panel shows", "Never inside the Safari", listOf("entrance", "all"),
                     { if (it == "entrance") "Critter Safari Entrance" else "All Places" },
                     { s.totalProfitWhere }) { s.totalProfitWhere = it },
+                toggle("Top shards panel", "Best shards to catch, in the Safari", { s.topShardsHud }) { s.topShardsHud = it },
+                choice("Top shards shown", "Per biome", listOf("3", "5"), { it },
+                    { s.topShardsCount.toString() }) { s.topShardsCount = it.toInt() },
                 choice("Price", "Bazaar price used for values", listOf("instant", "offer"),
                     { if (it == "offer") "Sell Offer" else "Instant Sell" },
                     { if (s.profitSellOffer) "offer" else "instant" }) { s.profitSellOffer = it == "offer" },

@@ -33,7 +33,11 @@ class ProfitData {
 }
 
 /** Fastest completion time of a biome (or everything) and who finished it. */
-class BestTime(var ms: Long = 0L, var by: String = "")
+/** A personal best; for Everything / Everything except Macaw also the party of that run. */
+class BestTime(var ms: Long = 0L, var by: String = "", var party: MutableList<PartyMember>? = null)
+
+/** A player of a PB run and the biome of their first catch in it (null = unknown). */
+class PartyMember(var name: String = "", var biome: String? = null)
 
 class Settings {
     // Capsule

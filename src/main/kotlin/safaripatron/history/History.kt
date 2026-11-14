@@ -33,6 +33,8 @@ class RunRecord {
     var hotspot: String? = null
     /** Fastest timed run so far when it finished. */
     var pb = false
+    /** A sample run added with /sp history demo (removed with /sp history demo clear). */
+    var demo = false
 }
 
 class SparklingRecord(var player: String = "", var critter: String = "")
@@ -167,6 +169,48 @@ object History {
         startAt = 0L
         save()
         log.info("Saved run #{} ({} uniques, {})", rec.id, rec.party, if (rec.ms > 0) safaripatron.safari.Run.time(rec.ms) else "not timed")
+    }
+
+    // ---------- sample runs for trying the history screen ----------
+
+    /** Adds two finished sample runs (every biome done, a sparkling and an Emerald Dye; the first one marked fastest). */
+    fun addDemo(self: String) {
+        val now = System.currentTimeMillis()
+        val mates = listOf(self, "z1rr31", "anayinam")
+        fun sample(ms: Long, pb: Boolean, ago: Long, sparkling: SparklingRecord, biomeMs: List<Long>): RunRecord {
+            val rec = RunRecord()
+            rec.id = data.nextId++
+            rec.demo = true
+            rec.self = self
+            rec.endedAt = now - ago
+            rec.ms = ms
+            rec.pb = pb
+            // Every species, shared out between three players
+            Critters.all.forEachIndexed { i, c -> rec.players.getOrPut(mates[i % 3]) { ArrayList() }.add(c.name) }
+            rec.party = Critters.TOTAL
+            rec.mine = rec.players[self]?.size ?: 0
+            rec.caught = 41
+            Biome.entries.forEachIndexed { i, b -> rec.biomeMs[b.name] = biomeMs[i] }
+            rec.biomeMs["allButMacaw"] = biomeMs.max() - 9_000
+            rec.biomeMs["all"] = biomeMs.max()
+            rec.hotspot = "Haunted"
+            rec.sparklings.add(sparkling)
+            rec.items = linkedMapOf("SHARD_HIDEONWALL" to 6L, "SHARD_WUMPA" to 2L, "SHARD_STRONGARM" to 9L,
+                "SHARD_DOOMSPIRAL" to 1L, "RAINBOW_FEATHER" to 1L, "ESSENCE_SAFARI" to 412L, "DYE_EMERALD" to 1L)
+            rec.value = safaripatron.profit.Profit.value(rec.items)
+            return rec
+        }
+        data.runs.add(sample(161_000, true, 10 * 60_000, SparklingRecord(self, "Wumpa"), listOf(48_000, 92_000, 131_000, 161_000)))
+        data.runs.add(sample(215_000, false, 4 * 60_000, SparklingRecord("z1rr31", "Doomspiral"), listOf(61_000, 118_000, 167_000, 215_000)))
+        save()
+    }
+
+    /** Removes the sample runs; returns how many. */
+    fun clearDemo(): Int {
+        val before = data.runs.size
+        data.runs.removeAll { it.demo }
+        save()
+        return before - data.runs.size
     }
 
     /** Expected shards per catch of a critter: your own average once there are 5 catches, else 1. */

@@ -54,6 +54,20 @@ object Bazaar {
         return prices[id]?.getOrNull(if (offer) 1 else 0)?.takeIf { it.isFinite() && it > 0 } ?: 0.0
     }
 
+    private var skyblockCheckAt = 0L
+
+    /**
+     * Loads the prices once in the background on joining SkyBlock, so /sp topshards and the profit panels
+     * have them ready (otherwise they load the first time something asks). Checked every 5 seconds.
+     */
+    fun tick(client: net.minecraft.client.Minecraft) {
+        if (prices.isNotEmpty() || client.player == null) return
+        val now = System.currentTimeMillis()
+        if (now < skyblockCheckAt) return
+        skyblockCheckAt = now + 5_000L
+        if (safaripatron.contest.Contest.inSkyblock(client)) ensureFresh()
+    }
+
     fun ensureFresh() {
         val now = System.currentTimeMillis()
         if (fetching || now - lastFetch < REFRESH_MS) return

@@ -381,7 +381,8 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
         var ry = y
         ry = drawClear(g, mx, my, runs, rightX, ry, rightW) + 4
         ry = drawSparklings(g, runs, rightX, ry, rightW) + 4
-        drawRecords(g, mx, my, runs, rightX, ry, rightW, bottom)
+        ry = drawRecords(g, mx, my, runs, rightX, ry, rightW, bottom) + 4
+        drawPlayedWith(g, runs, rightX, ry, rightW, bottom)
 
         tooltip?.let { t ->
             val tw = font.width(t) + 8
@@ -555,7 +556,42 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     }
 
     /** Clicking a record opens that run in the History tab. */
-    private fun drawRecords(g: GuiGraphicsExtractor, mx: Int, my: Int, runs: List<RunRecord>, x: Int, y: Int, w: Int, bottom: Int) {
+    /** The players you ran with most in the range: runs together and the sparklings they caught in them. */
+    private fun drawPlayedWith(g: GuiGraphicsExtractor, runs: List<RunRecord>, x: Int, y: Int, w: Int, bottom: Int) {
+        val h = bottom - y
+        if (h < 26) return
+        card(g, "Played With", x, y, w, h)
+        val together = HashMap<String, Int>()
+        val sparkles = HashMap<String, Int>()
+        val shown = HashMap<String, String>() // lower-case key -> name as written
+        for (r in runs) {
+            for (name in r.players.keys) {
+                if (name.equals(r.self, ignoreCase = true)) continue
+                val key = name.lowercase()
+                shown[key] = name
+                together.merge(key, 1, Int::plus)
+            }
+            for (s in r.sparklings) {
+                val key = s.player.lowercase()
+                if (!s.player.equals(r.self, ignoreCase = true) && key in together) sparkles.merge(key, 1, Int::plus)
+            }
+        }
+        if (together.isEmpty()) { g.text(font, "No party runs yet", x + 6, y + 16, Ui.FAINT, false); return }
+        val rows = together.entries.sortedByDescending { it.value }.take(((h - 18) / 10).coerceAtLeast(1))
+        rows.forEachIndexed { i, (key, count) ->
+            val ry = y + 16 + i * 10
+            val spark = sparkles[key] ?: 0
+            val sparkText = "✦ $spark"
+            val runsText = "$count run${if (count == 1) "" else "s"} · "
+            val right = x + w - 6
+            g.text(font, sparkText, right - font.width(sparkText), ry, if (spark > 0) Ui.GOLD else Ui.FAINT, false)
+            g.text(font, runsText, right - font.width(sparkText) - font.width(runsText), ry, Ui.DIM, false)
+            val nameW = w - 12 - font.width(sparkText) - font.width(runsText) - 4
+            g.text(font, Ui.fit(font, shown[key] ?: key, nameW), x + 6, ry, Ui.TEXT, false)
+        }
+    }
+
+    private fun drawRecords(g: GuiGraphicsExtractor, mx: Int, my: Int, runs: List<RunRecord>, x: Int, y: Int, w: Int, bottom: Int): Int {
         val h = (16 + 4 * 11 + 2).coerceAtMost(bottom - y)
         card(g, "Records", x, y, w, h)
         val fastest = runs.filter { it.ms > 0 }.minByOrNull { it.ms }
@@ -584,6 +620,7 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
             if (row.link.isNotEmpty()) g.text(font, row.link + " ›", x + w - 6 - linkW, ry, if (hover) Ui.WHITE else Ui.FAINT, false)
             row.run?.let { r -> hits.add(Ui.Hit(x + 2, ry - 1, w - 4, 11) { openRun(r) }) }
         }
+        return y + h
     }
 
     /** Shows a run in the History tab (filters cleared so it is in the list). */

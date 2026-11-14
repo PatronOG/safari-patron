@@ -25,6 +25,11 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
     // Open dropdown (Multi item) and where its button was drawn this frame
     // Items are rebuilt every frame, so the open dropdown is remembered by name
     private var openKey: String? = null
+    /** The reset button waiting for its second click, and since when. */
+    private var pendingConfirm: String? = null
+    private var confirmAt = 0L
+    private var armedBefore: String? = null
+    private val CONFIRM_MS = 3000L
     private var openMulti: SettingsModel.Multi? = null
     private var multiAnchor: IntArray? = null
     private var popupRect: IntArray? = null
@@ -208,11 +213,24 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
             is SettingsModel.Action -> {
                 g.text(font, Ui.fit(font, item.name, textW), rx + 10, ry + 5, Ui.WHITE, false)
                 g.text(font, Ui.fit(font, desc, textW), rx + 10, ry + 15, Ui.DIM, false)
-                val bw = font.width(item.label) + 12
+                val key = "${row.category.id}:${item.name}"
+                if (pendingConfirm == key && System.currentTimeMillis() - confirmAt > CONFIRM_MS) pendingConfirm = null
+                val confirming = pendingConfirm == key
+                val label = if (confirming) "Confirm?" else item.label
+                val bw = font.width(label) + 12
                 val bx = rx + rw - bw - 12
-                Ui.box(g, bx, ry + 6, bw, 14, if (hover) 0xFF26401C.toInt() else Ui.CARD, Ui.FEATURE_BORDER)
-                g.text(font, item.label, bx + 6, ry + 9, Ui.PILL_ON_TEXT, false)
-                hit { item.run() }
+                if (confirming) {
+                    Ui.box(g, bx, ry + 6, bw, 14, if (hover) 0xFF5A1E1E.toInt() else 0xFF3A1616.toInt(), 0xFFE05555.toInt())
+                    g.text(font, label, bx + 6, ry + 9, 0xFFFF8080.toInt(), false)
+                } else {
+                    Ui.box(g, bx, ry + 6, bw, 14, if (hover) 0xFF26401C.toInt() else Ui.CARD, Ui.FEATURE_BORDER)
+                    g.text(font, label, bx + 6, ry + 9, Ui.PILL_ON_TEXT, false)
+                }
+                hit {
+                    val now = System.currentTimeMillis()
+                    if (!item.confirm || (armedBefore == key && now - confirmAt <= CONFIRM_MS)) item.run()
+                    else { pendingConfirm = key; confirmAt = now }
+                }
             }
             is SettingsModel.Prefix -> {
                 val current = Brand.Style.of(Config.s.prefixStyle) == item.style
@@ -293,6 +311,9 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
             stopEditing()
         }
         if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
+            // Any click disarms a waiting reset; only a second click on that same button runs it
+            armedBefore = pendingConfirm
+            pendingConfirm = null
             // A click outside the open dropdown closes it
             val pr = popupRect
             val a = multiAnchor
@@ -308,6 +329,7 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, scrollX: Double, scrollY: Double): Boolean {
         openKey = null
+        pendingConfirm = null
         scroll = (scroll - (scrollY * rowH).toInt()).coerceIn(0, maxScroll)
         return true
     }

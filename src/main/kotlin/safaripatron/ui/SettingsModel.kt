@@ -47,7 +47,7 @@ object SettingsModel {
 
     private fun messageLabel(v: String) = if (v == "other") "Custom" else v
 
-    val categories: List<Category> = listOf(
+    private val all: List<Category> = listOf(
         Category("sparkling", "Sparkling", "✦", 0xFFFFB627.toInt(), "Finder and panels", { s.sparklingFinder }) {
             listOf(
                 toggle("Sparkling finder", "Alert, box and waypoint", { s.sparklingFinder }) { s.sparklingFinder = it },
@@ -69,7 +69,6 @@ object SettingsModel {
         Category("esp", "ESP", "◈", 0xFF5DCAA5.toInt(), "Critters and drops", { s.esp }) {
             listOf(
                 toggle("Critter ESP", "Boxes around critters", { s.esp }) { s.esp = it },
-                toggle("Only current biome", "Hide ESP for other biomes", { s.espOnlyInBiome }) { s.espOnlyInBiome = it },
                 toggle("Floor drops", "Mark floor drop spots", { s.floorDrops }) { s.floorDrops = it },
                 toggle("Bee nests", "Honeybug nests in Forest", { s.beeNests }) { s.beeNests = it },
                 toggle("Snoozle walls", "Breakable walls in Cavern", { s.snoozleWalls }) { s.snoozleWalls = it },
@@ -177,7 +176,10 @@ object SettingsModel {
         },
     )
 
-    fun byId(id: String?) = categories.firstOrNull { it.id == id } ?: categories.first()
+    /** Settings sidebar and search. Capsule Helper is only the switch on its main menu card. */
+    val categories: List<Category> = all.filter { it.id != "capsule" }
+
+    fun byId(id: String?) = all.firstOrNull { it.id == id } ?: all.first()
 
     /** Main menu cards (Panels is reached through its own card). */
     val cardIds = listOf("sparkling", "esp", "party", "capsule", "contest", "profit")

@@ -32,14 +32,24 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Ticket Message:** Sends `Ticket earned.`, `r` or your own text to party chat when your Basic or First-Class ticket is earned.
 - **Start Message:** Sends `New Miria's Contest started.`, `!dt contest` or your own text to party chat when a new contest starts.
 - **Incomplete Warnings:** Title and sound if your ticket isn't done. 5 minutes left by default, 3 and 1 minute can be turned on too.
+- **Honeyhives:** During a contest every full Honeyhive in Torrhus Canyon gets a waypoint. A looted hive shows its one-hour refill timer, and the contest panel shows how many are ready.
 
 ### ♦ Profit Tracker
-- **Session Profit:** Shard, Safari Essence and Rainbow Feather profits, total, run count, average run time and profit per hour.
+- **Session Profit:** Shard, Safari Essence, Rainbow Feather and Emerald Dye profits, total, run count, average run time and profit per hour.
 - **Session Clock:** Starts when the Safari Manager takes your ticket and pauses when you're away from the Safari.
 - **Total Profit Tracker:** All-time profit item by item, in rarity colors, with total runs and total profit. Shows at the Critter Safari Entrance by default, or everywhere outside the Safari. Never inside the Safari.
-- **Scroll Support:** Shows 10 items at a time; scroll with your mouse wheel over the panel while an inventory is open.
+- **Emerald Dye:** Your own Emerald Dyes count too, at the Auction House's lowest BIN price.
+- **Top Shards:** `/sp topshards` lists each biome's 5 most profitable shards in chat.
+- **Scroll Support:** Choose how many items it shows (5, 10, 15 or 20); scroll with your mouse wheel over the panel while an inventory is open.
 - **Bazaar Prices:** Choose Instant Sell or Sell Offer prices. Warns you when prices can't be loaded instead of showing 0.
-- **Safe Data:** Profit data is saved separately and is kept between updates.
+- **Safe Data:** Settings, profit and run history are saved in their own folder, `config/safari-patron/`, and kept between updates.
+
+### ☰ Run History
+- **Every Run Saved:** Time, uniques (yours and the party's), catches, profit and loot of every run.
+- **Run Details:** Biome completion times, who caught how many uniques, sparklings and who caught them, item-by-item loot.
+- **Filters and Sorting:** Show only sparkling runs, record runs, Emerald Dye runs, today or this week; sort by newest, fastest or most profitable.
+- **Overview:** Total runs, time played, total profit, fastest run and your sparkling rate at a glance.
+- Open it with `/sp history` or from the main menu.
 
 ### ⚑ Party Messages
 - **Warp Check:** Sends if someone missing or not in party chat.
@@ -60,6 +70,7 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Menu:** `/sp` opens every setting in one place, with search
 - **Hideyho:** With chat open, click anywhere in it to pick `[Sure]`
 - **Update Checker:** Tells you in chat when a new version is out. Can be turned off on the main menu.
+- **Safe Resets:** Reset buttons ask for a second click before anything is deleted.
 
 ## Installing
 
@@ -80,12 +91,13 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 | `/sp` | Open the main menu |
 | `/sp settings` | Open the settings |
 | `/sp hud` | Move and resize the panels |
+| `/sp history` | Open your run history |
+| `/sp topshards` | Show each biome's most profitable shards in chat |
 | `/sp help` | List all commands in chat |
 | `/sp sparkling` | Toggle the Sparkling Finder |
 | `/sp sparkling sound` | Toggle the Sparkling sound |
 | `/sp sparkling clear` | Clear the Sparkling panel |
 | `/sp esp` | Toggle critter ESP |
-| `/sp esp biome` | Only show ESP in your current biome |
 | `/sp floor` | Toggle floor drop ESP |
 | `/sp capsule` | Toggle the Capsule Helper |
 | `/sp contest` | Toggle the Miria's Contest tracker |

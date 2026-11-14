@@ -15,7 +15,7 @@ import safaripatron.sparkling.SparklingFinder
 
 /** The /sp command and its subcommands. */
 object Commands {
-    private fun msg(text: String): Component = Brand.msg(text)
+    private fun msg(text: String): net.minecraft.network.chat.MutableComponent = Brand.msg(text)
     private fun onOff(b: Boolean) = if (b) "§aenabled" else "§cdisabled"
 
     private fun toggle(
@@ -141,29 +141,41 @@ object Commands {
         }
     }
 
+    /** Dark green strikethrough line, the mod's colour (used between blocks). */
+    private const val SEPARATOR = "§2§m---------------------------------------------"
+
     /** /sp bestparty: the Everything except Macaw and Everything PBs with the players of those runs. */
     private fun bestParty(source: FabricClientCommandSource) {
-        val separator = Component.literal("§2§m" + "-".repeat(45))
-        source.sendFeedback(msg("§6Best PB Run Parties"))
-        source.sendFeedback(separator)
-        for ((key, title) in listOf("allButMacaw" to "Everything except Macaw Done PB", "all" to "Everything Done PB")) {
-            source.sendFeedback(Component.literal("§f§l$title"))
-            val best = Config.s.bestTimes[key]
-            val line = when {
-                best == null || best.ms <= 0 -> Component.literal("§7No PB yet.")
-                best.party.isNullOrEmpty() -> Component.literal("§fBest PB §a${Run.time(best.ms)}§f. §7(party not recorded yet)")
+        source.sendFeedback(bestPartyMessage(listOf(
+            "Everything except Macaw Done PB" to Config.s.bestTimes["allButMacaw"],
+            "Everything Done PB" to Config.s.bestTimes["all"],
+        )))
+    }
+
+    /**
+     * The whole block as ONE chat message (lines joined with \n), so chat mods that stack repeated
+     * messages can't merge its identical lines.
+     */
+    fun bestPartyMessage(entries: List<Pair<String, safaripatron.config.BestTime?>>): Component {
+        val out = msg("§6Best PB Run Parties")
+        out.append(Component.literal("\n$SEPARATOR"))
+        for ((title, best) in entries) {
+            out.append(Component.literal("\n§f§l$title\n"))
+            when {
+                best == null || best.ms <= 0 -> out.append(Component.literal("§7No PB yet."))
+                best.party.isNullOrEmpty() -> out.append(Component.literal("§fBest PB §a${Run.time(best.ms)}§f. §7(party not recorded yet)"))
                 else -> {
-                    val c = Component.literal("§fBest PB §a${Run.time(best.ms)}§f. ")
+                    out.append(Component.literal("§fBest PB §a${Run.time(best.ms)}§f. "))
                     best.party!!.forEachIndexed { i, m ->
-                        if (i > 0) c.append(Component.literal("§f, "))
-                        c.append(Component.literal(biomeCode(m.biome) + m.name))
+                        if (i > 0) out.append(Component.literal("§f, "))
+                        out.append(Component.literal(biomeCode(m.biome) + m.name))
                     }
-                    c.append(Component.literal("§f."))
+                    out.append(Component.literal("§f."))
                 }
             }
-            source.sendFeedback(line)
-            source.sendFeedback(separator)
+            out.append(Component.literal("\n$SEPARATOR"))
         }
+        return out
     }
 
     /** Chat colour of a biome (by name); grey when unknown. */
@@ -171,34 +183,27 @@ object Commands {
         "FOREST" -> "§a"; "CAVERN" -> "§6"; "ICY" -> "§b"; "HAUNTED" -> "§5"; else -> "§7"
     }
 
-    /** /sp topshards: a header, then one block per biome (its name, its 5 most profitable shards) between lines. */
+    /** /sp topshards: a header, then one block per biome (its name, its 5 most profitable shards), as one message. */
     private fun topShards(source: FabricClientCommandSource) {
         val tops = safaripatron.data.Biome.entries.map { it to safaripatron.profit.TopShards.top(it) }
         if (tops.all { it.second.isEmpty() }) {
             source.sendFeedback(msg(safaripatron.profit.Bazaar.warning() ?: "Loading Bazaar prices… try again in a moment."))
             return
         }
-        // Dark green strikethrough line, the mod's colour
-        val separator = Component.literal("§2§m" + "-".repeat(45))
-        source.sendFeedback(msg("§6Most Profitable Shards (per Shard):"))
-        source.sendFeedback(separator)
+        val out = msg("§6Most Profitable Shards (per Shard):")
+        out.append(Component.literal("\n$SEPARATOR"))
         for ((biome, list) in tops) {
-            val code = when (biome) {
-                safaripatron.data.Biome.FOREST -> "§a"; safaripatron.data.Biome.CAVERN -> "§6"
-                safaripatron.data.Biome.ICY -> "§b"; safaripatron.data.Biome.HAUNTED -> "§5"
-            }
-            source.sendFeedback(Component.literal("$code§l${biome.label}"))
-            val line = Component.literal("")
+            out.append(Component.literal("\n${biomeCode(biome.name)}§l${biome.label}\n"))
             list.forEachIndexed { i, e ->
-                if (i > 0) line.append(Component.literal("§7, "))
-                line.append(Component.literal(safaripatron.profit.TopShards.format(e)).withStyle {
+                if (i > 0) out.append(Component.literal("§7, "))
+                out.append(Component.literal(safaripatron.profit.TopShards.format(e)).withStyle {
                     it.withHoverEvent(net.minecraft.network.chat.HoverEvent.ShowText(Component.literal(safaripatron.profit.TopShards.details(e))))
                 })
             }
-            if (list.isEmpty()) line.append(Component.literal("§8no prices yet"))
-            source.sendFeedback(line)
-            source.sendFeedback(separator)
+            if (list.isEmpty()) out.append(Component.literal("§8no prices yet"))
+            out.append(Component.literal("\n$SEPARATOR"))
         }
+        source.sendFeedback(out)
     }
 
     /** Prefixed line; clicking it copies the text (prefix included) to the clipboard. */

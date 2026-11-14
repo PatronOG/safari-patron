@@ -35,6 +35,7 @@ object SafariPatron : ClientModInitializer {
         HideyhoClick.init()
         Commands.init()
         UpdateChecker.init()
+        safaripatron.history.History.init()
         safaripatron.profit.Profit.init()
 
         ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> Contest.reset(); safaripatron.visual.ClearWater.reset() }
@@ -69,7 +70,10 @@ object SafariPatron : ClientModInitializer {
                 Party.onChatLine(raw)
                 safaripatron.profit.Profit.onMessage(raw)
                 val self = client.player?.name?.string ?: return@execute
-                for (event in ChatParser.parse(raw)) Safari.onChat(event, self)
+                for (event in ChatParser.parse(raw)) {
+                    safaripatron.history.History.onEvent(event, self)
+                    Safari.onChat(event, self)
+                }
             }
         }
     }

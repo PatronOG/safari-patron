@@ -50,6 +50,7 @@ object SafariPatron : ClientModInitializer {
             safaripatron.contest.Honeyhives.tick(client)
             safaripatron.sparkling.Critterdex.tick(client)
             safaripatron.profit.Profit.tick(client, Safari.inSafari)
+            safaripatron.profit.Bazaar.tick(client)
             safaripatron.visual.ClearWater.tick(client)
         }
 

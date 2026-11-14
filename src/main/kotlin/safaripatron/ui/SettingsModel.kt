@@ -135,6 +135,8 @@ object SettingsModel {
                 choice("Total panel shows", "Never inside the Safari", listOf("entrance", "all"),
                     { if (it == "entrance") "Critter Safari Entrance" else "All Places" },
                     { s.totalProfitWhere }) { s.totalProfitWhere = it },
+                choice("Total panel rows", "More scroll in inventories", listOf("5", "10", "15", "20"), { it },
+                    { s.totalProfitRows.toString() }) { s.totalProfitRows = it.toInt(); safaripatron.hud.TotalProfitElement.scroll = 0 },
                 choice("Price", "Bazaar price used for values", listOf("instant", "offer"),
                     { if (it == "offer") "Sell Offer" else "Instant Sell" },
                     { if (s.profitSellOffer) "offer" else "instant" }) { s.profitSellOffer = it == "offer" },

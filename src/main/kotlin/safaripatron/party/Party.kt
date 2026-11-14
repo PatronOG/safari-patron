@@ -121,12 +121,12 @@ object Party {
         val total = members.size
         val here = members.count { it in present }
         if (here >= total) {
-            if (Config.s.warpCheck) chat("[✦Safari Patron✦] $here/$total Players in Safari.")
+            if (Config.s.warpCheck) chat("[✦SP✦] $here/$total Players in Safari.")
             if (Config.s.warpScreen) Toasts.show(Toasts.Kind.WARP, "$here/$total Players in Safari", 0xFF55FF55.toInt(), 3000)
             return true
         }
         if (!deadline) return false
-        if (Config.s.warpCheck) chat("[✦Safari Patron✦] Someone missing!")
+        if (Config.s.warpCheck) chat("[✦SP✦] Someone missing!")
         if (Config.s.warpScreen) Toasts.show(Toasts.Kind.WARP, "Someone missing! ($here/$total)", 0xFFFF5555.toInt(), 6000)
         return true
     }

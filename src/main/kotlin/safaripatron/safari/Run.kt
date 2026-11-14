@@ -68,6 +68,21 @@ object Run {
         checkAnnouncements(player)
     }
 
+    /**
+     * The players of this run for a party PB: everyone who caught something, in order, with the biome of
+     * their first catch; then party members who caught nothing seen by you (biome unknown).
+     */
+    private fun partySnapshot(): MutableList<safaripatron.config.PartyMember> {
+        val out = ArrayList<safaripatron.config.PartyMember>()
+        for ((name, biomes) in byPlayer) out.add(safaripatron.config.PartyMember(name, biomes.keys.firstOrNull()?.name))
+        val connection = net.minecraft.client.Minecraft.getInstance().connection
+        for (uuid in safaripatron.party.Party.members) {
+            val name = connection?.getPlayerInfo(uuid)?.profile?.name ?: continue
+            if (out.none { it.name.equals(name, ignoreCase = true) }) out.add(safaripatron.config.PartyMember(name, null))
+        }
+        return out
+    }
+
     /** finisher = whoever caught the critter that completed it. */
     private fun checkAnnouncements(finisher: String) {
         for (biome in Biome.entries) {
@@ -95,7 +110,7 @@ object Run {
             if (best == null || best.ms <= 0 || ms < best.ms) {
                 if (best != null && best.ms > 0) full += " (New PB! Old: ${time(best.ms)}${by(best)})" else full += " (New PB!)"
                 short += " (PB!)"
-                Config.s.bestTimes[key] = BestTime(ms, finisher)
+                Config.s.bestTimes[key] = BestTime(ms, finisher, if (key.startsWith("biome:")) null else partySnapshot())
                 Config.save()
             } else {
                 full += " (PB ${time(best.ms)}${by(best)})"

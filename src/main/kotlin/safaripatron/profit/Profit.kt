@@ -97,6 +97,7 @@ object Profit {
                 val now = System.currentTimeMillis()
                 if (ticketAt > 0) log.info("New ticket before a reward summary: unfinished run not timed")
                 ticketAt = now
+                safaripatron.history.History.onTicket(now)
                 onRunStart()
             }
             line == SUMMARY -> {
@@ -104,6 +105,7 @@ object Profit {
                 // The run ends right here, not when the items are counted a moment later
                 endedRunMs = if (ticketAt > 0) now - ticketAt else 0L
                 ticketAt = 0L
+                safaripatron.history.History.onSummary(now)
                 if (endedRunMs > 0) log.info("Run length (ticket to reward summary): {}", Run.time(endedRunMs))
                 else log.info("Reward summary without a ticket: run not timed")
                 finishAt = now + 2000 // essence line follows; finish shortly
@@ -119,7 +121,9 @@ object Profit {
                 for (m in shardRe.findAll(line)) {
                     val name = m.groupValues[2].trim()
                     if (Critters.named(name) == null) continue
-                    add(Bazaar.shardId(name), m.groupValues[1].toLongOrNull() ?: 1)
+                    val count = m.groupValues[1].toLongOrNull() ?: 1
+                    add(Bazaar.shardId(name), count)
+                    safaripatron.history.History.onShards(name, count)
                 }
                 featherRe.find(line)?.let { add(Bazaar.FEATHER, it.groupValues[1].toLongOrNull() ?: 1) }
             }
@@ -200,6 +204,8 @@ object Profit {
 
     /** Reward summary: the run's items move into the session and the total, and a new run begins. */
     private fun finishRun() {
+        val runItems = LinkedHashMap(run)
+        safaripatron.history.History.finish(runItems, value(runItems), Minecraft.getInstance().player?.name?.string)
         for ((id, n) in run) {
             d.sessionItems.merge(id, n) { a, b -> a + b }
             d.totalItems.merge(id, n) { a, b -> a + b }

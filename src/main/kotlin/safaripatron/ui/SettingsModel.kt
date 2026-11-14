@@ -9,7 +9,8 @@ import safaripatron.sparkling.SparklingFinder
 object SettingsModel {
     sealed class Item(val name: String, val desc: String)
     class Toggle(name: String, desc: String, val get: () -> Boolean, val set: (Boolean) -> Unit) : Item(name, desc)
-    class Action(name: String, desc: String, val label: String, val run: () -> Unit) : Item(name, desc)
+    /** A button. confirm = the first click only arms it ("Confirm?"), a second click within 3 s runs it. */
+    class Action(name: String, desc: String, val label: String, val confirm: Boolean = false, val run: () -> Unit) : Item(name, desc)
     class Prefix(val style: Brand.Style) : Item(style.id, "Chat prefix style")
     class Info(name: String, desc: String) : Item(name, desc)
     /** Dropdown. single = pick exactly one (closes on pick), otherwise several at once. */
@@ -59,10 +60,10 @@ object SettingsModel {
                     { if (it == "missing") "Missing only" else "All" },
                     { if (s.sparklingCollectionMissingOnly) "missing" else "all" }) { s.sparklingCollectionMissingOnly = it == "missing" },
                 Info("Critterdex sync", "Open the Sparkling Critterdex"),
-                Action("Reset sparklings", "Forget all caught sparklings", "Reset") {
+                Action("Reset sparklings", "Forget all caught sparklings", "Reset", confirm = true) {
                     s.sparklingCollection.clear(); Config.save()
                 },
-                Action("Clear panel", "Remove tracked sparklings", "Clear") { SparklingFinder.clear() },
+                Action("Clear panel", "Remove tracked sparklings", "Clear", confirm = true) { SparklingFinder.clear() },
             )
         },
         Category("esp", "ESP", "◈", 0xFF5DCAA5.toInt(), "Critters and drops", { s.esp }) {
@@ -137,10 +138,10 @@ object SettingsModel {
                 choice("Price", "Bazaar price used for values", listOf("instant", "offer"),
                     { if (it == "offer") "Sell Offer" else "Instant Sell" },
                     { if (s.profitSellOffer) "offer" else "instant" }) { s.profitSellOffer = it == "offer" },
-                Action("New session", "Reset your session profit.", "Reset") {
+                Action("New session", "Reset your session profit.", "Reset", confirm = true) {
                     safaripatron.profit.Profit.newSession()
                 },
-                Action("Reset total", "Forget all-time profit", "Reset") { safaripatron.profit.Profit.resetTotal() },
+                Action("Reset total", "Forget all-time profit", "Reset", confirm = true) { safaripatron.profit.Profit.resetTotal() },
             )
         },
         Category("chat", "Chat prefix", "✎", 0xFF8FD16A.toInt(), "Gradient styles", null) {
@@ -149,7 +150,7 @@ object SettingsModel {
         Category("panels", "Panels", "✥", 0xFFE3C35A.toInt(), "Move and resize", null) {
             listOf(
                 Action("Move panels", "Opens the panel editor", "Open") { MenuNav.openHud() },
-                Action("Reset all panels", "Back to default places", "Reset") { safaripatron.hud.Hud.resetAll() },
+                Action("Reset all panels", "Back to default places", "Reset", confirm = true) { safaripatron.hud.Hud.resetAll() },
             )
         },
         Category("commands", "Commands", "☰", 0xFFCFDAC6.toInt(), "All /sp commands", null) {

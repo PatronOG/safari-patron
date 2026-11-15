@@ -1,7 +1,139 @@
-# Safari Patron
-QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
+<p align="center">
+  <img src="docs/images/banner.png" alt="Safari Patron">
+</p>
+
+<p align="center">
+  <b>Everything you need for Critter Safari, in one mod.</b><br>
+  Find sparklings, track your runs and profit, coordinate your party and chase achievements.
+</p>
+
+<p align="center">
+  <a href="https://github.com/PatronOG/safari-patron/releases/latest"><img src="https://img.shields.io/github/v/release/PatronOG/safari-patron?label=download&color=c9a43a" alt="Download"></a>
+  <a href="https://www.minecraft.net"><img src="https://img.shields.io/badge/Minecraft-26.2%20%7C%2026.3-4f7a28" alt="Minecraft 26.2 | 26.3"></a>
+  <a href="https://fabricmc.net/use/installer/"><img src="https://img.shields.io/badge/Fabric-0.19.5%2B-dbd0b4" alt="Fabric 0.19.5+"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-3a4a30" alt="License: Apache-2.0"></a>
+</p>
+
+<p align="center">
+  <b><a href="#features">Features</a></b> ·
+  <b><a href="#installing">Installing</a></b> ·
+  <b><a href="#commands">Commands</a></b>
+</p>
+
+<p align="center">
+  <img src="docs/images/showcase.gif" alt="Safari Patron showcase" width="800">
+</p>
 
 ## Features
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### ✦ Sparkling Finder
+Spots Sparkling critters and marks them in the world until caught.<br>
+Share their location in one click.<br>
+Your Critterdex sparklings, synced from the game.
+
+</td>
+<td width="33%" valign="top">
+
+### 📋 Safari HUDs
+Your and your party's uniques per biome.<br>
+Run timer, splits and missing critters.<br>
+Every panel can be moved and resized.
+
+</td>
+<td width="33%" valign="top">
+
+### ⚑ Party Messages
+Warp check, hotspot sharing and biome announcements.<br>
+Completion times with personal bests.<br>
+Each message can be turned off.
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+### ☰ Run History
+Up to 20,000 runs with time, loot and party.<br>
+Filters for sparkling, PB and Dye runs.<br>
+Each player in their biome's color.
+
+</td>
+<td width="33%" valign="top">
+
+### ▲ Stats
+Run time and profit graphs.<br>
+Clear stats, sparkling rate and records.<br>
+The players you play with most.
+
+</td>
+<td width="33%" valign="top">
+
+### ★ Achievements
+38 achievements across 9 rarities.<br>
+From Common to Impossible, 2,400 points.<br>
+Your past runs count too.
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+### ♦ Profit Tracker
+Session and all-time profit, item by item.<br>
+Bazaar and auction house prices.<br>
+Top shards of each biome.
+
+</td>
+<td width="33%" valign="top">
+
+### ✪ Miria's Contest
+Time left, bracket, score and ticket.<br>
+Warnings before the contest ends.<br>
+Honeyhive waypoints and refill timers.
+
+</td>
+<td width="33%" valign="top">
+
+### ◈ ESP
+Critters and floor drops through walls.<br>
+Bee nests and Snoozle walls.<br>
+Clear water in the Safari.
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+### ➶ Capsule Helper
+Shows where your capsule will fly.<br>
+Tells you if it will hit a critter.
+
+</td>
+<td width="33%" valign="top">
+
+### ⚙ Main Menu
+Every feature and setting in one place.<br>
+Search through every option.<br>
+Open with `/sp`.
+
+</td>
+<td width="33%" valign="top">
+
+### ✨ Quality of Life
+Pick Hideyho's `[Sure]` with one click in chat.<br>
+Update checker.<br>
+Reset buttons ask before deleting.
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary><b>All features in detail</b></summary>
 
 ### 📋 Safari HUDs
 - **Run Stats HUD:** Tracks your and your party's unique catch per biome and global. Includes Run Timer and Run splits.
@@ -76,6 +208,8 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Hideyho:** With chat open, click anywhere in it to pick `[Sure]`
 - **Update Checker:** Tells you in chat when a new version is out. Can be turned off on the main menu.
 - **Safe Resets:** Reset buttons ask for a second click before anything is deleted.
+
+</details>
 
 ## Installing
 

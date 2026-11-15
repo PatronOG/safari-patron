@@ -14,6 +14,7 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Sparklings HUD:** Shows which sparklings you have caught in your current biome. Can list only the missing ones.
 - **Total Sparklings HUD:** All 37 sparklings in four columns, shown in the middle area between the biomes.
 - **Contest HUD:** Miria's Contest time left, bracket, score and ticket status.
+- **Achievement Panel:** A box on screen when you unlock an achievement. Choose the lowest rarity it shows, or turn it off.
 - **Completion Times:** Biome announcements show your time and personal best, e.g. `Forest Done! Completed in 2:31 (PB 2:20 by IGN)`.
 
 ### ✦ Sparkling Finder
@@ -29,7 +30,7 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 
 ### ✪ Miria's Contest
 - **Contest Tracker:** Time left, bracket and score, read from the scoreboard.
-- **Ticket Message:** Sends `Ticket earned.`, `r` or your own text to party chat when your Basic or First-Class ticket is earned.
+- **Ticket Message:** Sends `Ticket earned!`, `r` or your own text to party chat when your Basic or First-Class ticket is earned.
 - **Start Message:** Sends `New Miria's Contest started.`, `!dt contest` or your own text to party chat when a new contest starts.
 - **Incomplete Warnings:** Title and sound if your ticket isn't done. 5 minutes left by default, 3 and 1 minute can be turned on too.
 - **Honeyhives:** During a contest every full Honeyhive in Torrhus Canyon gets a waypoint. A looted hive shows its one-hour refill timer, and the contest panel shows how many are ready.
@@ -42,19 +43,22 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Top Shards:** `/sp topshards` lists each biome's 5 most profitable shards in chat.
 - **Scroll Support:** Choose how many items it shows (5, 10, 15 or 20); scroll with your mouse wheel over the panel while an inventory is open.
 - **Bazaar Prices:** Choose Instant Sell or Sell Offer prices. Warns you when prices can't be loaded instead of showing 0.
-- **Safe Data:** Settings, profit and run history are saved in their own folder, `config/safari-patron/`, and kept between updates.
+- **Safe Data:** Settings, profit, run history and achievements are saved in their own folder, `config/safari-patron/`, and kept between updates.
 
 ### ☰ Run History
-- **Every Run Saved:** Time, uniques (yours and the party's), catches, profit and loot of every run.
-- **Run Details:** Biome completion times, who caught how many uniques, sparklings and who caught them, item-by-item loot.
+- **Every Run Saved:** Time, uniques (yours and the party's), catches, profit and loot of up to 20,000 runs, saved in small files so the game never stutters.
+- **Run Details:** Biome completion times, every party member's uniques in the color of the biome they did, sparklings and who caught them, item-by-item loot.
 - **Filters and Sorting:** Show only sparkling runs, record runs, Emerald Dye runs, today or this week; sort by newest, fastest or most profitable.
 - **Overview:** Total runs, time played, total profit, fastest run and your sparkling rate at a glance.
+- **Stats:** Run time and profit graphs with your all-time average, your last 10 runs against your average, clear stats per biome, sparkling stats, records and the players you play with most. Choose all time, this week, today or the last 50 runs.
+- **Achievements:** 38 achievements across 9 rarities, from Common to Impossible, with points, progress bars and rarity filters. Your past runs count too.
 - Open it with `/sp history` or from the main menu.
 
 ### ⚑ Party Messages
-- **Warp Check:** Sends if someone missing or not in party chat.
+- **Warp Check:** Sends `[✦SP✦] 4/4 Players in Safari.` or `[✦SP✦] Someone missing!` in party chat.
 - **Hotspot Sharing:** It shares the hotspot area assigned to you in the party chat.
 - **Biome Announcements:** {Area} Done!, Everything except Macaw done!, Everything Done!
+- **Best Parties:** Your Everything PBs remember who was in your party. `/sp bestparty` shows them in chat, each player in the color of the biome they started in.
 - **Alert panels:** Each alert can go to party chat, your screen, or both. 
 
 ### ◈ ESP System
@@ -66,8 +70,9 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 - **Clear Water:** See through the water in the Safari, with adjustable opacity.
 
 ### ✨ Quality of Life
+- **Main Menu:** `/sp` opens a menu with every feature, its settings, and your Run History, Stats and Achievements.
+- **Settings:** Every setting in one place, with search.
 - **HUD Editor:** /sp hud lets you drag and resize every panel, with center guides that snap.
-- **Menu:** `/sp` opens every setting in one place, with search
 - **Hideyho:** With chat open, click anywhere in it to pick `[Sure]`
 - **Update Checker:** Tells you in chat when a new version is out. Can be turned off on the main menu.
 - **Safe Resets:** Reset buttons ask for a second click before anything is deleted.
@@ -91,8 +96,9 @@ QoL Critter Safari mod for Hypixel SkyBlock · Fabric · Minecraft 26.2 & 26.3
 | `/sp` | Open the main menu |
 | `/sp settings` | Open the settings |
 | `/sp hud` | Move and resize the panels |
-| `/sp history` | Open your run history |
+| `/sp history` | Open your run history, stats and achievements |
 | `/sp topshards` | Show each biome's most profitable shards in chat |
+| `/sp bestparty` | Show the parties of your Everything PBs in chat |
 | `/sp help` | List all commands in chat |
 | `/sp sparkling` | Toggle the Sparkling Finder |
 | `/sp sparkling sound` | Toggle the Sparkling sound |

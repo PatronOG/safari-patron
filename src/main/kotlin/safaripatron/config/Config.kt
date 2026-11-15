@@ -119,6 +119,11 @@ class Settings {
     var lastSparklingRun = 0
     /** Counts every Safari run ever started (for the sparkling message). */
     var runCounter = 0
+    /** Achievement toasts: "off", or the lowest rarity shown ("common" = all). */
+    var achievementToasts = "common"
+    /** Sound for Legendary and rarer achievements. */
+    var achievementSound = true
+    var achievementPanel = PanelPos(-1f, 0.08f)
     /** "Completed in 2:31 (PB 2:05 by IGN)" after biome announcements. */
     var biomeTimes = true
     var bestTimes: MutableMap<String, BestTime> = HashMap()
@@ -156,6 +161,7 @@ class Settings {
         val DEFAULT_SPARKLING = PanelPos(-1f, 0.12f)
         val DEFAULT_WARP = PanelPos(-1f, 0.30f)
         val DEFAULT_ANNOUNCE = PanelPos(-1f, 0.40f)
+        val DEFAULT_ACHIEVEMENT = PanelPos(-1f, 0.08f)
         val DEFAULT_COLLECTION = PanelPos(0.83f, 0.30f)
         val DEFAULT_CONTEST = PanelPos(0.01f, 0.05f)
         val DEFAULT_TOTAL = PanelPos(-1f, 0.10f)
@@ -199,8 +205,10 @@ object Config {
             if (s.contestTicketCustom == null) s.contestTicketCustom = ""
             if (s.totalProfitWhere == null) s.totalProfitWhere = "entrance"
             if (s.totalProfitRows !in listOf(5, 10, 15, 20)) s.totalProfitRows = 15
+            if (s.achievementToasts == null) s.achievementToasts = "common"
+            if (s.achievementPanel == null) s.achievementPanel = PanelPos(-1f, 0.08f)
         }
-        for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel, s.totalProfitPanel)) {
+        for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel, s.totalProfitPanel, s.achievementPanel)) {
             if (p.scale !in 0.5f..2f) p.scale = 1f
         }
         // 1.0.1: the sparkling panel is now anchored by its center; a moved one goes back to default once

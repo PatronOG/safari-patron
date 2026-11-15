@@ -86,7 +86,10 @@ object Run {
     /** finisher = whoever caught the critter that completed it. */
     private fun checkAnnouncements(finisher: String) {
         for (biome in Biome.entries) {
-            if (biome.critters.all { it.name in caught }) announce("biome:$biome", "${biome.label} Done!", biome.color, finisher)
+            if (biome.critters.all { it.name in caught } && "biome:$biome" !in announced) {
+                announce("biome:$biome", "${biome.label} Done!", biome.color, finisher)
+                safaripatron.achievements.Achievements.onBiomeDone(biome, finisher)
+            }
         }
         if (caught.size >= Critters.TOTAL) {
             announce("all", "Everything Done!", 0xFFFFAA00.toInt(), finisher)

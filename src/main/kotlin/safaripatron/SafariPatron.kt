@@ -36,6 +36,7 @@ object SafariPatron : ClientModInitializer {
         Commands.init()
         UpdateChecker.init()
         safaripatron.history.History.init()
+        safaripatron.achievements.Achievements.init()
         safaripatron.contest.Honeyhives.init()
         safaripatron.profit.Profit.init()
 
@@ -51,6 +52,7 @@ object SafariPatron : ClientModInitializer {
             safaripatron.sparkling.Critterdex.tick(client)
             safaripatron.profit.Profit.tick(client, Safari.inSafari)
             safaripatron.profit.Bazaar.tick(client)
+            safaripatron.achievements.Achievements.tick(client)
             safaripatron.visual.ClearWater.tick(client)
         }
 

@@ -181,7 +181,8 @@ object AnnounceElement : ToastElement(Toasts.Kind.ANNOUNCE, "Forest Done!") {
 
 object Hud {
     val elements: List<HudElement> = listOf(RunElement, BiomeElement, SparklingElement, WarpElement, AnnounceElement,
-        CollectionElement, TotalElement, ContestElement, ProfitElement, TotalProfitElement)
+        CollectionElement, TotalElement, ContestElement, ProfitElement, TotalProfitElement,
+        safaripatron.achievements.AchievementToasts)
 
     /**
      * Default spots as panel centers on a 960 x 540 GUI screen (what /sp hud shows while dragging).
@@ -198,6 +199,7 @@ object Hud {
         ProfitElement to (746 to 71),
         ContestElement to (894 to 75),
         TotalElement to (794 to 475),
+        safaripatron.achievements.AchievementToasts to (480 to 40),
     )
 
     /** An element's default position for the current screen size. */

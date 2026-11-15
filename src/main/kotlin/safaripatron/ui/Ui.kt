@@ -68,6 +68,22 @@ object Ui {
         return "$t…"
     }
 
+    /** Splits text into lines of at most maxW pixels (by words); the last allowed line is cut with "…". */
+    fun wrap(font: Font, s: String, maxW: Int, maxLines: Int): List<String> {
+        val lines = ArrayList<String>()
+        var cur = ""
+        for (word in s.split(' ')) {
+            val next = if (cur.isEmpty()) word else "$cur $word"
+            if (font.width(next) <= maxW || cur.isEmpty()) cur = next
+            else { lines.add(cur); cur = word }
+        }
+        if (cur.isNotEmpty()) lines.add(cur)
+        if (lines.size <= maxLines) return lines.map { fit(font, it, maxW) }
+        val kept = lines.take(maxLines).toMutableList()
+        kept[maxLines - 1] = fit(font, lines.drop(maxLines - 1).joinToString(" "), maxW)
+        return kept
+    }
+
     /** Small pill label; returns its width. */
     fun pill(g: GuiGraphicsExtractor, font: Font, s: String, x: Int, y: Int, bg: Int, fg: Int): Int {
         val w = font.width(s) + 8

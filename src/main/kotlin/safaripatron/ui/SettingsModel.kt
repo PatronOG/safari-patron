@@ -152,9 +152,6 @@ object SettingsModel {
                     { when (it) { "off" -> "Off"; "common" -> "All"; else -> it.replaceFirstChar { c -> c.uppercase() } + "+" } },
                     { s.achievementToasts }) { s.achievementToasts = it },
                 toggle("Achievement sound", "Legendary and rarer", { s.achievementSound }) { s.achievementSound = it },
-                Action("Open achievements", "Run History, Achievements tab", "Open") {
-                    MenuNav.open(HistoryScreen(net.minecraft.client.Minecraft.getInstance().gui.screen(), achievements = true))
-                },
             )
         },
         Category("chat", "Chat prefix", "✎", 0xFF8FD16A.toInt(), "Gradient styles", null) {

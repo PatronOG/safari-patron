@@ -147,7 +147,7 @@ object SettingsModel {
         },
         Category("achievements", "Achievements", "★", 0xFFFFAA00.toInt(), "Toasts and sound", null) {
             listOf(
-                choice("Achievement toasts", "On-screen box when you unlock one",
+                choice("Achievement panel", "On-screen box when you unlock one",
                     listOf("off", "common", "uncommon", "rare", "epic", "legendary", "mythic"),
                     { when (it) { "off" -> "Off"; "common" -> "All"; else -> it.replaceFirstChar { c -> c.uppercase() } + "+" } },
                     { s.achievementToasts }) { s.achievementToasts = it },

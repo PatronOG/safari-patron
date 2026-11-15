@@ -125,7 +125,7 @@ object Commands {
                             })))
                     .then(ClientCommands.literal("status").executes {
                         val src = it.source
-                        src.sendFeedback(msg("In Safari: ${onOff(Safari.inSafari)}§f · Biome: ${Safari.biome?.label ?: "-"}" +
+                        src.sendFeedback(msg("In Safari: ${if (Safari.inSafari) "§aYes" else "§cNo"}§f · Biome: ${Safari.biome?.label ?: "-"}" +
                             " · Run: ${Run.state} · Uniques: ${Run.caught.size}/37"))
                         val caughtList = Run.sparklingsCaught.joinToString(", ") { (p, c) -> "$c ($p)" }.ifEmpty { "none" }
                         src.sendFeedback(msg("Captured Mobs (scoreboard): ${Safari.capturedMobs ?: "-"}"))

@@ -81,7 +81,7 @@ object SettingsModel {
             { s.warpCheck || s.hotspotAnnounce || s.biomeAnnouncements || s.warpScreen || s.hotspotScreen || s.biomeScreen }) {
             listOf(
                 Info("Party chat", "Sent to your party"),
-                toggle("Warp check", "4/4 Players in Safari.", { s.warpCheck }) { s.warpCheck = it },
+                toggle("Warp check", "4/4 Players in Safari. §cSometimes slow to detect.", { s.warpCheck }) { s.warpCheck = it },
                 toggle("Hotspot sharing", "Hotspot: Haunted", { s.hotspotAnnounce }) { s.hotspotAnnounce = it },
                 toggle("Biome announcements", "Forest Done! and more", { s.biomeAnnouncements }) { s.biomeAnnouncements = it },
                 toggle("Completion times", "Time and PB after Done!", { s.biomeTimes }) { s.biomeTimes = it },

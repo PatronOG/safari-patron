@@ -9,6 +9,9 @@ import safaripatron.data.Biome
 import safaripatron.data.Critters
 import safaripatron.history.History
 import safaripatron.history.RunRecord
+import safaripatron.achievements.Achievement
+import safaripatron.achievements.Achievements
+import safaripatron.achievements.Tier
 import safaripatron.history.Totals
 import safaripatron.profit.Profit
 import safaripatron.safari.Run
@@ -19,13 +22,13 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /** /sp history — every saved run: summary cards, filters, the list and the selected run's details. */
-class HistoryScreen(private val parent: Screen? = null) : Screen(Component.literal("Safari Patron Run History")) {
+class HistoryScreen(private val parent: Screen? = null, achievements: Boolean = false) : Screen(Component.literal("Safari Patron Run History")) {
     private enum class Filter(val label: String) { ALL("All"), SPARKLING("✦ Sparkling"), PB("★ PB"), DYE("♦ Dye"), TODAY("Today"), WEEK("This week") }
     private enum class Sort(val label: String) { NEWEST("Newest"), FASTEST("Fastest"), PROFIT("Most profit") }
-    private enum class Tab { HISTORY, STATS }
+    private enum class Tab { HISTORY, STATS, ACHIEVEMENTS }
     private enum class Range(val label: String) { ALL("All time"), WEEK("This week"), TODAY("Today"), LAST50("Last 50 runs") }
 
-    private var tab = Tab.HISTORY
+    private var tab = if (achievements) Tab.ACHIEVEMENTS else Tab.HISTORY
     private var range = Range.ALL
 
     private val hits = ArrayList<Ui.Hit>()
@@ -107,7 +110,7 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
         Ui.box(g, ix, y, iw, 20, Ui.HEADER, Ui.HEADER_BORDER)
         Ui.text(g, font, "✦ Run History", ix + 6, y + 6, Ui.GREEN)
         var tx = ix + 12 + font.width("✦ Run History") + 10
-        for ((label, target) in listOf("History" to Tab.HISTORY, "Stats" to Tab.STATS, "Achievements" to null)) {
+        for ((label, target) in listOf<Pair<String, Tab?>>("History" to Tab.HISTORY, "Stats" to Tab.STATS, "Achievements" to Tab.ACHIEVEMENTS)) {
             val tw = font.width(label)
             val on = target == tab
             val hover = target != null && Ui.inside(mx, my, tx - 2, y + 2, tw + 4, 16)
@@ -121,6 +124,7 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
         hits.add(Ui.Hit(ix + iw - 16, y + 3, 14, 14) { onClose() })
         y += 24
         if (tab == Tab.STATS) { drawStats(g, mx, my, ix, y, iw, y0 + h - 6); return }
+        if (tab == Tab.ACHIEVEMENTS) { drawAchievements(g, mx, my, ix, y, iw, y0 + h - 6); return }
 
         // Summary cards
         // All time, from the saved totals (older runs do not have to be loaded)
@@ -683,6 +687,164 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
         scroll = (index * rowH - rowH * 3).coerceAtLeast(0)
     }
 
+    // ---------- Achievements tab ----------
+
+    private enum class AchSort(val label: String) { RARITY("Rarity"), PROGRESS("Progress"), RECENT("Recent") }
+    private var achTier: Tier? = null
+    private var achSort = AchSort.RARITY
+    private var achScroll = 0
+    private var achMax = 0
+    private val achDate = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH)
+
+    /** 0..1 progress of a locked achievement (for sorting and its bar), null = no bar. */
+    private fun achProgress(a: Achievement): Double? {
+        val p = runCatching { a.progress?.invoke() }.getOrNull() ?: return null
+        if (p.second <= 0) return null
+        return (p.first / p.second).coerceIn(0.0, 1.0)
+    }
+
+    private fun achLabel(a: Achievement): String? {
+        runCatching { a.progressText?.invoke() }.getOrNull()?.let { return it }
+        val p = runCatching { a.progress?.invoke() }.getOrNull() ?: return null
+        fun n(v: Double) = if (p.second >= 1_000_000) Profit.coins(v) else "%,d".format(Locale.ROOT, v.toLong())
+        return "${n(minOf(p.first, p.second))} / ${n(p.second)}"
+    }
+
+    private fun drawAchievements(g: GuiGraphicsExtractor, mx: Int, my: Int, ix: Int, top: Int, iw: Int, bottom: Int) {
+        tooltip = null
+        val all = Achievements.all
+        var y = top
+
+        // Points and unlocked
+        val pts = Achievements.points
+        val maxPts = Achievements.maxPoints
+        val unlocked = all.count { Achievements.isUnlocked(it.id) }
+        fun bar(x: Int, w: Int, frac: Double, color: Int) {
+            g.fill(x, y + 11, x + w, y + 14, 0xFF0F140C.toInt())
+            g.fill(x, y + 11, x + (w * frac.coerceIn(0.0, 1.0)).toInt(), y + 14, color)
+        }
+        g.text(font, "Points", ix, y, Ui.DIM, false)
+        val ptsText = "$pts / ${"%,d".format(Locale.ROOT, maxPts)}"
+        g.text(font, ptsText, ix + 150 - font.width(ptsText), y, Ui.GOLD, false)
+        bar(ix, 150, pts.toDouble() / maxPts, Ui.GOLD)
+        g.text(font, "Unlocked", ix + 162, y, Ui.DIM, false)
+        val unText = "$unlocked / ${all.size}"
+        g.text(font, unText, ix + 262 - font.width(unText), y, Ui.TEXT, false)
+        bar(ix + 162, 100, unlocked.toDouble() / all.size, Ui.GREEN)
+        Achievements.data.unlocked.entries.maxByOrNull { it.value.at }?.let { (id, u) ->
+            val a = Achievements.byId(id) ?: return@let
+            val date = Instant.ofEpochMilli(u.at).atZone(zone).toLocalDate().format(achDate)
+            val text = "Latest: ${a.tier.code}${a.name} §8· $date"
+            g.text(font, Ui.fit(font, text, iw - 280), ix + iw - minOf(font.width(text), iw - 280), y + 4, Ui.FAINT, false)
+        }
+        y += 19
+
+        // Rarity chips (counts on hover) and sort
+        var fx = ix
+        val chips = listOf<Pair<String, Tier?>>("All" to null) + Tier.entries.map { it.label to it }
+        for ((label, tier) in chips) {
+            val fw = font.width(label) + (if (tier != null) 16 else 10)
+            val on = tier == achTier
+            val hover = Ui.inside(mx, my, fx, y, fw, 13)
+            Ui.box(g, fx, y, fw, 13, if (on) Ui.PILL_ON else if (hover) Ui.CARD_HOVER else Ui.CARD, if (on) Ui.FEATURE_BORDER else Ui.BORDER)
+            var lx = fx + 5
+            if (tier != null) { g.fill(lx, y + 5, lx + 3, y + 8, tier.color); lx += 6 }
+            g.text(font, label, lx, y + 3, if (on) Ui.PILL_ON_TEXT else tier?.color ?: Ui.MUTED, false)
+            if (hover) {
+                val list = if (tier == null) all else all.filter { it.tier == tier }
+                tooltip = "${list.count { Achievements.isUnlocked(it.id) }} / ${list.size} unlocked" + (tier?.let { " · ${it.points} points each" } ?: "")
+            }
+            hits.add(Ui.Hit(fx, y, fw, 13) { achTier = tier; achScroll = 0 })
+            fx += fw + 3
+        }
+        val sortLabel = "Sort: ${achSort.label} ▾"
+        val sw = font.width(sortLabel) + 10
+        val sx = ix + iw - sw
+        if (sx > fx + 4) {
+            val sortHover = Ui.inside(mx, my, sx, y, sw, 13)
+            Ui.box(g, sx, y, sw, 13, if (sortHover) Ui.CARD_HOVER else Ui.CARD, Ui.FEATURE_BORDER)
+            g.text(font, sortLabel, sx + 5, y + 3, Ui.TEXT, false)
+            hits.add(Ui.Hit(sx, y, sw, 13) { achSort = AchSort.entries[(achSort.ordinal + 1) % AchSort.entries.size]; achScroll = 0 })
+        }
+        y += 17
+
+        // Cards, two columns, scrolling
+        val shown = all.filter { achTier == null || it.tier == achTier }.let { list ->
+            fun done(a: Achievement) = Achievements.isUnlocked(a.id)
+            when (achSort) {
+                AchSort.RARITY -> list.sortedWith(compareBy<Achievement>({ it.tier.ordinal }, { !done(it) }))
+                AchSort.PROGRESS -> list.sortedWith(compareBy<Achievement>({ done(it) }, { -(if (it.hidden) 0.0 else achProgress(it) ?: 0.0) }, { it.tier.ordinal }))
+                AchSort.RECENT -> list.sortedWith(compareBy<Achievement>({ -(Achievements.data.unlocked[it.id]?.at ?: 0L) }, { it.tier.ordinal }))
+            }
+        }
+        val cols = 2
+        val gap = 4
+        val cw = (iw - gap * (cols - 1) - 6) / cols
+        val ch = 36
+        val rows = (shown.size + cols - 1) / cols
+        val viewH = bottom - y
+        achMax = (rows * (ch + gap) - gap - viewH).coerceAtLeast(0)
+        achScroll = achScroll.coerceIn(0, achMax)
+        g.enableScissor(ix, y, ix + iw, bottom)
+        shown.forEachIndexed { i, a ->
+            val cx = ix + (i % cols) * (cw + gap)
+            val cy = y + (i / cols) * (ch + gap) - achScroll
+            if (cy + ch < y || cy > bottom) return@forEachIndexed
+            val unlock = Achievements.data.unlocked[a.id]
+            val done = unlock != null
+            val secret = a.hidden && !done
+            Ui.box(g, cx, cy, cw, ch, Ui.CARD, if (done) Ui.FEATURE_BORDER else Ui.BORDER)
+            g.fill(cx, cy, cx + 2, cy + ch, if (done) a.tier.color else (0x70 shl 24) or (a.tier.color and 0xFFFFFF))
+            val tierText = "${a.tier.label.uppercase()} · ${a.tier.points}"
+            val tierW = (font.width(tierText) * 0.75f).toInt()
+            Ui.text(g, font, tierText, cx + cw - 5 - tierW, cy + 5, a.tier.color, 0.75f)
+            val icon = if (done) "★" else if (secret) "?" else "☆"
+            g.text(font, icon, cx + 6, cy + 4, if (done) a.tier.color else Ui.FAINT, false)
+            g.text(font, Ui.fit(font, if (secret) "???" else a.name, cw - 26 - tierW), cx + 16, cy + 4, if (done) Ui.WHITE else Ui.MUTED, false)
+            val desc = if (secret) "Hidden achievement. Keep playing to find it." else a.desc
+            Ui.text(g, font, Ui.fit(font, desc, ((cw - 12) / 0.75f).toInt()), cx + 6, cy + 15, if (secret) Ui.FAINT else Ui.DIM, 0.75f)
+            val ly = cy + 25
+            if (done) {
+                val date = Instant.ofEpochMilli(unlock!!.at).atZone(zone).toLocalDate().format(achDate)
+                Ui.text(g, font, "Unlocked $date", cx + 6, ly, Ui.FAINT, 0.75f)
+                if (unlock.run > 0) {
+                    val link = "Run #${unlock.run} ›"
+                    val lw = (font.width(link) * 0.75f).toInt()
+                    val lx = cx + cw - 5 - lw
+                    val hover = Ui.inside(mx, my, lx - 2, ly - 2, lw + 4, 10) && my in y until bottom
+                    Ui.text(g, font, link, lx, ly, if (hover) Ui.WHITE else Ui.GREEN, 0.75f)
+                    val run = unlock.run
+                    if (cy >= y && ly + 8 <= bottom) hits.add(Ui.Hit(lx - 2, ly - 2, lw + 4, 10) { openRun(run) })
+                }
+            } else if (!secret) {
+                val frac = achProgress(a)
+                val label = achLabel(a)
+                if (frac != null && label != null) {
+                    val lw = (font.width(label) * 0.75f).toInt()
+                    val bw = cw - 18 - lw
+                    g.fill(cx + 6, ly + 1, cx + 6 + bw, ly + 5, 0xFF0F140C.toInt())
+                    g.fill(cx + 6, ly + 1, cx + 6 + (bw * frac).toInt(), ly + 5, (0xB0 shl 24) or (a.tier.color and 0xFFFFFF))
+                    Ui.text(g, font, label, cx + cw - 5 - lw, ly, Ui.FAINT, 0.75f)
+                } else Ui.text(g, font, "Locked", cx + 6, ly, Ui.FAINT, 0.75f)
+            }
+        }
+        g.disableScissor()
+        if (achMax > 0) {
+            val trackH = bottom - y
+            val barH = (trackH * trackH / (trackH + achMax)).coerceAtLeast(10)
+            val barY = y + (trackH - barH) * achScroll / achMax
+            g.fill(ix + iw - 3, barY, ix + iw - 1, barY + barH, Ui.BORDER_HOVER)
+        }
+
+        tooltip?.let { t ->
+            val tw = font.width(t) + 8
+            val tx = (mx + 8).coerceAtMost(width - tw - 2)
+            val ty = (my - 14).coerceAtLeast(2)
+            Ui.box(g, tx, ty, tw, 13, 0xF0100A14.toInt(), Ui.FEATURE_BORDER)
+            g.text(font, t, tx + 4, ty + 3, Ui.TEXT, false)
+        }
+    }
+
     override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
         if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
             hits.lastOrNull { it.contains(event.x(), event.y()) }?.let { it.action(); return true }
@@ -691,6 +853,7 @@ class HistoryScreen(private val parent: Screen? = null) : Screen(Component.liter
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, scrollX: Double, scrollY: Double): Boolean {
+        if (tab == Tab.ACHIEVEMENTS) { achScroll = (achScroll - (scrollY * 30).toInt()).coerceIn(0, achMax); return true }
         if (tab != Tab.HISTORY) return true
         val d = detailRect
         if (mouseX >= d[0] && mouseX < d[0] + d[2] && mouseY >= d[1] && mouseY < d[1] + d[3]) {

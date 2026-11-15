@@ -109,6 +109,9 @@ object History {
 
     /** The run being built. */
     private var current: RunRecord? = null
+
+    /** This run's Hunting Hotspot biome (e.g. "Haunted"), if it was seen. */
+    fun currentHotspot(): String? = current?.hotspot
     private var startAt = 0L
     private val caughtSet = LinkedHashSet<String>()
     private var captures = 0
@@ -370,6 +373,7 @@ object History {
         startAt = 0L
         append(rec)
         fixZeroValues()
+        safaripatron.achievements.Achievements.onRun(rec)
         log.info("Saved run #{} ({} uniques, {})", rec.id, rec.party, if (rec.ms > 0) safaripatron.safari.Run.time(rec.ms) else "not timed")
     }
 

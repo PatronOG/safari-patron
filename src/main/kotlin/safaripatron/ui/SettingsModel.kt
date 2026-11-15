@@ -145,6 +145,18 @@ object SettingsModel {
                 Action("Reset total", "Forget all-time profit", "Reset", confirm = true) { safaripatron.profit.Profit.resetTotal() },
             )
         },
+        Category("achievements", "Achievements", "★", 0xFFFFAA00.toInt(), "Toasts and sound", null) {
+            listOf(
+                choice("Achievement toasts", "On-screen box when you unlock one",
+                    listOf("off", "common", "uncommon", "rare", "epic", "legendary", "mythic"),
+                    { when (it) { "off" -> "Off"; "common" -> "All"; else -> it.replaceFirstChar { c -> c.uppercase() } + "+" } },
+                    { s.achievementToasts }) { s.achievementToasts = it },
+                toggle("Achievement sound", "Legendary and rarer", { s.achievementSound }) { s.achievementSound = it },
+                Action("Open achievements", "Run History, Achievements tab", "Open") {
+                    MenuNav.open(HistoryScreen(net.minecraft.client.Minecraft.getInstance().gui.screen(), achievements = true))
+                },
+            )
+        },
         Category("chat", "Chat prefix", "✎", 0xFF8FD16A.toInt(), "Gradient styles", null) {
             Brand.Style.entries.map { Prefix(it) }
         },

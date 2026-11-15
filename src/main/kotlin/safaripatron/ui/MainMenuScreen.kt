@@ -36,9 +36,9 @@ class MainMenuScreen(private val parent: Screen? = null) : Screen(Component.lite
 
     /** Longer text for the main menu cards (the settings list keeps the short summaries). */
     private val cardText = mapOf(
-        "sparkling" to "Finder with waypoint system, alert and your Sparkling collection",
+        "sparkling" to "Finder with waypoints, alert and your Sparkling collection",
         "esp" to "Highlights critters, floor drops and critter hiding spots",
-        "party" to "Party chat alerts, hotspot, biome and personal best announcements",
+        "party" to "Party chat alerts, hotspot, biome and PB announcements",
         "capsule" to "Shows the capsule's flight path and where it lands",
         "contest" to "Timer, ticket progress, honeyhives and alerts",
         "profit" to "Session and all-time profit from every drop",

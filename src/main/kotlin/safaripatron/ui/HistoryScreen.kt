@@ -22,13 +22,13 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /** /sp history — every saved run: summary cards, filters, the list and the selected run's details. */
-class HistoryScreen(private val parent: Screen? = null, achievements: Boolean = false) : Screen(Component.literal("Safari Patron Run History")) {
+class HistoryScreen(private val parent: Screen? = null, start: String = "history") : Screen(Component.literal("Safari Patron Run History")) {
     private enum class Filter(val label: String) { ALL("All"), SPARKLING("✦ Sparkling"), PB("★ PB"), DYE("♦ Dye"), TODAY("Today"), WEEK("This week") }
     private enum class Sort(val label: String) { NEWEST("Newest"), FASTEST("Fastest"), PROFIT("Most profit") }
     private enum class Tab { HISTORY, STATS, ACHIEVEMENTS }
     private enum class Range(val label: String) { ALL("All time"), WEEK("This week"), TODAY("Today"), LAST50("Last 50 runs") }
 
-    private var tab = if (achievements) Tab.ACHIEVEMENTS else Tab.HISTORY
+    private var tab = when (start) { "stats" -> Tab.STATS; "achievements" -> Tab.ACHIEVEMENTS; else -> Tab.HISTORY }
     private var range = Range.ALL
 
     private val hits = ArrayList<Ui.Hit>()
@@ -97,8 +97,8 @@ class HistoryScreen(private val parent: Screen? = null, achievements: Boolean = 
         hits.clear()
         val now = System.currentTimeMillis()
         if (now - lastFix > 3000) { lastFix = now; History.fixZeroValues() }
-        val w = minOf(width - 16, 640)
-        val h = minOf(height - 12, 340)
+        val w = minOf(width - 16, 760)
+        val h = minOf(height - 12, 360)
         val x0 = (width - w) / 2
         val y0 = ((height - h) / 2).coerceAtLeast(4)
         Ui.rounded(g, x0, y0, w, h, Ui.WINDOW)
@@ -143,9 +143,11 @@ class HistoryScreen(private val parent: Screen? = null, achievements: Boolean = 
         cards.forEachIndexed { i, (label, value, color) ->
             val cx = ix + i * (cw + 4)
             Ui.box(g, cx, y, cw, 28, Ui.CARD, Ui.BORDER)
-            g.text(font, Ui.fit(font, label, cw - 8), cx + 4, y + 3, Ui.DIM, false)
-            Ui.text(g, font, Ui.fit(font, value, ((cw - 8) / 1.2f).toInt()), cx + 4, y + 13, color, 1.2f)
-            subs[i]?.let { s -> Ui.text(g, font, Ui.fit(font, s, ((cw - 8) / 0.75f).toInt()), cx + cw - 4 - (font.width(s) * 0.75f).toInt().coerceAtMost(cw - 8), y + 4, Ui.FAINT, 0.75f) }
+            g.text(font, Ui.fit(font, label, cw - 8), cx + 5, y + 5, Ui.DIM, false)
+            val shownValue = Ui.fit(font, value, cw - 10)
+            g.text(font, shownValue, cx + 5, y + 16, color, true)
+            // Small note on the right, only when it fits beside the value (full size: scaled text gets blurry)
+            subs[i]?.let { sub -> if (font.width(shownValue) + font.width(sub) + 14 <= cw) g.text(font, sub, cx + cw - 5 - font.width(sub), y + 16, Ui.FAINT, false) }
         }
         y += 32
 
@@ -311,7 +313,7 @@ class HistoryScreen(private val parent: Screen? = null, achievements: Boolean = 
             line(title, Ui.DIM)
         }
 
-        if (visible()) Ui.text(g, font, "Run #${r.id}", ix, cy, Ui.WHITE, 1.2f)
+        if (visible()) Ui.text(g, font, "Run #${r.id}", ix, cy, Ui.WHITE, 1f, true)
         cy += 13
         line(dayFmt.format(Instant.ofEpochMilli(r.endedAt).atZone(zone)), Ui.DIM)
         line(if (r.ms > 0) Run.time(r.ms) + (if (r.pb) "  Fastest!" else "") else "Not timed", if (r.pb) Ui.GREEN else Ui.TEXT,
@@ -780,7 +782,7 @@ class HistoryScreen(private val parent: Screen? = null, achievements: Boolean = 
         val cols = 2
         val gap = 4
         val cw = (iw - gap * (cols - 1) - 6) / cols
-        val ch = 36
+        val ch = 48
         val rows = (shown.size + cols - 1) / cols
         val viewH = bottom - y
         achMax = (rows * (ch + gap) - gap - viewH).coerceAtLeast(0)
@@ -794,38 +796,40 @@ class HistoryScreen(private val parent: Screen? = null, achievements: Boolean = 
             val done = unlock != null
             val secret = a.hidden && !done
             Ui.box(g, cx, cy, cw, ch, Ui.CARD, if (done) Ui.FEATURE_BORDER else Ui.BORDER)
-            g.fill(cx, cy, cx + 2, cy + ch, if (done) a.tier.color else (0x70 shl 24) or (a.tier.color and 0xFFFFFF))
+            g.fill(cx, cy, cx + 2, cy + ch, if (done) a.tier.color else (0x80 shl 24) or (a.tier.color and 0xFFFFFF))
+            // Everything at full size (scaled pixel text gets blurry), with a shadow on the important parts
             val tierText = "${a.tier.label.uppercase()} · ${a.tier.points}"
-            val tierW = (font.width(tierText) * 0.75f).toInt()
-            Ui.text(g, font, tierText, cx + cw - 5 - tierW, cy + 5, a.tier.color, 0.75f)
+            val tierW = font.width(tierText)
+            g.text(font, tierText, cx + cw - 6 - tierW, cy + 5, a.tier.color, true)
             val icon = if (done) "★" else if (secret) "?" else "☆"
-            g.text(font, icon, cx + 6, cy + 4, if (done) a.tier.color else Ui.FAINT, false)
-            g.text(font, Ui.fit(font, if (secret) "???" else a.name, cw - 26 - tierW), cx + 16, cy + 4, if (done) Ui.WHITE else Ui.MUTED, false)
+            g.text(font, icon, cx + 6, cy + 5, if (done) a.tier.color else Ui.DIM, true)
+            g.text(font, Ui.fit(font, if (secret) "???" else a.name, cw - 30 - tierW), cx + 17, cy + 5, if (done) Ui.WHITE else Ui.TEXT, true)
             val desc = if (secret) "Hidden achievement. Keep playing to find it." else a.desc
-            Ui.text(g, font, Ui.fit(font, desc, ((cw - 12) / 0.75f).toInt()), cx + 6, cy + 15, if (secret) Ui.FAINT else Ui.DIM, 0.75f)
-            val ly = cy + 25
+            var dy = cy + 17
+            for (line in Ui.wrap(font, desc, cw - 12, 2)) { g.text(font, line, cx + 6, dy, if (done) Ui.MUTED else Ui.DIM, false); dy += 10 }
+            val ly = cy + ch - 11
             if (done) {
                 val date = Instant.ofEpochMilli(unlock!!.at).atZone(zone).toLocalDate().format(achDate)
-                Ui.text(g, font, "Unlocked $date", cx + 6, ly, Ui.FAINT, 0.75f)
+                g.text(font, "Unlocked $date", cx + 6, ly, Ui.DIM, false)
                 if (unlock.run > 0) {
                     val link = "Run #${unlock.run} ›"
-                    val lw = (font.width(link) * 0.75f).toInt()
-                    val lx = cx + cw - 5 - lw
-                    val hover = Ui.inside(mx, my, lx - 2, ly - 2, lw + 4, 10) && my in y until bottom
-                    Ui.text(g, font, link, lx, ly, if (hover) Ui.WHITE else Ui.GREEN, 0.75f)
+                    val lw = font.width(link)
+                    val lx = cx + cw - 6 - lw
+                    val hover = Ui.inside(mx, my, lx - 2, ly - 2, lw + 4, 11) && my in y until bottom
+                    g.text(font, link, lx, ly, if (hover) Ui.WHITE else Ui.GREEN, false)
                     val run = unlock.run
-                    if (cy >= y && ly + 8 <= bottom) hits.add(Ui.Hit(lx - 2, ly - 2, lw + 4, 10) { openRun(run) })
+                    if (cy >= y && ly + 9 <= bottom) hits.add(Ui.Hit(lx - 2, ly - 2, lw + 4, 11) { openRun(run) })
                 }
             } else if (!secret) {
                 val frac = achProgress(a)
                 val label = achLabel(a)
                 if (frac != null && label != null) {
-                    val lw = (font.width(label) * 0.75f).toInt()
-                    val bw = cw - 18 - lw
-                    g.fill(cx + 6, ly + 1, cx + 6 + bw, ly + 5, 0xFF0F140C.toInt())
-                    g.fill(cx + 6, ly + 1, cx + 6 + (bw * frac).toInt(), ly + 5, (0xB0 shl 24) or (a.tier.color and 0xFFFFFF))
-                    Ui.text(g, font, label, cx + cw - 5 - lw, ly, Ui.FAINT, 0.75f)
-                } else Ui.text(g, font, "Locked", cx + 6, ly, Ui.FAINT, 0.75f)
+                    val lw = font.width(label)
+                    val bw = (cw - 18 - lw).coerceAtLeast(20)
+                    g.fill(cx + 6, ly + 2, cx + 6 + bw, ly + 6, 0xFF0F140C.toInt())
+                    g.fill(cx + 6, ly + 2, cx + 6 + (bw * frac).toInt(), ly + 6, (0xC0 shl 24) or (a.tier.color and 0xFFFFFF))
+                    g.text(font, label, cx + cw - 6 - lw, ly, Ui.DIM, false)
+                } else g.text(font, "Locked", cx + 6, ly, Ui.FAINT, false)
             }
         }
         g.disableScissor()

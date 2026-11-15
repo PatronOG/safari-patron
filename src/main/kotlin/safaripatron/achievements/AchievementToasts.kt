@@ -17,7 +17,7 @@ object AchievementToasts : HudElement {
     private const val GAP = 4
     private const val TITLE_SCALE = 1.5f
 
-    override val name = "Achievement toast"
+    override val name = "Achievement Panel"
     override val pos get() = Config.s.achievementPanel
     override val defaultPos get() = Settings.DEFAULT_ACHIEVEMENT
     override val centered get() = true

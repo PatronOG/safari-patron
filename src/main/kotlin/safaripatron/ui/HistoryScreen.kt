@@ -332,7 +332,12 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         if (r.players.isNotEmpty()) {
             divider("Party · uniques")
             val sorted = r.players.entries.sortedWith(compareBy<Map.Entry<String, MutableList<String>>>({ if (it.key == r.self) 0 else 1 }, { -it.value.size }))
-            for ((name, list) in sorted) line(name, if (name == r.self) 0xFF55FFFF.toInt() else Ui.TEXT, "${list.size}", 0xFF8FE8E8.toInt())
+            // Each name in the color of the biome they did (where they caught the most); you are marked with »
+            for ((name, list) in sorted) {
+                val biome = playerBiome(list)
+                val self = name.equals(r.self, ignoreCase = true)
+                line(if (self) "» $name" else name, biome?.color ?: Ui.TEXT, "${list.size}", 0xFF8FE8E8.toInt())
+            }
         }
 
         if (r.sparklings.isNotEmpty()) {
@@ -531,6 +536,13 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
     }
 
     /** Profit of the last 30 runs; sparkling and Emerald Dye runs coloured, very high bars cut with their value on top. */
+    /** The biome a player did in a run: where they caught the most (a tie goes to their first catch). */
+    private fun playerBiome(species: List<String>): Biome? {
+        val counts = LinkedHashMap<Biome, Int>()
+        for (s in species) Critters.named(s)?.biome?.let { counts.merge(it, 1, Int::plus) }
+        return counts.entries.maxByOrNull { it.value }?.key
+    }
+
     private fun drawProfitGraph(g: GuiGraphicsExtractor, runs: List<RunRecord>, x: Int, y: Int, w: Int, h: Int) {
         card(g, "Profit per run · last 30 runs", x, y, w, h)
         val pts = runs.takeLast(30)
@@ -538,13 +550,11 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         val gx = x + 30; val gy = y + 15; val gw = w - 38; val gh = h - 34
         val sorted = pts.map { it.value }.sorted()
         val median = sorted[sorted.size / 2]
-        val cap = maxOf(median * 3, sorted.first().coerceAtLeast(1.0), 1.0)
-        for (k in 0..2) {
-            val v = cap * k / 2
-            val yy = gy + gh - (gh * k / 2)
-            g.fill(gx, yy, gx + gw, yy + 1, 0xFF26301F.toInt())
-            Ui.text(g, font, Profit.coins(v), x + 4, yy - 3, Ui.FAINT, 0.75f)
-        }
+        // All-time average profit per run (all saved runs, not only these 30)
+        val avg = History.totals.averageValue.takeIf { !it.isNaN() } ?: 0.0
+        val cap = maxOf(median * 3, avg * 1.6, sorted.first().coerceAtLeast(1.0), 1.0)
+        g.fill(gx, gy + gh, gx + gw, gy + gh + 1, 0xFF26301F.toInt())
+        g.text(font, "0", gx - 4 - font.width("0"), gy + gh - 4, Ui.FAINT, false)
         val slot = gw.toFloat() / 30
         val bw = (slot - 2).toInt().coerceAtLeast(1)
         pts.forEachIndexed { i, r ->
@@ -554,6 +564,16 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             val bx = gx + (slot * (30 - pts.size + i)).toInt() + 1
             g.fill(bx, gy + gh - bh, bx + bw, gy + gh, color)
             if (r.value > cap) Ui.text(g, font, Profit.coins(r.value), bx - 4, gy - 1, 0xFF55AA55.toInt(), 0.6f)
+        }
+        // Dashed all-time average line over the bars
+        if (avg > 0) {
+            val ay = gy + gh - (gh * (avg / cap)).toInt()
+            var dx = gx
+            while (dx < gx + gw) { g.fill(dx, ay, minOf(dx + 4, gx + gw), ay + 1, Ui.GOLD); dx += 7 }
+            val label = Profit.coins(avg)
+            g.text(font, label, gx - 4 - font.width(label), ay - 4, Ui.GOLD, false)
+            val note = "all-time avg"
+            g.text(font, note, gx + gw - font.width(note), ay - 10, Ui.GOLD, true)
         }
         // Legend
         var lx = x + 6

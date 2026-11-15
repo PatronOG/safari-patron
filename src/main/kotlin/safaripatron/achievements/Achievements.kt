@@ -65,6 +65,8 @@ class AchievementData {
     var maxSparklings = 0
     var maxFeathers = 0L
     var maxValue = 0.0
+    /** Sparkling achievements that once also counted the Critterdex were checked again against the history. */
+    var sparklingRecheck = false
 }
 
 object Achievements {
@@ -127,7 +129,7 @@ object Achievements {
             Achievement("first_steps", "First Steps", "Finish your first Safari run.", Tier.COMMON,
                 total = { runs() >= 1 }),
             Achievement("something_shiny", "Something Shiny", "See a sparkling caught in your party.", Tier.COMMON,
-                perRun = { it.sparklings.isNotEmpty() }, total = { dex() >= 1 }),
+                perRun = { it.sparklings.isNotEmpty() }),
             Achievement("first_pb", "First Personal Best", "Set your first personal best.", Tier.COMMON,
                 total = { Config.s.bestTimes.values.any { it.ms > 0 } }),
             Achievement("full_house", "Full House", "Catch all ${Critters.TOTAL} critters in one run with your party.", Tier.COMMON,
@@ -151,7 +153,7 @@ object Achievements {
             Achievement("runs_250", "Veteran", "Finish 250 runs.", Tier.RARE,
                 total = { runs() >= 250 }, progress = { runs().toDouble() to 250.0 }),
             Achievement("my_shiny", "My Shiny!", "Catch a sparkling yourself.", Tier.RARE,
-                perRun = { r -> r.sparklings.any { isSelf(r, it.player) } }, total = { dex() >= 1 }),
+                perRun = { r -> r.sparklings.any { isSelf(r, it.player) } }),
             Achievement("six_figures", "Six Figures?", "Earn over 6M coins in a single run.", Tier.RARE,
                 perRun = { it.value > 6 * M }, progress = { data.maxValue to 6 * M }),
             timeAch("sub_3", "Sub 3", "Finish Everything in under 3:00.", Tier.RARE, { best("all") }, 180_000),
@@ -202,8 +204,7 @@ object Achievements {
             Achievement("dex_33", "Here Comes the Hard Part", "Register 33 sparklings in your Critterdex.", Tier.CELESTIAL,
                 total = { dex() >= 33 }, progress = { dex().toDouble() to 33.0 }),
             Achievement("big_four_hunter", "Big Four Hunter", "Catch a sparkling Hideyho, Wumpa, Doomspiral or Macaw yourself.",
-                Tier.CELESTIAL, perRun = { r -> r.sparklings.any { it.critter in BIG_FOUR && isSelf(r, it.player) } },
-                total = { Config.s.sparklingCollection.any { it in BIG_FOUR } }),
+                Tier.CELESTIAL, perRun = { r -> r.sparklings.any { it.critter in BIG_FOUR && isSelf(r, it.player) } }),
             // Impossible
             Achievement("dex_master", "Critterdex Master", "Complete your Sparkling Critterdex.", Tier.IMPOSSIBLE,
                 total = { Critters.all.all { it.name in Config.s.sparklingCollection } },
@@ -291,9 +292,29 @@ object Achievements {
             if (Bazaar.ready() || now - joinedAt > 60_000L) retro()
             return
         }
+        if (!data.sparklingRecheck) recheckSparklings()
         val out = ArrayList<Pair<Achievement, Int>>()
         checkTotals(out)
         if (out.isNotEmpty()) { unlock(out, quiet = false); save() }
+    }
+
+    /**
+     * Something Shiny, My Shiny! and Big Four Hunter used to count the Critterdex too; now only the run history
+     * counts (who caught each sparkling). Once: take them back if no saved run earned them.
+     */
+    private fun recheckSparklings() {
+        History.ensureCount(Int.MAX_VALUE)
+        for (id in listOf("something_shiny", "my_shiny", "big_four_hunter")) {
+            if (!isUnlocked(id)) continue
+            val a = byId(id) ?: continue
+            if (History.runs.none { r -> a.perRun?.invoke(r) == true }) {
+                data.unlocked.remove(id)
+                log.info("Took back {}: no saved run earned it", id)
+            }
+        }
+        data.sparklingRecheck = true
+        version++
+        save()
     }
 
     /** Checks every saved run and the totals once, and unlocks what they already earned, with one message. */
@@ -305,6 +326,7 @@ object Achievements {
         for (r in History.runs) applyRun(r, out)
         checkTotals(out)
         d.retroDone = true
+        d.sparklingRecheck = true
         unlock(out, quiet = true)
         save()
         log.info("Checked {} old runs: {} achievements", History.runs.size, out.size)

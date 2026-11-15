@@ -73,7 +73,7 @@ class MainMenuScreen(private val parent: Screen? = null) : Screen(Component.lite
         super.extractRenderState(g, mx, my, delta)
         hits.clear()
 
-        val w = minOf(width - 16, 470)
+        val w = minOf(width - 16, 560)
         val gap = 6
         val ix0 = (width - w) / 2 + 8
         val iw = w - 16

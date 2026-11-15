@@ -254,7 +254,7 @@ object History {
         version++
     }
 
-    /** 1.2.0 kept every run in history.json: split it into history/ and keep a copy in backup-1.3.0/. */
+    /** 1.2.0 kept every run in history.json: split it into history/ and keep a copy in backup-2.0.0/. */
     private fun migrateV1() {
         val raw = Paths.read(Paths.history) ?: return
         val old = runCatching { gson.fromJson(raw, HistoryData::class.java) }.getOrNull() ?: HistoryData()
@@ -270,7 +270,7 @@ object History {
         val from = Paths.history
         writer.execute {
             runCatching {
-                val backup = Paths.dir.resolve("backup-1.3.0")
+                val backup = Paths.dir.resolve("backup-2.0.0")
                 Files.createDirectories(backup)
                 Files.copy(from, backup.resolve("history.json"), StandardCopyOption.REPLACE_EXISTING)
                 Files.delete(from)

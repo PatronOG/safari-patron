@@ -83,7 +83,7 @@ class Settings {
     var contestStartChoice = "New Miria's Contest started."
     var contestStartCustom = ""
     var contestTicketAnnounce = true
-    var contestTicketChoice = "Ticket earned."
+    var contestTicketChoice = "Ticket earned!"
     var contestTicketCustom = ""
     var contestWarn = true
     var contestWarnTitle = true
@@ -201,7 +201,7 @@ object Config {
             if (s.contestTicketSent == null) s.contestTicketSent = HashMap()
             if (s.contestStartChoice == null) s.contestStartChoice = "New Miria's Contest started."
             if (s.contestStartCustom == null) s.contestStartCustom = ""
-            if (s.contestTicketChoice == null) s.contestTicketChoice = "Ticket earned."
+            if (s.contestTicketChoice == null || s.contestTicketChoice == "Ticket earned.") s.contestTicketChoice = "Ticket earned!"
             if (s.contestTicketCustom == null) s.contestTicketCustom = ""
             if (s.totalProfitWhere == null) s.totalProfitWhere = "entrance"
             if (s.totalProfitRows !in listOf(5, 10, 15, 20)) s.totalProfitRows = 15

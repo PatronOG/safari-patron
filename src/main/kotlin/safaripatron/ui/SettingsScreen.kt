@@ -123,15 +123,20 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
         val listTop = top + 21
         val listBottom = bottom - 2
         val list = rows()
-        maxScroll = (list.size * rowH - (listBottom - listTop)).coerceAtLeast(0)
+        // Rows grow by a line when their description needs two
+        val heights = list.map { rowHeight(it, rw, searching) }
+        maxScroll = (heights.sum() - (listBottom - listTop)).coerceAtLeast(0)
         scroll = scroll.coerceIn(0, maxScroll)
 
         g.enableScissor(rx + 1, listTop, rx + rw - 1, listBottom)
+        var ry = listTop - scroll
         list.forEachIndexed { i, row ->
-            val ry = listTop + i * rowH - scroll
-            if (ry + rowH < listTop || ry > listBottom) return@forEachIndexed
-            drawRow(g, row, rx, ry, rw, mx, my, searching, listTop, listBottom)
-            if (i < list.size - 1) g.fill(rx + 8, ry + rowH - 1, rx + rw - 8, ry + rowH, Ui.DIVIDER)
+            val rh = heights[i]
+            if (ry + rh >= listTop && ry <= listBottom) {
+                drawRow(g, row, rx, ry, rw, rh, mx, my, searching, listTop, listBottom)
+                if (i < list.size - 1) g.fill(rx + 8, ry + rh - 1, rx + rw - 8, ry + rh, Ui.DIVIDER)
+            }
+            ry += rh
         }
         g.disableScissor()
         if (list.isEmpty()) g.text(font, "No settings found", rx + 8, listTop + 8, Ui.DIM, false)
@@ -189,30 +194,55 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
         }
     }
 
+    private fun descOf(row: Row, searching: Boolean) =
+        if (searching) "${row.category.title} · ${row.item.desc}" else row.item.desc
+
+    /** Width the description can use, left of the row's switch or button; null = one-line row. */
+    private fun descWidth(row: Row, rw: Int): Int? = when (val item = row.item) {
+        is SettingsModel.Toggle -> rw - 70
+        is SettingsModel.Action -> rw - (font.width(item.label) + 12) - 30
+        is SettingsModel.Multi -> rw - maxOf(font.width(multiSummary(item)) + font.width("▼") + 20, 80) - 30
+        is SettingsModel.Text -> rw - minOf(150, rw / 2) - 30
+        else -> null
+    }
+
+    private fun descLines(row: Row, rw: Int, searching: Boolean): List<String> {
+        val w = descWidth(row, rw) ?: return emptyList()
+        return Ui.wrap(font, descOf(row, searching), w, 2)
+    }
+
+    private fun rowHeight(row: Row, rw: Int, searching: Boolean) =
+        rowH + (descLines(row, rw, searching).size - 1).coerceAtLeast(0) * 10
+
     private fun drawRow(
-        g: GuiGraphicsExtractor, row: Row, rx: Int, ry: Int, rw: Int, mx: Int, my: Int,
+        g: GuiGraphicsExtractor, row: Row, rx: Int, ry: Int, rw: Int, rh: Int, mx: Int, my: Int,
         searching: Boolean, clipTop: Int, clipBottom: Int,
     ) {
         val item = row.item
-        val hover = Ui.inside(mx, my, rx + 2, ry, rw - 4, rowH) && my in clipTop until clipBottom
+        val hover = Ui.inside(mx, my, rx + 2, ry, rw - 4, rh) && my in clipTop until clipBottom
         fun hit(action: () -> Unit) {
-            val top = maxOf(ry, clipTop); val bot = minOf(ry + rowH, clipBottom)
+            val top = maxOf(ry, clipTop); val bot = minOf(ry + rh, clipBottom)
             if (bot > top) hits.add(Ui.Hit(rx + 2, top, rw - 4, bot - top, action))
         }
-        if (hover && item !is SettingsModel.Info) Ui.rounded(g, rx + 2, ry, rw - 4, rowH - 1, Ui.CARD_HOVER)
+        if (hover && item !is SettingsModel.Info) Ui.rounded(g, rx + 2, ry, rw - 4, rh - 1, Ui.CARD_HOVER)
         val textW = rw - 70
-        val desc = if (searching) "${row.category.title} · ${item.desc}" else item.desc
+        val desc = descOf(row, searching)
+        /** The description, on up to two lines. */
+        fun drawDesc() {
+            var dy = ry + 15
+            for (line in descLines(row, rw, searching)) { g.text(font, line, rx + 10, dy, Ui.DIM, false); dy += 10 }
+        }
 
         when (item) {
             is SettingsModel.Toggle -> {
                 g.text(font, Ui.fit(font, item.name, textW), rx + 10, ry + 5, Ui.WHITE, false)
-                g.text(font, Ui.fit(font, desc, textW), rx + 10, ry + 15, Ui.DIM, false)
+                drawDesc()
                 Ui.switch(g, rx + rw - 34, ry + 8, item.get())
                 hit { item.set(!item.get()) }
             }
             is SettingsModel.Action -> {
                 g.text(font, Ui.fit(font, item.name, textW), rx + 10, ry + 5, Ui.WHITE, false)
-                g.text(font, Ui.fit(font, desc, textW), rx + 10, ry + 15, Ui.DIM, false)
+                drawDesc()
                 val key = "${row.category.id}:${item.name}"
                 if (pendingConfirm == key && System.currentTimeMillis() - confirmAt > CONFIRM_MS) pendingConfirm = null
                 val confirming = pendingConfirm == key
@@ -250,7 +280,7 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
                 val bx = rx + rw - bw - 12
                 val tw = rw - bw - 30
                 g.text(font, Ui.fit(font, item.name, tw), rx + 10, ry + 5, Ui.WHITE, false)
-                g.text(font, Ui.fit(font, desc, tw), rx + 10, ry + 15, Ui.DIM, false)
+                drawDesc()
                 Ui.box(g, bx, ry + 6, bw, 14, if (open || hover) 0xFF26401C.toInt() else Ui.CARD, if (open) Ui.GREEN else Ui.FEATURE_BORDER)
                 g.text(font, label, bx + 6, ry + 9, Ui.PILL_ON_TEXT, false)
                 g.text(font, arrow, bx + bw - 6 - font.width(arrow), ry + 9, Ui.PILL_ON_TEXT, false)
@@ -264,7 +294,7 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
                 val bx = rx + rw - bw - 12
                 val tw = rw - bw - 30
                 g.text(font, Ui.fit(font, item.name, tw), rx + 10, ry + 5, Ui.WHITE, false)
-                g.text(font, Ui.fit(font, desc, tw), rx + 10, ry + 15, Ui.DIM, false)
+                drawDesc()
                 Ui.box(g, bx, ry + 6, bw, 14, 0xFF0F140C.toInt(), if (editing) Ui.GREEN else Ui.FEATURE_BORDER)
                 val inView = ry + 6 >= clipTop && ry + 20 <= clipBottom
                 if (editing && inView) {

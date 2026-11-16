@@ -194,8 +194,8 @@ object SettingsModel {
         },
     )
 
-    /** Settings sidebar and search. Capsule Helper is only the switch on its main menu card. */
-    val categories: List<Category> = all.filter { it.id != "capsule" }
+    /** Settings sidebar and search. */
+    val categories: List<Category> = all
 
     fun byId(id: String?) = all.firstOrNull { it.id == id } ?: all.first()
 

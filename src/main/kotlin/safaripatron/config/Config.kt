@@ -121,6 +121,9 @@ class Settings {
     var runCounter = 0
     /** Prefire spots (stand and aim marks) while holding a Masterful Critter Capsule. */
     var prefireSpots = true
+    /** Helpers: Wumpa skip spot and Doomspiral spot + timer, each on its own. */
+    var wumpaSkip = true
+    var doomspiralTimer = true
     /** Bell when it is time to throw. */
     var prefireSound = true
     /** Achievement toasts: "off", or the lowest rarity shown ("common" = all). */
@@ -211,6 +214,8 @@ object Config {
             if (s.totalProfitRows !in listOf(5, 10, 15, 20)) s.totalProfitRows = 15
             if (s.achievementToasts == null) s.achievementToasts = "common"
             if (s.achievementPanel == null) s.achievementPanel = PanelPos(-1f, 0.08f)
+            // "Prefire spots" was split into Wumpa Skip Helper and Doomspiral Timer
+            if (!s.prefireSpots) { s.wumpaSkip = false; s.doomspiralTimer = false; s.prefireSpots = true }
         }
         for (p in listOf(s.runPanel, s.biomePanel, s.sparklingPanel, s.warpPanel, s.announcePanel, s.collectionPanel, s.contestPanel, s.totalPanel, s.profitPanel, s.totalProfitPanel, s.achievementPanel)) {
             if (p.scale !in 0.5f..2f) p.scale = 1f

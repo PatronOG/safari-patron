@@ -26,15 +26,17 @@ object Prefire {
     class Spot(
         val critter: String, val biome: Biome, val stand: IntArray, val aims: List<Aim>,
         val anyCapsule: Boolean = false, val aimsOnSpot: Boolean = false,
+        val enabled: () -> Boolean = { true },
     )
 
     val spots = listOf(
-        Spot("Doomspiral", Biome.HAUNTED, intArrayOf(11, 48, -29), listOf(Aim(intArrayOf(-8, 51, -25), "Aim here"))),
+        Spot("Doomspiral", Biome.HAUNTED, intArrayOf(11, 48, -29), listOf(Aim(intArrayOf(-8, 51, -25), "Aim here")),
+            enabled = { Config.s.doomspiralTimer }),
         // Wumpa skip: a normal capsule first, the Masterful one right after it
         Spot("Wumpa", Biome.ICY, intArrayOf(-95, 79, -67), listOf(
             Aim(intArrayOf(-117, 89, -68), "1 · Capsule", 0),
             Aim(intArrayOf(-111, 87, -75), "2 · Masterful", 1),
-        ), anyCapsule = true, aimsOnSpot = true),
+        ), anyCapsule = true, aimsOnSpot = true, enabled = { Config.s.wumpaSkip }),
     )
 
     private const val DIM = 0xFF777777.toInt()
@@ -65,9 +67,9 @@ object Prefire {
     /** A capsule thrown while standing on a two-throw spot moves it to the next aim point. */
     fun init() {
         net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.register { player, level, hand ->
-            if (level.isClientSide && player === Minecraft.getInstance().player && Config.s.prefireSpots &&
+            if (level.isClientSide && player === Minecraft.getInstance().player &&
                 CapsuleModel.isCapsule(player.getItemInHand(hand))) {
-                val s = spots.firstOrNull { it.aims.size > 1 && Safari.biome == it.biome && onSpot(player, it) }
+                val s = spots.firstOrNull { it.aims.size > 1 && it.enabled() && Safari.biome == it.biome && onSpot(player, it) }
                 if (s != null && step == 0) {
                     step = 1
                     stepSpot = s
@@ -113,7 +115,7 @@ object Prefire {
         tick++
         val player = client.player
         val level = client.level
-        if (player == null || level == null || !Config.s.prefireSpots || !Safari.inSafari) {
+        if (player == null || level == null || !Safari.inSafari) {
             emergedAt = -1L; step = 0; stepSpot = null; firstThrowAt = -1L; return
         }
         stepSpot?.let { if (!onSpot(player, it)) { step = 0; stepSpot = null; firstThrowAt = -1L } }
@@ -128,7 +130,7 @@ object Prefire {
             }
             if (left < -THROW_NOW_TICKS) firstThrowAt = -1L
         }
-        if (Safari.biome != Biome.HAUNTED) { emergedAt = -1L; return }
+        if (Safari.biome != Biome.HAUNTED || !Config.s.doomspiralTimer) { emergedAt = -1L; return }
         val s = doomspiralSpot()
         onSpotNow = onSpot(player, s)
         val rising = level.entitiesForRendering().firstOrNull { e ->
@@ -182,12 +184,12 @@ object Prefire {
     }
 
     fun collect(client: Minecraft, out: WorldRender.Batch) {
-        if (!Config.s.prefireSpots || !Safari.inSafari) return
+        if (!Safari.inSafari) return
         val player = client.player ?: return
         val anyCapsule = holdingAnyCapsule()
         val masterful = holdingMasterful()
         for (s in spots) {
-            if (Safari.biome != s.biome || s.critter in Run.caught) continue
+            if (!s.enabled() || Safari.biome != s.biome || s.critter in Run.caught) continue
             if (!(masterful || (s.anyCapsule && anyCapsule))) continue
             val (sx, sy, sz) = Triple(s.stand[0], s.stand[1], s.stand[2])
             val center = Vec3(sx + 0.5, sy.toDouble(), sz + 0.5)

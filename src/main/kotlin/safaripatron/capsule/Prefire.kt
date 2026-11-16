@@ -31,7 +31,7 @@ object Prefire {
     val spots = listOf(
         Spot("Doomspiral", Biome.HAUNTED, intArrayOf(11, 48, -29), listOf(Aim(intArrayOf(-8, 51, -25), "Aim here"))),
         // Wumpa skip: a normal capsule first, the Masterful one right after it
-        Spot("Wumpa", Biome.ICY, intArrayOf(-95, 78, -67), listOf(
+        Spot("Wumpa", Biome.ICY, intArrayOf(-95, 79, -67), listOf(
             Aim(intArrayOf(-117, 89, -68), "1 · Capsule", 0),
             Aim(intArrayOf(-111, 87, -75), "2 · Masterful", 1),
         ), anyCapsule = true, aimsOnSpot = true),

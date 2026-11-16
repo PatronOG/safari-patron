@@ -108,9 +108,10 @@ Clear water in the Safari.
 <tr>
 <td width="33%" valign="top">
 
-### ➶ Capsule Helper
-Shows where your capsule will fly.<br>
-Tells you if it will hit a critter.
+### ➶ Helpers
+Capsule path and hit check.<br>
+Doomspiral timer and Wumpa skip spots.<br>
+Hitbox editor for every critter.
 
 </td>
 <td width="33%" valign="top">
@@ -157,8 +158,14 @@ Reset buttons ask before deleting.
 - **Critterdex Sync:** Opening the Sparkling Critterdex in game updates your sparklings list automatically.
 - **Last Sparkling:** When a Sparkling is caught, tells you how many runs and how long ago the previous one was.
 
-### ➶ Capsule Helper
-- Shows where your capsule will fly and whether it will hit a critter.
+### ➶ Helpers
+- **Capsule Helper:** Shows where your capsule will fly and whether it will hit a critter.
+- **Hitbox Editor:** Every critter has its own box size, measured in game, used for the Capsule Helper and ESP. Change any of them with `/sp boxes`. Use the default settings unless you know what you're doing.
+- **Doomspiral Timer:** Marks where to stand and where to aim, then counts down to the perfect Masterful Capsule throw while Doomspiral rises.
+- **Wumpa Skip Helper:** Marks where to stand and the two points to aim at: a Critter Capsule first, then the Masterful Capsule one second later with a countdown.
+- **Helper Sounds:** A bell when it is time to throw. Each helper can be turned off on its own.
+
+> Helpers only show where and when. Moving, aiming and throwing are always up to you.
 
 ### ✪ Miria's Contest
 - **Contest Tracker:** Time left, bracket and score, read from the scoreboard.
@@ -175,7 +182,7 @@ Reset buttons ask before deleting.
 - **Top Shards:** `/sp topshards` lists each biome's 5 most profitable shards in chat.
 - **Scroll Support:** Choose how many items it shows (5, 10, 15 or 20); scroll with your mouse wheel over the panel while an inventory is open.
 - **Bazaar Prices:** Choose Instant Sell or Sell Offer prices. Warns you when prices can't be loaded instead of showing 0.
-- **Safe Data:** Settings, profit, run history and achievements are saved in their own folder, `config/safari-patron/`, and kept between updates.
+- **Safe Data:** Settings, profit, run history, achievements and hitbox sizes are saved in their own folder, `config/safari-patron/`, and kept between updates.
 
 ### ☰ Run History
 - **Every Run Saved:** Time, uniques (yours and the party's), catches, profit and loot of up to 20,000 runs, saved in small files so the game never stutters.
@@ -234,6 +241,7 @@ Reset buttons ask before deleting.
 | `/sp topshards` | Show each biome's most profitable shards in chat |
 | `/sp bestparty` | Show the parties of your Everything PBs in chat |
 | `/sp help` | List all commands in chat |
+| `/sp boxes` | Open the hitbox editor |
 | `/sp sparkling` | Toggle the Sparkling Finder |
 | `/sp sparkling sound` | Toggle the Sparkling sound |
 | `/sp sparkling clear` | Clear the Sparkling panel |

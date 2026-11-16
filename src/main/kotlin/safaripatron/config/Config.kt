@@ -119,6 +119,8 @@ class Settings {
     var lastSparklingRun = 0
     /** Counts every Safari run ever started (for the sparkling message). */
     var runCounter = 0
+    /** Prefire spots (stand and aim marks) while holding a Masterful Critter Capsule. */
+    var prefireSpots = true
     /** Achievement toasts: "off", or the lowest rarity shown ("common" = all). */
     var achievementToasts = "common"
     /** Sound for Legendary and rarer achievements. */

@@ -105,6 +105,7 @@ object WorldRender {
         safaripatron.contest.Honeyhives.collect(client, batch)
         SparklingFinder.collect(batch)
         Trajectory.collect(client, batch)
+        safaripatron.capsule.Prefire.collect(client, batch)
 
         if (batch.segments.isNotEmpty()) {
             val segs = batch.segments.toList()

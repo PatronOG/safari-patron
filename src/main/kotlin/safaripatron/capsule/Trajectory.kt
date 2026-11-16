@@ -61,8 +61,8 @@ object Trajectory {
         val targets = ArrayList<AABB>()
         for (e in level.entitiesForRendering()) {
             if (e === player || e.distanceToSqr(player) > 64.0 * 64.0) continue
-            if (CritterId.identify(e) == null) continue
-            targets.add(CritterId.box(e).inflate(Config.s.hitMargin))
+            val critter = CritterId.identify(e) ?: continue
+            targets.add(safaripatron.esp.BoxTuner.box(e, critter, capsule = true).inflate(Config.s.hitMargin))
         }
 
         val points = ArrayList<Pair<Vec3, Boolean>>()

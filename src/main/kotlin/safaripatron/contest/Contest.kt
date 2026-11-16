@@ -23,6 +23,8 @@ object Contest {
     private const val WINDOW_SECONDS = 1200
     private const val END_GAP_SECONDS = 30
     private const val STALE_GUARD_SECONDS = 10
+    /** The start message can still go out this long after the contest starts (e.g. once you join a party). */
+    private const val START_GRACE_SECONDS = 60
 
     private val TIER_ROW = Regex("""^\s*([A-Za-z]+)\s+with\s+(\S+)""")
     private val MIRIA_HEADER = Regex("^miria['’]s contest(?=\\s|:|$)", RegexOption.IGNORE_CASE)
@@ -45,6 +47,10 @@ object Contest {
     private var previousWindow: Long? = null
     private var scope: String? = null
     private val warnedMinutes = linkedSetOf<Int>()
+    /** Contest whose start message is waiting to be sent, -1 = none. */
+    private var startPending = -1L
+    private var startWhyLogged = ""
+    private val log = org.slf4j.LoggerFactory.getLogger("safari-patron/contest")
 
     /** Progress belongs to one player; it's kept when switching back within the same contest. */
     private data class Progress(val window: Long, val complete: Boolean, val completedWindow: Long,
@@ -85,15 +91,15 @@ object Contest {
         val skyblock = inSkyblock(client)
         val key = player.uuid.toString()
 
-        // Start message: only when a new window is seen within its first 10 seconds (no catch-up)
+        // Start message: a new contest seen starting while online waits up to 60 s for a confirmed party
+        // (like the ticket message), so joining a party right after the start still sends it.
         val before = previousWindow
         previousWindow = windowKey
-        if (before != null && before != windowKey && secondsIntoWindow in 0..9 && skyblock &&
-            s.contestStartAnnounce && s.contestStartSent[key] != windowKey) {
-            Party.chat(startMessage())
-            s.contestStartSent[key] = windowKey
-            prune(s.contestStartSent); Config.save()
+        if (before != null && before != windowKey && secondsIntoWindow < START_GRACE_SECONDS) {
+            startPending = windowKey
+            startWhyLogged = ""
         }
+        if (startPending >= 0) announceStart(key, skyblock)
 
         if (skyblock) {
             readSidebar(client)
@@ -160,6 +166,25 @@ object Contest {
         Party.chat(ticketMessage())
         s.contestTicketSent[key] = windowKey
         prune(s.contestTicketSent); Config.save()
+    }
+
+    private fun announceStart(player: String, skyblock: Boolean) {
+        fun skip(why: String) {
+            if (why != startWhyLogged) { log.info("Contest start message not sent yet: {}", why); startWhyLogged = why }
+        }
+        if (startPending != windowKey || secondsIntoWindow >= START_GRACE_SECONDS) {
+            if (startPending == windowKey) log.info("Contest start message dropped: no party in the first {} s", START_GRACE_SECONDS)
+            startPending = -1L; return
+        }
+        if (!s.contestStartAnnounce || s.contestStartSent[player] == windowKey) { startPending = -1L; return }
+        if (!skyblock) return skip("not in SkyBlock")
+        if (!Party.known) { Party.request(); return skip("party unknown, asking Hypixel") }
+        if (!Party.inParty) return skip("not in a party")
+        Party.chat(startMessage())
+        s.contestStartSent[player] = windowKey
+        prune(s.contestStartSent); Config.save()
+        startPending = -1L
+        log.info("Contest start message sent {} s after the start", secondsIntoWindow)
     }
 
     private fun prune(map: MutableMap<String, Long>) {

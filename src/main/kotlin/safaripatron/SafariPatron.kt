@@ -53,6 +53,7 @@ object SafariPatron : ClientModInitializer {
             safaripatron.profit.Profit.tick(client, Safari.inSafari)
             safaripatron.profit.Bazaar.tick(client)
             safaripatron.achievements.Achievements.tick(client)
+            safaripatron.capsule.Prefire.tick(client)
             safaripatron.visual.ClearWater.tick(client)
         }
 

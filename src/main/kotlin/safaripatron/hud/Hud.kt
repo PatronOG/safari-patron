@@ -276,6 +276,7 @@ object Hud {
         val height = client.window.guiScaledHeight
         val container = client.gui.screen() is net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<*>
         for (e in elements) if (e.visible() && !(container && e.overScreens)) drawAt(g, client.font, e, false, width, height)
+        if (!container) safaripatron.capsule.Prefire.drawHud(g, client.font, width, height)
     }
 
     /** Called from an open inventory/chest (ContainerOverlayMixin): panels that stay sharp on top of it. */

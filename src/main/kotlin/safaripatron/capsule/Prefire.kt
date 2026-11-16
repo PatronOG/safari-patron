@@ -81,7 +81,7 @@ object Prefire {
             dinged = true
             if (Config.s.prefireSound && holdingMasterful())
                 client.soundManager.play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
-                    net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BELL, 1.6f, 1f))
+                    net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BELL.value(), 1.6f, 1f))
         }
         if (left < -THROW_NOW_TICKS) emergedAt = -1L
     }

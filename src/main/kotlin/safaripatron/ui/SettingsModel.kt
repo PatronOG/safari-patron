@@ -98,7 +98,7 @@ object SettingsModel {
         Category("capsule", "Capsule Helper", "➶", 0xFF85B7EB.toInt(), "Path and hit mark", { s.capsuleTrajectory }) {
             listOf(
                 toggle("Capsule Helper", "Path and hit indicator", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
-                toggle("Prefire spots", "Doomspiral: where to stand, where to aim and when to throw", { s.prefireSpots }) { s.prefireSpots = it },
+                toggle("Prefire spots", "Doomspiral and Wumpa: where to stand, aim and throw", { s.prefireSpots }) { s.prefireSpots = it },
                 toggle("Prefire sound", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
             )
         },

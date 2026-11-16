@@ -37,6 +37,7 @@ object SafariPatron : ClientModInitializer {
         UpdateChecker.init()
         safaripatron.history.History.init()
         safaripatron.achievements.Achievements.init()
+        safaripatron.capsule.Prefire.init()
         safaripatron.contest.Honeyhives.init()
         safaripatron.profit.Profit.init()
 

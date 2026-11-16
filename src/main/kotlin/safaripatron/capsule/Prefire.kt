@@ -16,12 +16,29 @@ import safaripatron.safari.Safari
  * Both marks turn green when you stand on the spot / look at the aim point.
  */
 object Prefire {
-    /** [stand] = block your feet are in; [aim] = block to look at. */
-    class Spot(val critter: String, val biome: Biome, val stand: IntArray, val aim: IntArray)
+    /** A block to look at; [step] = which throw it is for (0 = first). */
+    class Aim(val pos: IntArray, val label: String, val step: Int = 0)
+
+    /**
+     * [stand] = block your feet are in. [anyCapsule]: also shown with a normal Critter Capsule.
+     * [aimsOnSpot]: aim points only show while you stand on the spot.
+     */
+    class Spot(
+        val critter: String, val biome: Biome, val stand: IntArray, val aims: List<Aim>,
+        val anyCapsule: Boolean = false, val aimsOnSpot: Boolean = false,
+    )
 
     val spots = listOf(
-        Spot("Doomspiral", Biome.HAUNTED, intArrayOf(11, 48, -29), intArrayOf(-8, 51, -25)),
+        Spot("Doomspiral", Biome.HAUNTED, intArrayOf(11, 48, -29), listOf(Aim(intArrayOf(-8, 51, -25), "Aim here"))),
+        // Wumpa skip: a normal capsule first, the Masterful one right after it
+        Spot("Wumpa", Biome.ICY, intArrayOf(-95, 78, -67), listOf(
+            Aim(intArrayOf(-117, 89, -68), "1 · Capsule", 0),
+            Aim(intArrayOf(-111, 87, -75), "2 · Masterful", 1),
+        ), anyCapsule = true, aimsOnSpot = true),
     )
+
+    private const val DIM = 0xFF777777.toInt()
+    private const val MASTERFUL_NOW_TICKS = 40
 
     /**
      * Doomspiral rises for 134 ticks (6.7 s) after it appears and can only be caught once it stands.
@@ -34,6 +51,32 @@ object Prefire {
     private const val GREEN = 0xFF55FF55.toInt()
     private const val GOLD = 0xFFFFAA00.toInt()
     private const val AIM_RADIUS = 0.3
+
+    private fun holdingAnyCapsule() = CapsuleModel.isCapsule(Minecraft.getInstance().player?.mainHandItem)
+
+    // Two-throw spots (Wumpa): which throw is next, and "Masterful now!" after the first one
+    private var step = 0
+    private var stepSpot: Spot? = null
+    private var masterfulNowUntil = -1L
+
+    /** A capsule thrown while standing on a two-throw spot moves it to the next aim point. */
+    fun init() {
+        net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.register { player, level, hand ->
+            if (level.isClientSide && player === Minecraft.getInstance().player && Config.s.prefireSpots &&
+                CapsuleModel.isCapsule(player.getItemInHand(hand))) {
+                val s = spots.firstOrNull { it.aims.size > 1 && Safari.biome == it.biome && onSpot(player, it) }
+                if (s != null && step == 0) {
+                    step = 1
+                    stepSpot = s
+                    masterfulNowUntil = tick + MASTERFUL_NOW_TICKS
+                    if (Config.s.prefireSound)
+                        Minecraft.getInstance().soundManager.play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                            net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BELL.value(), 1.6f, 1f))
+                }
+            }
+            net.minecraft.world.InteractionResult.PASS
+        }
+    }
 
     private fun holdingMasterful(): Boolean {
         val stack = Minecraft.getInstance().player?.mainHandItem ?: return false
@@ -50,6 +93,14 @@ object Prefire {
 
     private fun doomspiralSpot() = spots.first { it.critter == "Doomspiral" }
 
+    private fun look(client: Minecraft, player: net.minecraft.world.entity.player.Player, aim: Vec3): Boolean {
+        val eye = player.getEyePosition(client.deltaTracker.getGameTimeDeltaPartialTick(false))
+        val look = player.lookAngle.normalize()
+        val toAim = aim.subtract(eye)
+        val along = toAim.dot(look)
+        return along > 0 && toAim.subtract(look.scale(along)).length() < AIM_RADIUS
+    }
+
     private fun onSpot(player: net.minecraft.world.entity.player.Player, s: Spot): Boolean {
         val dx = player.x - (s.stand[0] + 0.5)
         val dz = player.z - (s.stand[2] + 0.5)
@@ -61,9 +112,9 @@ object Prefire {
         tick++
         val player = client.player
         val level = client.level
-        if (player == null || level == null || !Config.s.prefireSpots || !Safari.inSafari || Safari.biome != Biome.HAUNTED) {
-            emergedAt = -1L; return
-        }
+        if (player == null || level == null || !Config.s.prefireSpots || !Safari.inSafari) { emergedAt = -1L; step = 0; return }
+        stepSpot?.let { if (!onSpot(player, it)) { step = 0; stepSpot = null } }
+        if (Safari.biome != Biome.HAUNTED) { emergedAt = -1L; return }
         val s = doomspiralSpot()
         onSpotNow = onSpot(player, s)
         val rising = level.entitiesForRendering().firstOrNull { e ->
@@ -88,6 +139,15 @@ object Prefire {
 
     /** "Throw in 4.2s" under the crosshair while holding a Masterful Capsule, then "Throw Now". */
     fun drawHud(g: net.minecraft.client.gui.GuiGraphicsExtractor, font: net.minecraft.client.gui.Font, width: Int, height: Int) {
+        if (tick < masterfulNowUntil && holdingAnyCapsule()) {
+            val text = "Masterful now!"
+            g.pose().pushMatrix()
+            g.pose().translate((width / 2).toFloat(), (height / 2 + 14).toFloat())
+            g.pose().scale(2f, 2f)
+            g.text(font, text, -font.width(text) / 2, 0, GREEN, true)
+            g.pose().popMatrix()
+            return
+        }
         if (emergedAt < 0 || !holdingMasterful()) return
         val left = THROW_AFTER_TICKS - (tick - emergedAt)
         val cx = width / 2
@@ -108,35 +168,36 @@ object Prefire {
     fun collect(client: Minecraft, out: WorldRender.Batch) {
         if (!Config.s.prefireSpots || !Safari.inSafari) return
         val player = client.player ?: return
-        if (!holdingMasterful()) return
+        val anyCapsule = holdingAnyCapsule()
+        val masterful = holdingMasterful()
         for (s in spots) {
             if (Safari.biome != s.biome || s.critter in Run.caught) continue
+            if (!(masterful || (s.anyCapsule && anyCapsule))) continue
             val (sx, sy, sz) = Triple(s.stand[0], s.stand[1], s.stand[2])
             val center = Vec3(sx + 0.5, sy.toDouble(), sz + 0.5)
-            val dx = player.x - center.x
-            val dz = player.z - center.z
-            val onSpot = dx * dx + dz * dz < 0.3 * 0.3 && kotlin.math.abs(player.y - sy) < 0.6
-            val standColor = if (onSpot) GREEN else GOLD
+            val on = onSpot(player, s)
+            val standColor = if (on) GREEN else GOLD
             out.box(AABB(sx.toDouble(), sy.toDouble(), sz.toDouble(), sx + 1.0, sy + 0.05, sz + 1.0), standColor)
             out.box(AABB(sx + 0.35, sy.toDouble(), sz + 0.35, sx + 0.65, sy + 0.05, sz + 0.65), standColor)
-            out.label(if (onSpot) "✔ Stand here" else "Stand here", center.add(0.0, 0.6, 0.0), standColor, bold = true)
-            out.label("${s.critter} prefire", center.add(0.0, 0.6, 0.0), 0xFFAAAAAA.toInt(), line = 1)
+            out.label(if (on) "✔ Stand here" else "Stand here", center.add(0.0, 0.6, 0.0), standColor, bold = true)
+            val name = if (s.aims.size > 1) "${s.critter} skip" else "${s.critter} prefire"
+            out.label(name, center.add(0.0, 0.6, 0.0), 0xFFAAAAAA.toInt(), line = 1)
+            if (s.aimsOnSpot && !on) continue
 
-            // Aim point: green while your crosshair line passes through it
-            val aim = Vec3(s.aim[0] + 0.5, s.aim[1] + 0.5, s.aim[2] + 0.5)
-            val eye = player.getEyePosition(client.deltaTracker.getGameTimeDeltaPartialTick(false))
-            val look = player.lookAngle.normalize()
-            val toAim = aim.subtract(eye)
-            val along = toAim.dot(look)
-            val offLine = if (along > 0) toAim.subtract(look.scale(along)).length() else Double.MAX_VALUE
-            val onAim = offLine < AIM_RADIUS
-            val aimColor = if (onAim) GREEN else GOLD
-            val r = AIM_RADIUS
-            out.box(AABB(aim.x - r, aim.y - r, aim.z - r, aim.x + r, aim.y + r, aim.z + r), aimColor)
-            out.line(aim.add(-0.6, 0.0, 0.0), aim.add(0.6, 0.0, 0.0), aimColor)
-            out.line(aim.add(0.0, -0.6, 0.0), aim.add(0.0, 0.6, 0.0), aimColor)
-            out.line(aim.add(0.0, 0.0, -0.6), aim.add(0.0, 0.0, 0.6), aimColor)
-            out.label(if (onAim) "✔ Aim here" else "Aim here", aim.add(0.0, 0.8, 0.0), aimColor, bold = true)
+            // Aim points: the next one in gold (green while you look at it), the others gray
+            val next = if (stepSpot === s) step else 0
+            for (a in s.aims) {
+                val aim = Vec3(a.pos[0] + 0.5, a.pos[1] + 0.5, a.pos[2] + 0.5)
+                val active = a.step == next
+                val onAim = active && look(client, player, aim)
+                val color = when { onAim -> GREEN; active -> GOLD; else -> DIM }
+                val r = AIM_RADIUS
+                out.box(AABB(aim.x - r, aim.y - r, aim.z - r, aim.x + r, aim.y + r, aim.z + r), color)
+                out.line(aim.add(-0.6, 0.0, 0.0), aim.add(0.6, 0.0, 0.0), color)
+                out.line(aim.add(0.0, -0.6, 0.0), aim.add(0.0, 0.6, 0.0), color)
+                out.line(aim.add(0.0, 0.0, -0.6), aim.add(0.0, 0.0, 0.6), color)
+                out.label(if (onAim) "✔ ${a.label}" else a.label, aim.add(0.0, 0.8, 0.0), color, bold = active)
+            }
         }
     }
 }

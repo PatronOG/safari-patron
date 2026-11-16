@@ -121,6 +121,8 @@ class Settings {
     var runCounter = 0
     /** Prefire spots (stand and aim marks) while holding a Masterful Critter Capsule. */
     var prefireSpots = true
+    /** Bell when it is time to throw. */
+    var prefireSound = true
     /** Achievement toasts: "off", or the lowest rarity shown ("common" = all). */
     var achievementToasts = "common"
     /** Sound for Legendary and rarer achievements. */

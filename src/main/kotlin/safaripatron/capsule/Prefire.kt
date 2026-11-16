@@ -38,7 +38,8 @@ object Prefire {
     )
 
     private const val DIM = 0xFF777777.toInt()
-    private const val MASTERFUL_NOW_TICKS = 40
+    /** Wumpa skip: the Masterful throw comes 1 second after the first capsule. */
+    private const val MASTERFUL_DELAY_TICKS = 20
 
     /**
      * Doomspiral rises for 134 ticks (6.7 s) after it appears and can only be caught once it stands.
@@ -57,7 +58,9 @@ object Prefire {
     // Two-throw spots (Wumpa): which throw is next, and "Masterful now!" after the first one
     private var step = 0
     private var stepSpot: Spot? = null
-    private var masterfulNowUntil = -1L
+    /** Tick of the first throw on a two-throw spot, -1 = none. */
+    private var firstThrowAt = -1L
+    private var masterfulDinged = false
 
     /** A capsule thrown while standing on a two-throw spot moves it to the next aim point. */
     fun init() {
@@ -68,10 +71,8 @@ object Prefire {
                 if (s != null && step == 0) {
                     step = 1
                     stepSpot = s
-                    masterfulNowUntil = tick + MASTERFUL_NOW_TICKS
-                    if (Config.s.prefireSound)
-                        Minecraft.getInstance().soundManager.play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
-                            net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BELL.value(), 1.6f, 1f))
+                    firstThrowAt = tick
+                    masterfulDinged = false
                 }
             }
             net.minecraft.world.InteractionResult.PASS
@@ -112,8 +113,21 @@ object Prefire {
         tick++
         val player = client.player
         val level = client.level
-        if (player == null || level == null || !Config.s.prefireSpots || !Safari.inSafari) { emergedAt = -1L; step = 0; return }
-        stepSpot?.let { if (!onSpot(player, it)) { step = 0; stepSpot = null } }
+        if (player == null || level == null || !Config.s.prefireSpots || !Safari.inSafari) {
+            emergedAt = -1L; step = 0; stepSpot = null; firstThrowAt = -1L; return
+        }
+        stepSpot?.let { if (!onSpot(player, it)) { step = 0; stepSpot = null; firstThrowAt = -1L } }
+        // Wumpa skip: bell when the 1-second wait after the first capsule is over
+        if (firstThrowAt >= 0) {
+            val left = MASTERFUL_DELAY_TICKS - (tick - firstThrowAt)
+            if (left <= 0 && !masterfulDinged) {
+                masterfulDinged = true
+                if (Config.s.prefireSound)
+                    client.soundManager.play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                        net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BELL.value(), 1.6f, 1f))
+            }
+            if (left < -THROW_NOW_TICKS) firstThrowAt = -1L
+        }
         if (Safari.biome != Biome.HAUNTED) { emergedAt = -1L; return }
         val s = doomspiralSpot()
         onSpotNow = onSpot(player, s)
@@ -139,12 +153,14 @@ object Prefire {
 
     /** "Throw in 4.2s" under the crosshair while holding a Masterful Capsule, then "Throw Now". */
     fun drawHud(g: net.minecraft.client.gui.GuiGraphicsExtractor, font: net.minecraft.client.gui.Font, width: Int, height: Int) {
-        if (tick < masterfulNowUntil && holdingAnyCapsule()) {
-            val text = "Masterful now!"
+        if (firstThrowAt >= 0 && holdingAnyCapsule()) {
+            val left = MASTERFUL_DELAY_TICKS - (tick - firstThrowAt)
+            val (text, color) = if (left <= 0) "Throw Now" to GREEN
+                else String.format(java.util.Locale.ROOT, "Masterful in %.1fs", left / 20.0) to GOLD
             g.pose().pushMatrix()
             g.pose().translate((width / 2).toFloat(), (height / 2 + 14).toFloat())
             g.pose().scale(2f, 2f)
-            g.text(font, text, -font.width(text) / 2, 0, GREEN, true)
+            g.text(font, text, -font.width(text) / 2, 0, color, true)
             g.pose().popMatrix()
             return
         }

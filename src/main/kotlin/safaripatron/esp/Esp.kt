@@ -53,7 +53,7 @@ object Esp {
             if (e === player || e.distanceToSqr(player) > RANGE_SQ) continue
             val critter = CritterId.identify(e) ?: continue
             if (critter.biome != playerBiome) continue
-            out.box(CritterId.box(e), critter.espColor)
+            out.box(BoxTuner.box(e, critter, capsule = false), critter.espColor)
         }
     }
 }

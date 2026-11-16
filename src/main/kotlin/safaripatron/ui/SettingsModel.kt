@@ -75,6 +75,9 @@ object SettingsModel {
                 toggle("Clear water", "See through Safari water", { s.clearWater }) { s.clearWater = it },
                 choice("Water opacity", "With clear water on", listOf("0", "30", "60"), { "$it%" },
                     { s.clearWaterOpacity.toString() }) { s.clearWaterOpacity = it.toInt() },
+                Action("Critter box sizes", "ESP and Capsule Helper boxes", "Open") {
+                    MenuNav.open(BoxScreen())
+                },
             )
         },
         Category("party", "Party", "⚑", 0xFFC9A0F0.toInt(), "Warp check, hotspot",

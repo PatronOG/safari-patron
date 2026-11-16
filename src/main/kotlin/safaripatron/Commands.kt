@@ -34,6 +34,7 @@ object Commands {
         "§e/sp hud §7— move and resize the panels",
         "§e/sp history §7— your saved runs",
         "§e/sp topshards §7— the most profitable shards of each biome",
+        "§e/sp boxes §7— box size of each critter (ESP and Capsule Helper)",
         "§e/sp bestparty §7— the parties of your Everything PBs",
         "§e/sp capsule §7— toggle Capsule Helper",
         "§e/sp contest §7— toggle the Miria's Contest tracker",
@@ -78,6 +79,7 @@ object Commands {
                     .then(ClientCommands.literal("help").executes { ctx -> help.forEach { ctx.source.sendFeedback(Component.literal(it)) }; 1 })
                     .then(ClientCommands.literal("hud").executes { MenuNav.open(HudEditScreen()); 1 })
                     .then(ClientCommands.literal("history").executes { MenuNav.open(safaripatron.ui.HistoryScreen()); 1 })
+                    .then(ClientCommands.literal("boxes").executes { MenuNav.open(safaripatron.ui.BoxScreen()); 1 })
                     .then(ClientCommands.literal("topshards").executes { ctx -> topShards(ctx.source); 1 })
                     .then(ClientCommands.literal("bestparty").executes { ctx -> bestParty(ctx.source); 1 })
                     .then(toggle("capsule", "Capsule Helper", { s().capsuleTrajectory }, { s().capsuleTrajectory = it }))

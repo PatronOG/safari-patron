@@ -75,9 +75,6 @@ object SettingsModel {
                 toggle("Clear water", "See through Safari water", { s.clearWater }) { s.clearWater = it },
                 choice("Water opacity", "With clear water on", listOf("0", "30", "60"), { "$it%" },
                     { s.clearWaterOpacity.toString() }) { s.clearWaterOpacity = it.toInt() },
-                Action("Critter box sizes", "ESP and Capsule Helper boxes", "Open") {
-                    MenuNav.open(BoxScreen())
-                },
             )
         },
         Category("party", "Party", "⚑", 0xFFC9A0F0.toInt(), "Warp check, hotspot",
@@ -95,11 +92,18 @@ object SettingsModel {
                 )),
             )
         },
-        Category("capsule", "Capsule Helper", "➶", 0xFF85B7EB.toInt(), "Path and hit mark", { s.capsuleTrajectory }) {
+        Category("capsule", "Helpers", "➶", 0xFF85B7EB.toInt(), "Capsule, skips and timers",
+            { s.capsuleTrajectory || s.wumpaSkip || s.doomspiralTimer }) {
             listOf(
-                toggle("Capsule Helper", "Path and hit indicator", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
-                toggle("Prefire spots", "Doomspiral and Wumpa: where to stand, aim and throw", { s.prefireSpots }) { s.prefireSpots = it },
-                toggle("Prefire sound", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
+                toggle("Capsule Helper", "Shows the capsule's flight path and where it lands", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
+                toggle("Capsule Helper Hitbox Editor", "Use the default settings unless you know what you're doing",
+                    { safaripatron.esp.BoxTuner.data.forCapsule }) { safaripatron.esp.BoxTuner.setUse(capsule = it) },
+                Action("Open hitbox editor", "Box size of each critter, for capsules and ESP", "Open") {
+                    MenuNav.open(BoxScreen())
+                },
+                toggle("Wumpa Skip Helper", "Where to stand and aim, with a 1-second Masterful timer", { s.wumpaSkip }) { s.wumpaSkip = it },
+                toggle("Doomspiral Timer", "Where to stand and aim, and when to throw the Masterful Capsule", { s.doomspiralTimer }) { s.doomspiralTimer = it },
+                toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
             )
         },
         Category("contest", "Miria's Contest", "✪", 0xFFFFCC66.toInt(), "Timer, ticket, alerts", { s.contest }) {

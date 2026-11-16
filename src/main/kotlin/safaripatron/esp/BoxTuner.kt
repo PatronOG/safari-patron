@@ -64,19 +64,20 @@ object BoxTuner {
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val file = Paths.dir.resolve("boxes.json")
-    var data = Data()
-        private set
+    private var stored = Data()
+    /** Loaded from the file the first time it is used. */
+    val data: Data get() { load(); return stored }
     private var loaded = false
 
     private fun load() {
         if (loaded) return
         loaded = true
-        data = Paths.read(file)?.let { runCatching { gson.fromJson(it, Data::class.java) }.getOrNull() } ?: Data()
+        stored = Paths.read(file)?.let { runCatching { gson.fromJson(it, Data::class.java) }.getOrNull() } ?: Data()
         @Suppress("SENSELESS_COMPARISON")
-        if (data.sizes == null) data.sizes = LinkedHashMap()
+        if (stored.sizes == null) stored.sizes = LinkedHashMap()
     }
 
-    fun save() = Paths.write(file, gson.toJson(data))
+    fun save() = Paths.write(file, gson.toJson(stored))
 
     /** The player's own size for this critter, null if it uses the default. */
     fun get(c: Critter): Size? { load(); return data.sizes[c.name] }

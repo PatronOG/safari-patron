@@ -44,16 +44,14 @@ object Panels {
             val primary = biomes.entries.firstOrNull { it.value.isNotEmpty() }?.key
             if (parts.isEmpty()) null else PlayerRow(name, primary, parts)
         }
-        return RunData(if (Run.timed) Run.elapsedMs else -1L, Run.caught.size, Biome.entries.map { it to Run.caughtIn(it) }, players, self)
+        return RunData(Run.elapsedMs, Run.caught.size, Biome.entries.map { it to Run.caughtIn(it) }, players, self)
     }
 
     fun demoRun(self: String?) = RunData(113_000, 6, listOf(Biome.FOREST to 2, Biome.CAVERN to 1, Biome.ICY to 1, Biome.HAUNTED to 2),
         listOf(PlayerRow(self ?: "You", Biome.ICY, listOf(Biome.ICY to 1)),
             PlayerRow("Partner", Biome.FOREST, listOf(Biome.FOREST to 2, Biome.CAVERN to 1, Biome.HAUNTED to 2))), self)
 
-    /** Run clock on the panel; -1 = an untimed run (started late), shown as --:--. */
     private fun time(ms: Long): String {
-        if (ms < 0) return "--:--"
         val s = ms / 1000
         return "${s / 60}:${(s % 60).toString().padStart(2, '0')}"
     }

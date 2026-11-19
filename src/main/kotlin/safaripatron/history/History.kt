@@ -31,6 +31,8 @@ class RunRecord {
     var offer = 0.0
     /** 0 = older run with one value, 1 = some item had no price yet, 2 = both values are done. */
     var priced = 0
+    /** An older run: one value was saved, the other worked out later. */
+    var legacy = false
     var items: MutableMap<String, Long> = LinkedHashMap()
     var sparklings: MutableList<SparklingRecord> = ArrayList()
     /** Player -> the species they caught, in order. */
@@ -75,6 +77,8 @@ class HistoryIndex {
     var totals = Totals()
     /** Every run has both values (Instant Sell and Sell Offer), from 2.2 on. */
     var valuesDone = false
+    /** Older runs' second value comes from today's price ratio (not today's prices). */
+    var valuesRatio = false
 }
 
 class ChunkFile(var runs: MutableList<RunRecord> = ArrayList())
@@ -120,7 +124,7 @@ object History {
     private var current: RunRecord? = null
 
     /** Every run has both values (see [fixValues]). */
-    val valuesDone get() = index.valuesDone
+    val valuesDone get() = index.valuesDone && index.valuesRatio
 
     /** This run's Hunting Hotspot biome (e.g. "Haunted"), if it was seen. */
     fun currentHotspot(): String? = current?.hotspot
@@ -404,19 +408,27 @@ object History {
     fun fixValues(): Boolean {
         if (!safaripatron.profit.Bazaar.ready()) return false
         // Older runs are only on disk: load them all once to give every run both values
-        if (!index.valuesDone) ensureCount(Int.MAX_VALUE)
+        if (!index.valuesDone || !index.valuesRatio) ensureCount(Int.MAX_VALUE)
         val sellOfferOn = safaripatron.config.Config.s.profitSellOffer
         val changed = HashSet<Int>()
         for (r in runs) {
-            if (r.priced == 2 || r.items.isEmpty()) continue
+            // An older run filled in by the first (test-only) version of this, with its other value at today's
+            // prices: Instant Sell came out above Sell Offer, which a run saved with both values never does. Redo it.
+            val redo = !index.valuesRatio && r.priced == 2 && (r.legacy || r.value > r.offer)
+            if ((r.priced == 2 && !redo) || r.items.isEmpty()) continue
             val instant = safaripatron.profit.Profit.value(r.items, offer = false)
             val offer = safaripatron.profit.Profit.value(r.items, offer = true)
             val oldValue = r.value; val oldOffer = r.offer
-            if (r.priced == 0) {
-                // Keep what was saved for the setting it was most likely made with
-                if (sellOfferOn) { r.offer = oldValue.takeIf { it > 0 } ?: offer; r.value = instant }
-                else { r.value = oldValue.takeIf { it > 0 } ?: instant; r.offer = offer }
+            if (r.priced == 0 || redo) {
+                // Keep the value that was saved (at that day's prices, for the setting it was most likely made
+                // with) and get the other one from today's ratio between the two prices
+                val saved = if (redo) (if (sellOfferOn) oldOffer else oldValue) else oldValue
+                val ratio = if (instant > 0 && offer > 0) offer / instant else 1.0
+                if (saved <= 0) { r.value = instant; r.offer = offer }
+                else if (sellOfferOn) { r.offer = saved; r.value = saved / ratio }
+                else { r.value = saved; r.offer = saved * ratio }
                 r.priced = 2
+                r.legacy = true
             } else {
                 r.value = instant; r.offer = offer
                 if (safaripatron.profit.Profit.allPriced(r.items)) r.priced = 2
@@ -425,8 +437,9 @@ object History {
             index.totals.valueChanged(r, oldValue, oldOffer)
             changed.add(chunkOf(r.id))
         }
-        val first = !index.valuesDone
+        val first = !index.valuesDone || !index.valuesRatio
         index.valuesDone = true
+        index.valuesRatio = true
         if (changed.isEmpty() && !first) return false
         version++
         for (i in changed) saveChunk(i)

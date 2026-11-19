@@ -17,6 +17,9 @@ object SettingsModel {
     class Multi(name: String, desc: String, val options: List<Option>, val single: Boolean = false) : Item(name, desc)
     /** One line of free text, edited in place. */
     class Text(name: String, desc: String, val get: () -> String, val set: (String) -> Unit) : Item(name, desc)
+    /** − value + buttons: an Int from min to max in steps of 1, shown by [format]. */
+    class Stepper(name: String, desc: String, val min: Int, val max: Int, val format: (Int) -> String,
+                  val get: () -> Int, val set: (Int) -> Unit) : Item(name, desc)
     class Option(val label: String, val get: () -> Boolean, val set: (Boolean) -> Unit)
 
     class Category(
@@ -101,7 +104,10 @@ object SettingsModel {
                 Action("Open hitbox editor", "Box size of each critter, for capsules and ESP", "Open") {
                     MenuNav.open(BoxScreen())
                 },
-                toggle("Wumpa Skip Helper", "Where to stand and aim, with a 1-second Masterful timer", { s.wumpaSkip }) { s.wumpaSkip = it },
+                toggle("Wumpa Skip Helper", "Where to stand and aim, with a Masterful timer", { s.wumpaSkip }) { s.wumpaSkip = it },
+                Stepper("Masterful delay", "Wumpa skip: time from the first capsule to the Masterful throw", 5, 30,
+                    { String.format(java.util.Locale.ROOT, "%.1fs", it / 10.0) },
+                    { s.masterfulDelayTenths }) { s.masterfulDelayTenths = it; Config.save() },
                 toggle("Doomspiral Timer", "Where to stand and aim, and when to throw the Masterful Capsule", { s.doomspiralTimer }) { s.doomspiralTimer = it },
                 toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
             )

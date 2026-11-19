@@ -126,6 +126,8 @@ class Settings {
     var doomspiralTimer = true
     /** Bell when it is time to throw. */
     var prefireSound = true
+    /** Wumpa skip: seconds × 10 from the first capsule to the Masterful throw (12 = 1.2 s), 5..30. */
+    var masterfulDelayTenths = 12
     /** Achievement toasts: "off", or the lowest rarity shown ("common" = all). */
     var achievementToasts = "common"
     /** Sound for Legendary and rarer achievements. */

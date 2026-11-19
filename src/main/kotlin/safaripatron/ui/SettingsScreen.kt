@@ -30,6 +30,8 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
     private var confirmAt = 0L
     private var armedBefore: String? = null
     private val CONFIRM_MS = 3000L
+    /** Width of the − value + control. */
+    private val STEPPER_W = 76
     private var openMulti: SettingsModel.Multi? = null
     private var multiAnchor: IntArray? = null
     private var popupRect: IntArray? = null
@@ -203,6 +205,7 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
         is SettingsModel.Action -> rw - (font.width(item.label) + 12) - 30
         is SettingsModel.Multi -> rw - maxOf(font.width(multiSummary(item)) + font.width("▼") + 20, 80) - 30
         is SettingsModel.Text -> rw - minOf(150, rw / 2) - 30
+        is SettingsModel.Stepper -> rw - STEPPER_W - 30
         else -> null
     }
 
@@ -307,6 +310,27 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
                         if (v.isEmpty()) Ui.FAINT else Ui.WHITE, false)
                     hit { startEditing(key, item) }
                 }
+            }
+            is SettingsModel.Stepper -> {
+                g.text(font, Ui.fit(font, item.name, rw - STEPPER_W - 30), rx + 10, ry + 5, Ui.WHITE, false)
+                drawDesc()
+                val v = item.get().coerceIn(item.min, item.max)
+                val bx = rx + rw - STEPPER_W - 12
+                val by = ry + 6
+                val inView = by >= clipTop && by + 14 <= clipBottom
+                /** One of the − / + buttons; dimmed at the end of the range. */
+                fun button(x: Int, label: String, enabled: Boolean, delta: Int) {
+                    val over = enabled && Ui.inside(mx, my, x, by, 14, 14)
+                    Ui.box(g, x, by, 14, 14, if (over) 0xFF26401C.toInt() else Ui.CARD, if (enabled) Ui.FEATURE_BORDER else Ui.FAINT)
+                    g.text(font, label, x + 7 - font.width(label) / 2, by + 3, if (enabled) Ui.PILL_ON_TEXT else Ui.FAINT, false)
+                    if (enabled && inView) hits.add(Ui.Hit(x, by, 14, 14) { item.set((v + delta).coerceIn(item.min, item.max)) })
+                }
+                val vw = STEPPER_W - 32
+                Ui.box(g, bx + 16, by, vw, 14, 0xFF0F140C.toInt(), Ui.FEATURE_BORDER)
+                val label = item.format(v)
+                g.text(font, label, bx + 16 + (vw - font.width(label)) / 2, by + 3, Ui.WHITE, false)
+                button(bx, "-", v > item.min, -1)
+                button(bx + STEPPER_W - 14, "+", v < item.max, +1)
             }
             is SettingsModel.Info -> {
                 g.text(font, item.name, rx + 10, ry + 9, 0xFFCFDAC6.toInt(), false)

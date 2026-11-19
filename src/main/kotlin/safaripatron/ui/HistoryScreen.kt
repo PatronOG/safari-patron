@@ -34,6 +34,8 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
     private val hits = ArrayList<Ui.Hit>()
     private var filter = Filter.ALL
     private var sort = Sort.NEWEST
+    /** Values in the History and Stats tabs at Sell Offer (true) or Instant Sell prices. */
+    private var sellOffer = safaripatron.config.Config.s.profitSellOffer
     private var scroll = 0
     private var selectedId = -1
     private var listRect = intArrayOf(0, 0, 0, 0)
@@ -65,7 +67,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             Filter.WEEK -> History.ensureSince(startOf(today.minusDays(6)))
             else -> {}
         }
-        val key = listOf(filter, sort, today, History.version)
+        val key = listOf(filter, sort, sellOffer, today, History.version)
         if (key == listKey) return listCache
         listKey = key
         listCache = computeRuns(today)
@@ -88,7 +90,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         return when (sort) {
             Sort.NEWEST -> all.sortedByDescending { it.id }
             Sort.FASTEST -> all.filter { it.ms > 0 }.sortedBy { it.ms } + all.filter { it.ms <= 0 }.sortedByDescending { it.id }
-            Sort.PROFIT -> all.sortedByDescending { it.value }
+            Sort.PROFIT -> all.sortedByDescending { it.valueAt(sellOffer) }
         }
     }
 
@@ -96,7 +98,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         super.extractRenderState(g, mx, my, delta)
         hits.clear()
         val now = System.currentTimeMillis()
-        if (now - lastFix > 3000) { lastFix = now; History.fixZeroValues() }
+        if (now - lastFix > 3000) { lastFix = now; History.fixValues() }
         val w = minOf(width - 16, 760)
         val h = minOf(height - 12, 360)
         val x0 = (width - w) / 2
@@ -119,6 +121,20 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             if (target != null) hits.add(Ui.Hit(tx - 2, y + 2, tw + 4, 16) { tab = target })
             tx += tw + if (target == null) { g.text(font, "soon", tx + tw + 3, y + 6, 0xFF4F5C48.toInt(), false); font.width("soon") + 13 } else 10
         }
+        // Which price the History and Stats tabs show (starts at the Price setting; achievements use Sell Offer)
+        if (tab != Tab.ACHIEVEMENTS) {
+            var px = ix + iw - 22
+            for ((label, offer) in listOf("Sell Offer" to true, "Instant Sell" to false)) {
+                val pw = font.width(label) + 10
+                px -= pw
+                val on = sellOffer == offer
+                val hover = Ui.inside(mx, my, px, y + 3, pw, 14)
+                Ui.box(g, px, y + 3, pw, 14, if (on) Ui.PILL_ON else if (hover) Ui.CARD_HOVER else Ui.CARD, if (on) Ui.FEATURE_BORDER else Ui.BORDER)
+                g.text(font, label, px + 5, y + 6, if (on) Ui.PILL_ON_TEXT else Ui.MUTED, false)
+                hits.add(Ui.Hit(px, y + 3, pw, 14) { sellOffer = offer })
+                px -= 3
+            }
+        }
         val closeHover = Ui.inside(mx, my, ix + iw - 16, y + 3, 14, 14)
         g.text(font, "✕", ix + iw - 12, y + 6, if (closeHover) Ui.WHITE else Ui.FAINT, false)
         hits.add(Ui.Hit(ix + iw - 16, y + 3, 14, 14) { onClose() })
@@ -133,7 +149,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         val cards = listOf(
             Triple("Runs", "${t.runs}", Ui.TEXT),
             Triple("Played", Profit.duration(t.sumMs), Ui.TEXT),
-            Triple("Total Profit", Profit.coins(t.sumValue), Ui.GOLD),
+            Triple("Total Profit", Profit.coins(t.sumOf(sellOffer)), Ui.GOLD),
             Triple("Fastest Run", if (t.fastestMs > 0) Run.time(t.fastestMs) else "—", Ui.GREEN),
             Triple("Sparklings", "$sparklings", Ui.GOLD),
         )
@@ -237,7 +253,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             col(4, "${r.mine}/${Critters.TOTAL}", 0xFF8FE8E8.toInt())
             col(5, "${r.party}/${Critters.TOTAL}", Ui.TEXT)
             col(6, "${r.caught}", Ui.TEXT)
-            col(7, Profit.coins(r.value), Ui.GOLD)
+            col(7, Profit.coins(r.valueAt(sellOffer)), Ui.GOLD)
             if (cols[8] < w - 8) {
                 var mx2 = x + cols[8]
                 if (r.sparklings.isNotEmpty()) { g.text(font, "✦", mx2, ty, Ui.GOLD, false); mx2 += font.width("✦") + 1 }
@@ -317,7 +333,8 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         cy += 13
         line(dayFmt.format(Instant.ofEpochMilli(r.endedAt).atZone(zone)), Ui.DIM)
         line(if (r.ms > 0) Run.time(r.ms) + (if (r.pb) "  Fastest!" else "") else "Not timed", if (r.pb) Ui.GREEN else Ui.TEXT,
-            Profit.coins(r.value), Ui.GOLD)
+            Profit.coins(r.valueAt(sellOffer)), Ui.GOLD)
+        line("Instant Sell ${Profit.coins(r.value)} · Sell Offer ${Profit.coins(r.offer)}", Ui.DIM)
         r.hotspot?.let { line("Hotspot: $it", Ui.MUTED) }
 
         divider("Biomes")
@@ -484,7 +501,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         val items = listOf(
             // label, value now, change, lower is better, format
             Quad("Run time", last.averageMs, all.averageMs, true) { v: Double -> Run.time(v.toLong()) },
-            Quad("Profit/run", last.averageValue, all.averageValue, false) { v: Double -> Profit.coins(v) },
+            Quad("Profit/run", last.averageValue(sellOffer), all.averageValue(sellOffer), false) { v: Double -> Profit.coins(v) },
             Quad("Your uniques", last.averageMine, all.averageMine, false) { v: Double -> String.format(Locale.ROOT, "%.1f", v) },
             Quad("Cleared", last.clearedPercent, all.clearedPercent, false) { v: Double -> "${v.toInt()}%" },
         )
@@ -559,10 +576,10 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         val pts = runs.takeLast(30)
         if (pts.isEmpty()) return
         val gx = x + 30; val gy = y + 15; val gw = w - 38; val gh = h - 34
-        val sorted = pts.map { it.value }.sorted()
+        val sorted = pts.map { it.valueAt(sellOffer) }.sorted()
         val median = sorted[sorted.size / 2]
         // All-time average profit per run (all saved runs, not only these 30)
-        val avg = History.totals.averageValue.takeIf { !it.isNaN() } ?: 0.0
+        val avg = History.totals.averageValue(sellOffer).takeIf { !it.isNaN() } ?: 0.0
         val cap = maxOf(median * 3, avg * 1.6, sorted.first().coerceAtLeast(1.0), 1.0)
         g.fill(gx, gy + gh, gx + gw, gy + gh + 1, 0xFF26301F.toInt())
         g.text(font, "0", gx - 4 - font.width("0"), gy + gh - 4, Ui.FAINT, false)
@@ -571,7 +588,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         pts.forEachIndexed { i, r ->
             val dye = (r.items[safaripatron.profit.Bazaar.DYE] ?: 0L) > 0
             val color = when { dye -> 0xFF3FA34D.toInt(); r.sparklings.isNotEmpty() -> Ui.GOLD; else -> 0xFF6E8F5A.toInt() }
-            val bh = (gh * (r.value / cap).coerceAtMost(1.0)).toInt().coerceAtLeast(1)
+            val bh = (gh * (r.valueAt(sellOffer) / cap).coerceAtMost(1.0)).toInt().coerceAtLeast(1)
             val bx = gx + (slot * (30 - pts.size + i)).toInt() + 1
             // Hover anywhere in the bar's column: highlight it and show the run
             val over = Ui.inside(mx, my, bx - 1, gy, bw + 2, gh + 1)
@@ -579,7 +596,8 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             if (over) {
                 tooltip = buildList {
                     add("Run #${r.id}")
-                    add("Profit ${Profit.coins(r.value)}")
+                    add("Instant Sell ${Profit.coins(r.value)}")
+                    add("Sell Offer ${Profit.coins(r.offer)}")
                     add("Time " + if (r.ms > 0) Run.time(r.ms) else "—")
                     if (r.sparklings.isNotEmpty()) add("✦ Sparkling: " + r.sparklings.joinToString(", ") { it.critter })
                     if (dye) add("♦ Dye")
@@ -692,14 +710,15 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         val h = (16 + 4 * 11 + 2).coerceAtMost(bottom - y)
         card(g, "Records", x, y, w, h)
         val busiest = t.days.entries.maxByOrNull { it.value.runs }
+        val (richId, richValue) = t.richest(sellOffer)
         val busiestDay = busiest?.key?.toLongOrNull()?.let { LocalDate.ofEpochDay(it) }
         /** [run] is the id the row opens (0 = none). */
         data class Row(val label: String, val value: String, val color: Int, val sub: String?, val link: String, val run: Int)
         val rows = listOf(
             Row("Fastest run", if (t.fastestMs > 0) Run.time(t.fastestMs) else "—", Ui.GREEN, null,
                 if (t.fastestMs > 0) "#${t.fastestId}" else "", if (t.fastestMs > 0) t.fastestId else 0),
-            Row("Most profit", if (t.richestId > 0) Profit.coins(t.richestValue) else "—", Ui.GOLD, null,
-                if (t.richestId > 0) "#${t.richestId}" else "", t.richestId),
+            Row("Most profit", if (richId > 0) Profit.coins(richValue) else "—", Ui.GOLD, null,
+                if (richId > 0) "#$richId" else "", richId),
             Row("Most sparklings", if (t.sparklyCount > 0) "✦ ${t.sparklyCount}" else "—", Ui.GOLD,
                 if (t.sparklyCount > 0) "(${t.sparklyYours} yours)" else null, if (t.sparklyCount > 0) "#${t.sparklyId}" else "",
                 if (t.sparklyCount > 0) t.sparklyId else 0),

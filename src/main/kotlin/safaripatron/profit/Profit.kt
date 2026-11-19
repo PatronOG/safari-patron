@@ -192,7 +192,7 @@ object Profit {
     /** Reward summary: the run's items move into the session and the total, and a new run begins. */
     private fun finishRun() {
         val runItems = LinkedHashMap(run)
-        safaripatron.history.History.finish(runItems, value(runItems), Minecraft.getInstance().player?.name?.string)
+        safaripatron.history.History.finish(runItems, Minecraft.getInstance().player?.name?.string)
         for ((id, n) in run) {
             d.sessionItems.merge(id, n) { a, b -> a + b }
             d.totalItems.merge(id, n) { a, b -> a + b }
@@ -230,10 +230,13 @@ object Profit {
 
     // ---------- values ----------
 
-    fun value(items: Map<String, Long>): Double {
-        val offer = Config.s.profitSellOffer
-        return items.entries.sumOf { (id, n) -> n * Bazaar.price(id, offer) }
-    }
+    /** Coins at Bazaar prices: [offer] = Sell Offer, else Instant Sell (default: the Price setting). */
+    fun value(items: Map<String, Long>, offer: Boolean = Config.s.profitSellOffer): Double =
+        items.entries.sumOf { (id, n) -> n * Bazaar.price(id, offer) }
+
+    /** true when every item has both prices (nothing counted as 0 for want of a price). */
+    fun allPriced(items: Map<String, Long>): Boolean =
+        items.keys.all { Bazaar.price(it, false) > 0 && Bazaar.price(it, true) > 0 }
 
     enum class Kind { SHARD, ESSENCE, FEATHER, DYE }
     fun kind(id: String) = when (id) {

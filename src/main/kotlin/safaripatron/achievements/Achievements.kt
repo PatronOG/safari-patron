@@ -93,7 +93,8 @@ object Achievements {
     /** Runs: the run history, or the profit tracker's count when that is higher (it is older). */
     private fun runs() = maxOf(History.totals.runs, Profit.data.totalRuns)
 
-    private fun totalCoins() = Profit.value(Profit.data.totalItems)
+    /** Achievements count coins at Sell Offer prices, whatever the Price setting. */
+    private fun totalCoins() = Profit.value(Profit.data.totalItems, offer = true)
 
     private fun dyes() = Profit.data.totalItems[Bazaar.DYE] ?: 0L
 
@@ -155,7 +156,7 @@ object Achievements {
             Achievement("my_shiny", "My Shiny!", "Catch a sparkling yourself.", Tier.RARE,
                 perRun = { r -> r.sparklings.any { isSelf(r, it.player) } }),
             Achievement("six_figures", "Six Figures?", "Earn over 6M coins in a single run.", Tier.RARE,
-                perRun = { it.value > 6 * M }, progress = { data.maxValue to 6 * M }),
+                perRun = { it.offer > 6 * M }, progress = { data.maxValue to 6 * M }),
             timeAch("sub_3", "Sub 3", "Finish Everything in under 3:00.", Tier.RARE, { best("all") }, 180_000),
             // Epic
             Achievement("daily_ranger", "Daily Ranger", "Do runs on 7 different days.", Tier.EPIC,
@@ -239,7 +240,7 @@ object Achievements {
         if ("all" in r.biomeMs) { d.allStreak++; d.bestAllStreak = maxOf(d.bestAllStreak, d.allStreak) } else d.allStreak = 0
         d.maxSparklings = maxOf(d.maxSparklings, r.sparklings.size)
         d.maxFeathers = maxOf(d.maxFeathers, r.items[Bazaar.FEATHER] ?: 0L)
-        d.maxValue = maxOf(d.maxValue, r.value)
+        d.maxValue = maxOf(d.maxValue, r.offer)
         val wasDry = d.dry
         d.dry = if (r.sparklings.isEmpty()) d.dry + 1 else 0
 
@@ -263,6 +264,24 @@ object Achievements {
         applyRun(r, out)
         checkTotals(out)
         unlock(out, quiet = false)
+        save()
+    }
+
+    /** Achievements that go by a run's coins: checked again over every run when run values were filled in. */
+    private val valueIds = listOf("six_figures")
+
+    /** History filled in run values (a missing price, or the Sell Offer value of older runs). */
+    fun onValuesChanged() {
+        if (!data.retroDone) return // the first check goes over every run anyway
+        data.maxValue = History.runs.maxOfOrNull { it.offer } ?: 0.0
+        val out = ArrayList<Pair<Achievement, Int>>()
+        for (id in valueIds) {
+            val a = byId(id) ?: continue
+            if (isUnlocked(id)) continue
+            History.runs.firstOrNull { a.perRun?.invoke(it) == true }?.let { out.add(a to it.id) }
+        }
+        unlock(out, quiet = false)
+        version++
         save()
     }
 
@@ -293,6 +312,7 @@ object Achievements {
             return
         }
         if (!data.sparklingRecheck) recheckSparklings()
+        if (!History.valuesDone) History.fixValues()
         val out = ArrayList<Pair<Achievement, Int>>()
         checkTotals(out)
         if (out.isNotEmpty()) { unlock(out, quiet = false); save() }

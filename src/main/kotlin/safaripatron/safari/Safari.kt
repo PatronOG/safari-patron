@@ -20,8 +20,8 @@ import safaripatron.sparkling.SparklingFinder
  *  5. Run bitmişken (ödül özetinden sonra) Safari'de yeni bir yakalama geldiğinde.
  * Run bitişi: "SAFARI REWARD SUMMARY" mesajı ya da Safari'den çıkış.
  *
- * Saat: run, oyunun Safari dünyasını yüklediği andan başlar (scoreboard'u beklemez), 1. ve 2. durum bu anı kullanır.
- * 4. ve 5. durum (geç başlayan run) ve /sp newrun süresiz sayılır: kaydedilir ama PB ve süre vermez.
+ * Saat (Sparkling Mutuals ile aynı): run, oyunun son yüklediği dünyanın yüklendiği andan başlar (scoreboard'u
+ * beklemez). Safari'den çıkınca bu an unutulur; o andan sonra başlayan run (ör. sayaç sıfırlanması) başladığı andan sayılır.
  */
 object Safari {
     var inSafari = false
@@ -38,8 +38,6 @@ object Safari {
     private var entryArmedAt = 0L
     /** When the game last loaded a new world: the start of the run clock when it turns out to be the Safari. */
     private var worldChangedAt = 0L
-    /** How long after the world change the Safari may still be confirmed and keep that start time. */
-    private const val ARRIVAL_WINDOW_MS = 30_000L
     private var lastPos: Vec3? = null
 
     private val capturedPattern = Regex("""^Captured Mobs:\s*([\d,]+)""", RegexOption.IGNORE_CASE)
@@ -66,7 +64,7 @@ object Safari {
         if (lines.isNotEmpty()) {
             val here = lines.any { locationPattern.containsMatchIn(it) }
             val newCaptured = lines.firstNotNullOfOrNull { capturedPattern.find(it)?.groupValues?.get(1)?.replace(",", "")?.toIntOrNull() }
-            // Back into a run that was already going (rejoin after a disconnect): its start was missed
+            // Back into a run that was already going (rejoin after a disconnect): no warp check for it
             val midRun = (newCaptured ?: 0) > 0
             if (here) {
                 outsideTicks = 0
@@ -100,31 +98,31 @@ object Safari {
     private fun startRun(reason: String) {
         entryArmedAt = 0L
         val now = System.currentTimeMillis()
-        val arrived = reason == "enter" || reason == "new world" || reason == "teleport"
-        val fromWorld = arrived && worldChangedAt > 0 && now - worldChangedAt in 0..ARRIVAL_WINDOW_MS
-        val at = if (fromWorld) worldChangedAt else now
-        // A run started late (first catch, counter reset, rejoin) has missed its real start: no time for it
-        val timed = arrived
+        // The clock starts when the Safari world loaded; with no world change waiting, from now
+        val at = if (worldChangedAt in 1..now) worldChangedAt else now
         worldChangedAt = 0L
         Config.s.runCounter++
-        Run.start(at, timed)
+        Run.start(at)
         SparklingFinder.clear()
         safaripatron.history.History.onRunStart()
         safaripatron.profit.Profit.onRunStart(at)
-        if (timed) Party.onRunStart(at) // a late or rejoined run is not a fresh warp
+        // Only a real arrival is a warp to check (not a rejoin mid-run or a run found late)
+        if (reason == "enter" || reason == "new world" || reason == "teleport") Party.onRunStart(at)
     }
 
-    /** /sp newrun: a fresh run from now, not timed. */
+    /** /sp newrun: a fresh run from now. */
     fun manualRun() {
         entryArmedAt = 0L
+        worldChangedAt = 0L
         Config.s.runCounter++
-        Run.start(timed = false)
+        Run.start()
         SparklingFinder.clear()
         safaripatron.history.History.onRunStart()
     }
 
     private fun leave() {
         inSafari = false
+        worldChangedAt = 0L
         biome = null
         outsideTicks = 0
         Run.end()

@@ -16,12 +16,6 @@ object Run {
     /** When the run started: the moment the game loaded the Safari world (every timer uses this one clock). */
     var startedAt = 0L
         private set
-    /**
-     * false when the run was started late by a fallback (first catch, counter reset, /sp newrun): it is still
-     * tracked and saved, but has no time, so it can never give a wrong PB.
-     */
-    var timed = false
-        private set
     /** Her yeni run'da değişen damga (yapıların run'a özel durumunu sıfırlamak için). */
     var startStamp = 0L
         private set
@@ -45,17 +39,17 @@ object Run {
 
     val running get() = state == State.RUNNING
 
-    /** Time on the run clock (0 for an untimed run). */
+    /** Time on the run clock. */
     val elapsedMs: Long
-        get() = if (!timed) 0L else when (state) {
+        get() = when (state) {
             State.RUNNING -> System.currentTimeMillis() - startedAt
             State.ENDED -> endedAt - startedAt
             State.IDLE -> 0L
         }
 
-    /** Final length of the run that ended (0 = not timed). History, profit and PBs all read this. */
+    /** Final length of the run that ended (0 = no run ended). History, profit and PBs all read this. */
     val finalMs: Long
-        get() = if (timed && state == State.ENDED) endedAt - startedAt else 0L
+        get() = if (state == State.ENDED) endedAt - startedAt else 0L
 
     /**
      * When each biome / everything was done, on the run clock ("FOREST", ..., "all", "allButMacaw").
@@ -63,10 +57,9 @@ object Run {
      */
     val doneMs = LinkedHashMap<String, Long>()
 
-    fun start(at: Long = System.currentTimeMillis(), timed: Boolean = true) {
+    fun start(at: Long = System.currentTimeMillis()) {
         state = State.RUNNING
         startedAt = at
-        this.timed = timed
         endedAt = 0L
         startStamp++
         caught.clear(); byPlayer.clear(); announced.clear(); sparklingsCaught.clear(); doneMs.clear()
@@ -108,7 +101,7 @@ object Run {
     /** finisher = whoever caught the critter that completed it. */
     private fun checkAnnouncements(finisher: String) {
         // One time for each completion, taken once, so every place shows the same number
-        if (timed && state == State.RUNNING) {
+        if (state == State.RUNNING) {
             val now = System.currentTimeMillis() - startedAt
             for (biome in Biome.entries) if (biome.critters.all { it.name in caught }) doneMs.putIfAbsent(biome.name, now)
             if (caught.size >= Critters.TOTAL) doneMs.putIfAbsent("all", now)

@@ -332,9 +332,10 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         if (visible()) Ui.text(g, font, "Run #${r.id}", ix, cy, Ui.WHITE, 1f, true)
         cy += 13
         line(dayFmt.format(Instant.ofEpochMilli(r.endedAt).atZone(zone)), Ui.DIM)
-        line(if (r.ms > 0) Run.time(r.ms) + (if (r.pb) "  Fastest!" else "") else "Not timed", if (r.pb) Ui.GREEN else Ui.TEXT,
-            Profit.coins(r.valueAt(sellOffer)), Ui.GOLD)
-        line("Instant Sell ${Profit.coins(r.value)} · Sell Offer ${Profit.coins(r.offer)}", Ui.DIM)
+        line(if (r.ms > 0) Run.time(r.ms) + (if (r.pb) "  Fastest!" else "") else "Not timed", if (r.pb) Ui.GREEN else Ui.TEXT)
+        // Both prices, one under the other
+        line("Instant Sell", Ui.DIM, Profit.coins(r.value), Ui.GOLD)
+        line("Sell Offer", Ui.DIM, Profit.coins(r.offer), Ui.GOLD)
         r.hotspot?.let { line("Hotspot: $it", Ui.MUTED) }
 
         divider("Biomes")
@@ -367,7 +368,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             val loot = r.items.entries.sortedByDescending { (id, n) -> Profit.itemValue(id, n) }
             for ((id, n) in loot) {
                 val name = "${"%,d".format(Locale.ROOT, n)}x ${Profit.itemName(id)}"
-                line(name, legacyColor(Profit.itemColor(id)), Profit.coins(Profit.itemValue(id, n)), Ui.GOLD)
+                line(name, legacyColor(Profit.itemColor(id))) // the values are the two lines at the top
             }
         }
         g.disableScissor()

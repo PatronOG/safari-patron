@@ -16,6 +16,7 @@ import java.util.UUID
  * Mesajlar Hypixel'in spam korumasına takılmamak için aralıklı gönderilir.
  */
 object Party {
+    private val log = org.slf4j.LoggerFactory.getLogger("safari-patron/party")
     var members: Set<UUID> = emptySet()
         private set
     var known = false
@@ -117,13 +118,22 @@ object Party {
         }
         if (!inParty) return true
         val connection = client.connection ?: return true
-        val present = HashSet<UUID>()
-        connection.onlinePlayers.forEach { present.add(it.profile.id) }
-        connection.listedOnlinePlayers.forEach { present.add(it.profile.id) }
-        client.player?.uuid?.let { present.add(it) }
+        // Whole tab list (may still hold players of the last server, e.g. someone kicked on the way)
+        val whole = HashSet<UUID>()
+        connection.onlinePlayers.forEach { whole.add(it.profile.id) }
+        connection.listedOnlinePlayers.forEach { whole.add(it.profile.id) }
+        // Only players this server added, when the hook works; else the whole list as before
+        val present = if (TabList.active) HashSet(TabList.players()) else whole
+        client.player?.uuid?.let { present.add(it); whole.add(it) }
 
         val total = members.size
         val here = members.count { it in present }
+        if (here >= total || deadline) {
+            // One line per warp, to check this in the log: "fresh" is what counts, "whole" is the old way
+            log.info("Warp check: {}/{} here (fresh list: {}, whole tab list: {}){}", here, total,
+                if (TabList.active) here else "off", members.count { it in whole },
+                if (members.count { it in whole } != here) " - left-over names not counted" else "")
+        }
         if (here >= total) {
             if (Config.s.warpCheck) chat("[✦SP✦] $here/$total Players in Safari.")
             if (Config.s.warpScreen) Toasts.show(Toasts.Kind.WARP, "$here/$total Players in Safari", 0xFF55FF55.toInt(), 3000)

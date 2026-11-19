@@ -138,7 +138,7 @@ Reset buttons ask before deleting.
 
 ### 📋 Safari HUDs
 - **Run Stats HUD:** Tracks your and your party's unique catch per biome and global. Includes Run Timer and Run splits.
-- **Run Timer:** Starts when you entered in Critter Safari.
+- **Run Timer:** Starts the moment the Safari loads. The panel, party chat, personal bests and Run History all use this one clock.
 - **Run Splits:** Includes party member's unique catches per biome.
 - **Missing Critters Hud:** Shows the remaining uncaptured unique critters in the biome.
 - **Sparkling HUD:** When a Sparkling Critter is spotted, it appears on the screen. It remains there until it is caught.
@@ -148,7 +148,7 @@ Reset buttons ask before deleting.
 - **Total Sparklings HUD:** All 37 sparklings in four columns, shown in the middle area between the biomes.
 - **Contest HUD:** Miria's Contest time left, bracket, score and ticket status.
 - **Achievement Panel:** A box on screen when you unlock an achievement. Choose the lowest rarity it shows, or turn it off.
-- **Completion Times:** Biome announcements show your time and personal best, e.g. `Forest Done! Completed in 2:31 (PB 2:20 by IGN)`.
+- **Completion Times:** Biome announcements show your time and personal best, to a tenth of a second, e.g. `Forest Done! Completed in 2:31.4 (PB 2:20.8 by IGN)`.
 
 ### ✦ Sparkling Finder
 - **Sparkling ESP:** Spots Sparkling critters and boxes.
@@ -162,7 +162,7 @@ Reset buttons ask before deleting.
 - **Capsule Helper:** Shows where your capsule will fly and whether it will hit a critter.
 - **Hitbox Editor:** Every critter has its own box size, measured in game, used for the Capsule Helper and ESP. Change any of them with `/sp boxes`. Use the default settings unless you know what you're doing.
 - **Doomspiral Timer:** Marks where to stand and where to aim, then counts down to the perfect Masterful Capsule throw while Doomspiral rises.
-- **Wumpa Skip Helper:** Marks where to stand and the two points to aim at: a Critter Capsule first, then the Masterful Capsule one second later with a countdown.
+- **Wumpa Skip Helper:** Marks where to stand and the two points to aim at: a Critter Capsule first, then the Masterful Capsule with a countdown. Set the delay between them with **Masterful delay** (1.2 s by default).
 - **Helper Sounds:** A bell when it is time to throw. Each helper can be turned off on its own.
 
 > Helpers only show where and when. Moving, aiming and throwing are always up to you.
@@ -176,35 +176,35 @@ Reset buttons ask before deleting.
 
 ### ♦ Profit Tracker
 - **Session Profit:** Shard, Safari Essence, Rainbow Feather and Emerald Dye profits, total, run count, average run time and profit per hour.
-- **Session Clock:** Starts when the Safari Manager takes your ticket and pauses when you're away from the Safari.
+- **Session Clock:** Starts when you arrive in the Safari and pauses when you're away from it.
 - **Total Profit Tracker:** All-time profit item by item, in rarity colors, with total runs and total profit. Shows at the Critter Safari Entrance by default, or everywhere outside the Safari. Never inside the Safari.
 - **Emerald Dye:** Your own Emerald Dyes count too, at the Auction House's lowest BIN price.
 - **Top Shards:** `/sp topshards` lists each biome's 5 most profitable shards in chat.
 - **Scroll Support:** Choose how many items it shows (5, 10, 15 or 20); scroll with your mouse wheel over the panel while an inventory is open.
-- **Bazaar Prices:** Choose Instant Sell or Sell Offer prices. Warns you when prices can't be loaded instead of showing 0.
+- **Bazaar Prices:** Choose Instant Sell or Sell Offer prices. Warns you when prices can't be loaded instead of showing 0. A run saved while a price was missing is worked out again once it's in.
 - **Safe Data:** Settings, profit, run history, achievements and hitbox sizes are saved in their own folder, `config/safari-patron/`, and kept between updates.
 
 ### ☰ Run History
 - **Every Run Saved:** Time, uniques (yours and the party's), catches, profit and loot of up to 20,000 runs, saved in small files so the game never stutters.
-- **Run Details:** Biome completion times, every party member's uniques in the color of the biome they did, sparklings and who caught them, item-by-item loot.
-- **Filters and Sorting:** Show only sparkling runs, record runs, Emerald Dye runs, today or this week; sort by newest, fastest or most profitable.
+- **Run Details:** Biome completion times, profit at both Instant Sell and Sell Offer prices, every party member's uniques in the color of the biome they did, sparklings and who caught them, and the loot.
+- **Filters and Sorting:** Show only sparkling runs, record runs, Emerald Dye runs, today or this week; sort by newest, fastest or most profitable. Switch between Instant Sell and Sell Offer values at the top.
 - **Overview:** Total runs, time played, total profit, fastest run and your sparkling rate at a glance.
-- **Stats:** Run time and profit graphs with your all-time average, your last 10 runs against your average, clear stats per biome, sparkling stats, records and the players you play with most. Choose all time, this week, today or the last 50 runs.
-- **Achievements:** 38 achievements across 9 rarities, from Common to Impossible, with points, progress bars and rarity filters. Your past runs count too.
+- **Stats:** Run time and profit graphs with your all-time average (hover a profit bar to see that run), your last 10 runs against your average, clear stats per biome, sparkling stats, records and the players you play with most. Choose all time, this week, today or the last 50 runs.
+- **Achievements:** 38 achievements across 9 rarities, from Common to Impossible, with points, progress bars and rarity filters. Your past runs count too. Coin achievements count at Sell Offer prices, whatever your price setting.
 - Open it with `/sp history` or from the main menu.
 
 ### ⚑ Party Messages
-- **Warp Check:** Sends `[✦SP✦] 4/4 Players in Safari.` or `[✦SP✦] Someone missing!` in party chat.
+- **Warp Check:** Sends `[✦SP✦] 4/4 Players in Safari.` or `[✦SP✦] Someone missing!` in party chat within a couple of seconds of arriving. Only players who really reached the new Safari count, so someone kicked on the way shows as missing.
 - **Hotspot Sharing:** It shares the hotspot area assigned to you in the party chat.
 - **Biome Announcements:** {Area} Done!, Everything except Macaw done!, Everything Done!
-- **Best Parties:** Your Everything PBs remember who was in your party. `/sp bestparty` shows them in chat, each player in the color of the biome they started in.
+- **Best Parties:** Your Everything PBs remember who was in your party. `/sp bestparty` shows them in chat, each player in the color of the biome they started in, with times to a tenth of a second.
 - **Alert panels:** Each alert can go to party chat, your screen, or both. 
 
 ### ◈ ESP System
 - **Sparkling ESP:** Spots Sparkling critters and alerts you in chat with their distance and coordinates. Marks the critter with a box in the world.
 - **Critter ESP:** Boxes around critters.
 - **Floor Drop ESP:** Marks floor drop spots.
-- **Bee Nest ESP:** Honeybug nests in Forest.
+- **Bee Nest ESP:** Honeybug nests in Forest. A nest goes away once you hit it.
 - **Snoozle Walls:** Breakable walls in Cavern.
 - **Clear Water:** See through the water in the Safari, with adjustable opacity.
 
@@ -244,7 +244,7 @@ Reset buttons ask before deleting.
 | `/sp boxes` | Open the hitbox editor |
 | `/sp sparkling` | Toggle the Sparkling Finder |
 | `/sp sparkling sound` | Toggle the Sparkling sound |
-| `/sp sparkling clear` | Clear the Sparkling panel |
+| `/sp sparkling clear` | Clear the Sparkling Finder panel |
 | `/sp esp` | Toggle critter ESP |
 | `/sp floor` | Toggle floor drop ESP |
 | `/sp capsule` | Toggle the Capsule Helper |

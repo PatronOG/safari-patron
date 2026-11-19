@@ -16,7 +16,7 @@ class RunRecord {
     var id = 0
     /** When the reward summary came (epoch ms). */
     var endedAt = 0L
-    /** Ticket to reward summary; 0 = not timed (no ticket seen). */
+    /** Safari arrival to reward summary (before 2.2: ticket to summary); 0 = not timed. */
     var ms = 0L
     /** You (whose game this is). */
     var self = ""
@@ -25,17 +25,24 @@ class RunRecord {
     var mine = 0
     /** Critters you caught (scoreboard "Captured Mobs" when known). */
     var caught = 0
-    /** Coins at the prices of that moment. */
+    /** Coins at the Instant Sell prices of that moment (before 2.2: at whatever Price setting was on). */
     var value = 0.0
+    /** Coins at the Sell Offer prices of that moment. */
+    var offer = 0.0
+    /** 0 = older run with one value, 1 = some item had no price yet, 2 = both values are done. */
+    var priced = 0
     var items: MutableMap<String, Long> = LinkedHashMap()
     var sparklings: MutableList<SparklingRecord> = ArrayList()
     /** Player -> the species they caught, in order. */
     var players: MutableMap<String, MutableList<String>> = LinkedHashMap()
-    /** Time from the ticket until each biome was done: FOREST, CAVERN, ICY, HAUNTED, allButMacaw, all. */
+    /** Time from the run's start until each biome was done: FOREST, CAVERN, ICY, HAUNTED, allButMacaw, all. */
     var biomeMs: MutableMap<String, Long> = LinkedHashMap()
     var hotspot: String? = null
     /** Fastest timed run so far when it finished. */
     var pb = false
+
+    /** Coins at Sell Offer ([sellOffer]) or Instant Sell prices. */
+    fun valueAt(sellOffer: Boolean) = if (sellOffer) offer else value
 }
 
 class SparklingRecord(var player: String = "", var critter: String = "")
@@ -66,6 +73,8 @@ class HistoryIndex {
     var critters: MutableMap<String, CritterStat> = LinkedHashMap()
     var chunks: MutableList<ChunkInfo> = ArrayList()
     var totals = Totals()
+    /** Every run has both values (Instant Sell and Sell Offer), from 2.2 on. */
+    var valuesDone = false
 }
 
 class ChunkFile(var runs: MutableList<RunRecord> = ArrayList())
@@ -109,6 +118,9 @@ object History {
 
     /** The run being built. */
     private var current: RunRecord? = null
+
+    /** Every run has both values (see [fixValues]). */
+    val valuesDone get() = index.valuesDone
 
     /** This run's Hunting Hotspot biome (e.g. "Haunted"), if it was seen. */
     fun currentHotspot(): String? = current?.hotspot
@@ -357,7 +369,7 @@ object History {
     }
 
     /** The profit tracker counted the run's items: save the run. */
-    fun finish(items: Map<String, Long>, value: Double, self: String?) {
+    fun finish(items: Map<String, Long>, self: String?) {
         // The next run may already have started (fast warp): finish the one that ended, keep the new one going
         val early = ending
         ending = null
@@ -372,33 +384,54 @@ object History {
         rec.party = caught.size
         rec.mine = self?.let { rec.players[it]?.size } ?: 0
         rec.items = LinkedHashMap(items)
-        rec.value = value
+        // Both prices are kept: History shows either one, achievements go by Sell Offer
+        rec.value = safaripatron.profit.Profit.value(items, offer = false)
+        rec.offer = safaripatron.profit.Profit.value(items, offer = true)
+        rec.priced = if (safaripatron.profit.Profit.allPriced(items)) 2 else 1
         if (rec.ms > 0 && (index.bestMs <= 0 || rec.ms < index.bestMs)) { index.bestMs = rec.ms; rec.pb = true }
         append(rec)
-        fixZeroValues()
+        fixValues()
         safaripatron.achievements.Achievements.onRun(rec)
         log.info("Saved run #{} ({} uniques, {})", rec.id, rec.party, if (rec.ms > 0) safaripatron.safari.Run.time(rec.ms) else "not timed")
     }
 
     /**
-     * Runs saved while no prices were known (just after joining, or with the Bazaar offline) have a total of 0:
-     * work it out again from their loot at today's prices. Returns true if any run changed.
+     * Fills in run values that are missing: a run saved while an item had no price yet, and (once, when
+     * the prices are in) the second value of runs from before 2.2, which kept only one. An old run's value
+     * is taken to be at the Price setting on now; the other one comes from today's prices.
+     * Returns true if anything changed.
      */
-    fun fixZeroValues(): Boolean {
+    fun fixValues(): Boolean {
+        if (!safaripatron.profit.Bazaar.ready()) return false
+        // Older runs are only on disk: load them all once to give every run both values
+        if (!index.valuesDone) ensureCount(Int.MAX_VALUE)
+        val sellOfferOn = safaripatron.config.Config.s.profitSellOffer
         val changed = HashSet<Int>()
         for (r in runs) {
-            if (r.value > 0 || r.items.isEmpty()) continue
-            val v = safaripatron.profit.Profit.value(r.items)
-            if (v <= 0) continue
-            val old = r.value
-            r.value = v
-            index.totals.valueChanged(r, old)
+            if (r.priced == 2 || r.items.isEmpty()) continue
+            val instant = safaripatron.profit.Profit.value(r.items, offer = false)
+            val offer = safaripatron.profit.Profit.value(r.items, offer = true)
+            val oldValue = r.value; val oldOffer = r.offer
+            if (r.priced == 0) {
+                // Keep what was saved for the setting it was most likely made with
+                if (sellOfferOn) { r.offer = oldValue.takeIf { it > 0 } ?: offer; r.value = instant }
+                else { r.value = oldValue.takeIf { it > 0 } ?: instant; r.offer = offer }
+                r.priced = 2
+            } else {
+                r.value = instant; r.offer = offer
+                if (safaripatron.profit.Profit.allPriced(r.items)) r.priced = 2
+            }
+            if (r.value == oldValue && r.offer == oldOffer && r.priced != 2) continue
+            index.totals.valueChanged(r, oldValue, oldOffer)
             changed.add(chunkOf(r.id))
         }
-        if (changed.isEmpty()) return false
+        val first = !index.valuesDone
+        index.valuesDone = true
+        if (changed.isEmpty() && !first) return false
         version++
         for (i in changed) saveChunk(i)
         saveIndex()
+        safaripatron.achievements.Achievements.onValuesChanged()
         return true
     }
 

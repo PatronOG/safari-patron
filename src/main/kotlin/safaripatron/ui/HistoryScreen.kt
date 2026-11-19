@@ -441,7 +441,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         drawCompare(g, view, ix, y, leftW)
         val graphH = ((bottom - y - 38 - 8) / 2).coerceAtLeast(50)
         drawTimeGraph(g, runs, ix, y + 38, leftW, graphH)
-        drawProfitGraph(g, runs, ix, y + 38 + graphH + 4, leftW, bottom - (y + 38 + graphH + 4))
+        drawProfitGraph(g, mx, my, runs, ix, y + 38 + graphH + 4, leftW, bottom - (y + 38 + graphH + 4))
 
         var ry = y
         ry = drawClear(g, mx, my, t, rightX, ry, rightW) + 4
@@ -449,13 +449,24 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         ry = drawRecords(g, mx, my, t, rightX, ry, rightW, bottom) + 4
         drawPlayedWith(g, t, rightX, ry, rightW, bottom)
 
-        tooltip?.let { t ->
-            val tw = font.width(t) + 8
-            val tx = (mx + 8).coerceAtMost(width - tw - 2)
-            val ty = (my - 14).coerceAtLeast(2)
-            Ui.box(g, tx, ty, tw, 13, 0xF0100A14.toInt(), Ui.FEATURE_BORDER)
-            g.text(font, t, tx + 4, ty + 3, Ui.TEXT, false)
-        }
+        drawTooltip(g, mx, my)
+    }
+
+    private fun brighter(c: Int): Int {
+        fun ch(shift: Int) = minOf(255, ((c shr shift) and 0xFF) + 40)
+        return (c and 0xFF000000.toInt()) or (ch(16) shl 16) or (ch(8) shl 8) or ch(0)
+    }
+
+    /** The hover box; a tooltip may have several lines ("\n"). */
+    private fun drawTooltip(g: GuiGraphicsExtractor, mx: Int, my: Int) {
+        val lines = tooltip?.split('\n') ?: return
+        val tw = lines.maxOf { font.width(it) } + 8
+        val th = lines.size * 10 + 3
+        // Right of the mouse, or left of it near the screen's edge
+        val tx = if (mx + 8 + tw <= width - 2) mx + 8 else (mx - 8 - tw).coerceAtLeast(2)
+        val ty = (my - 14).coerceIn(2, (height - th - 2).coerceAtLeast(2))
+        Ui.box(g, tx, ty, tw, th, 0xF0100A14.toInt(), Ui.FEATURE_BORDER)
+        lines.forEachIndexed { i, l -> g.text(font, l, tx + 4, ty + 3 + i * 10, Ui.TEXT, false) }
     }
 
     private fun card(g: GuiGraphicsExtractor, title: String, x: Int, y: Int, w: Int, h: Int) {
@@ -543,7 +554,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
         return counts.entries.maxByOrNull { it.value }?.key
     }
 
-    private fun drawProfitGraph(g: GuiGraphicsExtractor, runs: List<RunRecord>, x: Int, y: Int, w: Int, h: Int) {
+    private fun drawProfitGraph(g: GuiGraphicsExtractor, mx: Int, my: Int, runs: List<RunRecord>, x: Int, y: Int, w: Int, h: Int) {
         card(g, "Profit per run · last 30 runs", x, y, w, h)
         val pts = runs.takeLast(30)
         if (pts.isEmpty()) return
@@ -562,8 +573,18 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             val color = when { dye -> 0xFF3FA34D.toInt(); r.sparklings.isNotEmpty() -> Ui.GOLD; else -> 0xFF6E8F5A.toInt() }
             val bh = (gh * (r.value / cap).coerceAtMost(1.0)).toInt().coerceAtLeast(1)
             val bx = gx + (slot * (30 - pts.size + i)).toInt() + 1
-            g.fill(bx, gy + gh - bh, bx + bw, gy + gh, color)
-            if (r.value > cap) Ui.text(g, font, Profit.coins(r.value), bx - 4, gy - 1, 0xFF55AA55.toInt(), 0.6f)
+            // Hover anywhere in the bar's column: highlight it and show the run
+            val over = Ui.inside(mx, my, bx - 1, gy, bw + 2, gh + 1)
+            g.fill(bx, gy + gh - bh, bx + bw, gy + gh, if (over) brighter(color) else color)
+            if (over) {
+                tooltip = buildList {
+                    add("Run #${r.id}")
+                    add("Profit ${Profit.coins(r.value)}")
+                    add("Time " + if (r.ms > 0) Run.time(r.ms) else "—")
+                    if (r.sparklings.isNotEmpty()) add("✦ Sparkling: " + r.sparklings.joinToString(", ") { it.critter })
+                    if (dye) add("♦ Dye")
+                }.joinToString("\n")
+            }
         }
         // Dashed all-time average line over the bars
         if (avg > 0) {
@@ -572,8 +593,6 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             while (dx < gx + gw) { g.fill(dx, ay, minOf(dx + 4, gx + gw), ay + 1, Ui.GOLD); dx += 7 }
             val label = Profit.coins(avg)
             g.text(font, label, gx - 4 - font.width(label), ay - 4, Ui.GOLD, false)
-            val note = "all-time avg"
-            g.text(font, note, gx + gw - font.width(note), ay - 10, Ui.GOLD, true)
         }
         // Legend
         var lx = x + 6
@@ -582,6 +601,11 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             g.fill(lx, ly + 1, lx + 5, ly + 6, c)
             Ui.text(g, font, t, lx + 7, ly, Ui.DIM, 0.75f)
             lx += 12 + (font.width(t) * 0.75f).toInt() + 8
+        }
+        // The dashed gold line
+        if (avg > 0) {
+            g.fill(lx, ly + 3, lx + 3, ly + 4, Ui.GOLD); g.fill(lx + 5, ly + 3, lx + 8, ly + 4, Ui.GOLD)
+            Ui.text(g, font, "All-time avg", lx + 10, ly, Ui.DIM, 0.75f)
         }
     }
 
@@ -860,13 +884,7 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             g.fill(ix + iw - 3, barY, ix + iw - 1, barY + barH, Ui.BORDER_HOVER)
         }
 
-        tooltip?.let { t ->
-            val tw = font.width(t) + 8
-            val tx = (mx + 8).coerceAtMost(width - tw - 2)
-            val ty = (my - 14).coerceAtLeast(2)
-            Ui.box(g, tx, ty, tw, 13, 0xF0100A14.toInt(), Ui.FEATURE_BORDER)
-            g.text(font, t, tx + 4, ty + 3, Ui.TEXT, false)
-        }
+        drawTooltip(g, mx, my)
     }
 
     override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {

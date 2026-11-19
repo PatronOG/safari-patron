@@ -54,6 +54,9 @@ object Safari {
         }
         if (level !== lastLevel) {
             lastLevel = level
+            // Leaving the Safari always means another server: drop out right away, so panels and ESP go at once
+            // instead of waiting for the new scoreboard. If the new world is a Safari again, it starts a new run.
+            if (inSafari) leave()
             worldChangedAt = System.currentTimeMillis()
             freshWorld = true; freshWorldTicks = 0
             lastPos = null

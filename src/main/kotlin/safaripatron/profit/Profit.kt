@@ -40,12 +40,6 @@ object Profit {
     /** Items of the run in progress (not saved; a restart mid-run loses only this run's part). */
     val run = LinkedHashMap<String, Long>()
     private var finishAt = 0L
-    /**
-     * Run length for the average, kept in the background: from the Safari Manager's ticket message to the
-     * SAFARI REWARD SUMMARY. A second ticket before a summary drops the unfinished run and starts over;
-     * a summary without a ticket (mod started mid-run) is not timed.
-     */
-    private var ticketAt = 0L
     /** Length of the run that just ended, waiting for finishRun (0 = not timed). */
     private var endedRunMs = 0L
     private const val MIN_RUN_MS = 10_000L
@@ -93,21 +87,14 @@ object Profit {
     private fun onLine(line: String) {
         if (line.isEmpty()) return
         when {
-            isTicket(line) -> {
-                val now = System.currentTimeMillis()
-                if (ticketAt > 0) log.info("New ticket before a reward summary: unfinished run not timed")
-                ticketAt = now
-                safaripatron.history.History.onTicket(now)
-                onRunStart()
-            }
+            isTicket(line) -> onRunStart() // the session is normally already going from the Safari arrival
             line == SUMMARY -> {
                 val now = System.currentTimeMillis()
-                // The run ends right here, not when the items are counted a moment later
-                endedRunMs = if (ticketAt > 0) now - ticketAt else 0L
-                ticketAt = 0L
+                // The run ends right here, not when the items are counted a moment later (same clock as everything)
                 safaripatron.history.History.onSummary(now)
-                if (endedRunMs > 0) log.info("Run length (ticket to reward summary): {}", Run.time(endedRunMs))
-                else log.info("Reward summary without a ticket: run not timed")
+                endedRunMs = Run.finalMs
+                if (endedRunMs > 0) log.info("Run length (Safari arrival to reward summary): {}", Run.timeTenths(endedRunMs))
+                else log.info("Reward summary of an untimed run")
                 finishAt = now + 2000 // essence line follows; finish shortly
             }
             finishAt > 0 && essenceRe.matches(line) ->
@@ -176,11 +163,11 @@ object Profit {
         d.prevSessionRuns = d.sessionRuns
     }
 
-    /** A Safari run started: the session (and its clock) starts here, not at the first catch. */
-    fun onRunStart() {
+    /** A Safari run started: the session (and its clock) starts here (the Safari arrival), not at the first catch. */
+    fun onRunStart(at: Long = System.currentTimeMillis()) {
         if (!Config.s.profitTracker) return
         val now = System.currentTimeMillis()
-        if (d.sessionStart == 0L) { d.sessionStart = now; awayMs = 0 }
+        if (d.sessionStart == 0L) { d.sessionStart = at; awayMs = 0 }
         d.lastActive = now
         Bazaar.ensureFresh()
     }
@@ -225,7 +212,6 @@ object Profit {
         d.sessionStart = 0L
         d.lastActive = 0L
         run.clear()
-        ticketAt = 0L
         endedRunMs = 0L
         d.sessionRuns = 0
         d.sessionRunMs = 0

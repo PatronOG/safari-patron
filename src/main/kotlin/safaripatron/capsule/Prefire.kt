@@ -40,8 +40,8 @@ object Prefire {
     )
 
     private const val DIM = 0xFF777777.toInt()
-    /** Wumpa skip: the Masterful throw comes 1 second after the first capsule. */
-    private const val MASTERFUL_DELAY_TICKS = 20
+    /** Wumpa skip: the Masterful throw comes this long after the first capsule (Helpers → Masterful delay). */
+    private val masterfulDelayTicks get() = safaripatron.config.Config.s.masterfulDelayTenths.coerceIn(5, 30) * 2
 
     /**
      * Doomspiral rises for 134 ticks (6.7 s) after it appears and can only be caught once it stands.
@@ -105,9 +105,10 @@ object Prefire {
     }
 
     private fun onSpot(player: net.minecraft.world.entity.player.Player, s: Spot): Boolean {
+        // Anywhere on the stand block counts
         val dx = player.x - (s.stand[0] + 0.5)
         val dz = player.z - (s.stand[2] + 0.5)
-        return dx * dx + dz * dz < 0.3 * 0.3 && kotlin.math.abs(player.y - s.stand[1]) < 0.6
+        return kotlin.math.abs(dx) <= 0.5 && kotlin.math.abs(dz) <= 0.5 && kotlin.math.abs(player.y - s.stand[1]) < 0.6
     }
 
     /** Watches for Doomspiral starting to rise (in Haunted, Prefire spots on) and starts the countdown. */
@@ -121,7 +122,7 @@ object Prefire {
         stepSpot?.let { if (!onSpot(player, it)) { step = 0; stepSpot = null; firstThrowAt = -1L } }
         // Wumpa skip: bell when the 1-second wait after the first capsule is over
         if (firstThrowAt >= 0) {
-            val left = MASTERFUL_DELAY_TICKS - (tick - firstThrowAt)
+            val left = masterfulDelayTicks - (tick - firstThrowAt)
             if (left <= 0 && !masterfulDinged) {
                 masterfulDinged = true
                 if (Config.s.prefireSound)
@@ -156,7 +157,7 @@ object Prefire {
     /** "Throw in 4.2s" under the crosshair while holding a Masterful Capsule, then "Throw Now". */
     fun drawHud(g: net.minecraft.client.gui.GuiGraphicsExtractor, font: net.minecraft.client.gui.Font, width: Int, height: Int) {
         if (firstThrowAt >= 0 && holdingAnyCapsule()) {
-            val left = MASTERFUL_DELAY_TICKS - (tick - firstThrowAt)
+            val left = masterfulDelayTicks - (tick - firstThrowAt)
             val (text, color) = if (left <= 0) "Throw Now" to GREEN
                 else String.format(java.util.Locale.ROOT, "Masterful in %.1fs", left / 20.0) to GOLD
             g.pose().pushMatrix()

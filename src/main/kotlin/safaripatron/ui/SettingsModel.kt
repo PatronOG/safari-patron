@@ -66,7 +66,7 @@ object SettingsModel {
                 Action("Reset sparklings", "Forget all caught sparklings", "Reset", confirm = true) {
                     s.sparklingCollection.clear(); Config.save()
                 },
-                Action("Clear panel", "Remove tracked sparklings", "Clear", confirm = true) { SparklingFinder.clear() },
+                Action("Clear Sparkling Finder Panel", "Remove the sparkling alert and waypoint on screen", "Clear", confirm = true) { SparklingFinder.clear() },
             )
         },
         Category("esp", "ESP", "◈", 0xFF5DCAA5.toInt(), "Critters and drops", { s.esp }) {

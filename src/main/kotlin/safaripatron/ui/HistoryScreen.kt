@@ -823,8 +823,11 @@ class HistoryScreen(private val parent: Screen? = null, start: String = "history
             hits.add(Ui.Hit(fx, y, fw, 13) { achTier = tier; achScroll = 0 })
             fx += fw + 3
         }
-        val sortLabel = "Sort: ${achSort.label} ▾"
-        val sw = font.width(sortLabel) + 10
+        // Same width for every choice (so it can't vanish after a click); without "Sort: " when that doesn't fit
+        val widest = AchSort.entries.maxOf { font.width("${it.label} ▾") }
+        val prefix = if (ix + iw - (font.width("Sort: ") + widest + 10) > fx + 4) "Sort: " else ""
+        val sortLabel = "$prefix${achSort.label} ▾"
+        val sw = font.width(prefix) + widest + 10
         val sx = ix + iw - sw
         if (sx > fx + 4) {
             val sortHover = Ui.inside(mx, my, sx, y, sw, 13)

@@ -112,7 +112,6 @@ object History {
 
     /** This run's Hunting Hotspot biome (e.g. "Haunted"), if it was seen. */
     fun currentHotspot(): String? = current?.hotspot
-    private var startAt = 0L
     private val caughtSet = LinkedHashSet<String>()
     private var captures = 0
 
@@ -295,17 +294,22 @@ object History {
 
     // ---------- building a run ----------
 
-    private fun begin(at: Long) {
+    private fun begin() {
         current = RunRecord()
-        startAt = at
         caughtSet.clear()
         captures = 0
     }
 
-    /** The Safari Manager took the ticket. A run still open without a summary is dropped. */
-    fun onTicket(now: Long) {
-        if (current != null && caughtSet.isNotEmpty()) log.info("New ticket before a reward summary: unfinished run not saved")
-        begin(now)
+    /** A run that had its summary but whose items were not counted yet when the next run started. */
+    private var ending: RunRecord? = null
+    private var endingCaught: Set<String> = emptySet()
+
+    /** A run started (same moment as the run clock). A run still open without a summary is dropped. */
+    fun onRunStart() {
+        val rec = current
+        if (rec != null && rec.endedAt > 0) { ending = rec; endingCaught = LinkedHashSet(caughtSet) }
+        else if (rec != null && caughtSet.isNotEmpty()) log.info("New run before a reward summary: unfinished run not saved")
+        begin()
     }
 
     fun onEvent(event: ChatParser.Event, self: String) {
@@ -330,47 +334,46 @@ object History {
         stat.shards += count
     }
 
-    private fun open(): RunRecord = current ?: run { begin(0L); current!! }
+    private fun open(): RunRecord = current ?: run { begin(); current!! }
 
     private fun add(player: String, critter: String) {
         val name = Critters.named(critter)?.name ?: return
         val rec = open()
         val list = rec.players.getOrPut(player) { ArrayList() }
         if (name !in list) list.add(name)
-        if (!caughtSet.add(name) || startAt <= 0L) return
-        // A biome (or everything) is done: remember how long it took from the ticket
-        val elapsed = System.currentTimeMillis() - startAt
-        for (b in Biome.entries) {
-            if (b.name !in rec.biomeMs && b.critters.all { it.name in caughtSet }) rec.biomeMs[b.name] = elapsed
-        }
-        if (caughtSet.size >= Critters.TOTAL) rec.biomeMs.putIfAbsent("all", elapsed)
-        else if (caughtSet.size == Critters.TOTAL - 1 && Critters.MACAW !in caughtSet) rec.biomeMs.putIfAbsent("allButMacaw", elapsed)
+        caughtSet.add(name)
     }
 
     /** SAFARI REWARD SUMMARY: the run ends here (its items are added a moment later by [finish]). */
     fun onSummary(now: Long) {
         val rec = open()
-        val ms = if (startAt > 0) now - startAt else 0L
+        // One clock: the run's own time, and the biome times exactly as they were announced
+        safaripatron.safari.Run.end(now)
+        val ms = safaripatron.safari.Run.finalMs
         rec.ms = if (ms in MIN_RUN_MS..MAX_RUN_MS) ms else 0L
+        rec.biomeMs = if (rec.ms > 0) LinkedHashMap(safaripatron.safari.Run.doneMs) else LinkedHashMap()
         rec.caught = Safari.capturedMobs?.takeIf { it > 0 } ?: captures
         rec.endedAt = now
     }
 
     /** The profit tracker counted the run's items: save the run. */
     fun finish(items: Map<String, Long>, value: Double, self: String?) {
-        val rec = current ?: return
-        current = null
-        if (items.isEmpty() && caughtSet.isEmpty()) return
+        // The next run may already have started (fast warp): finish the one that ended, keep the new one going
+        val early = ending
+        ending = null
+        val rec: RunRecord
+        val caught: Set<String>
+        if (early != null) { rec = early; caught = endingCaught; endingCaught = emptySet() }
+        else { rec = current ?: return; current = null; caught = LinkedHashSet(caughtSet); caughtSet.clear() }
+        if (items.isEmpty() && caught.isEmpty()) return
         if (rec.endedAt == 0L) rec.endedAt = System.currentTimeMillis()
         rec.id = index.nextId++
         rec.self = self ?: ""
-        rec.party = caughtSet.size
+        rec.party = caught.size
         rec.mine = self?.let { rec.players[it]?.size } ?: 0
         rec.items = LinkedHashMap(items)
         rec.value = value
         if (rec.ms > 0 && (index.bestMs <= 0 || rec.ms < index.bestMs)) { index.bestMs = rec.ms; rec.pb = true }
-        caughtSet.clear()
-        startAt = 0L
         append(rec)
         fixZeroValues()
         safaripatron.achievements.Achievements.onRun(rec)

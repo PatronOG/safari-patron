@@ -135,7 +135,7 @@ object Commands {
                         1
                     })
                     .then(ClientCommands.literal("newrun").executes {
-                        Run.start(); SparklingFinder.clear()
+                        Safari.manualRun()
                         it.source.sendFeedback(msg("Run reset"))
                         1
                     })
@@ -165,9 +165,9 @@ object Commands {
             out.append(Component.literal("\n§f§l$title\n"))
             when {
                 best == null || best.ms <= 0 -> out.append(Component.literal("§7No PB yet."))
-                best.party.isNullOrEmpty() -> out.append(Component.literal("§fBest PB §a${Run.time(best.ms)}§f. §7(party not recorded yet)"))
+                best.party.isNullOrEmpty() -> out.append(Component.literal("§fBest PB §a${Run.timeTenths(best.ms)}§f. §7(party not recorded yet)"))
                 else -> {
-                    out.append(Component.literal("§fBest PB §a${Run.time(best.ms)}§f. "))
+                    out.append(Component.literal("§fBest PB §a${Run.timeTenths(best.ms)}§f. "))
                     best.party!!.forEachIndexed { i, m ->
                         if (i > 0) out.append(Component.literal("§f, "))
                         out.append(Component.literal(biomeCode(m.biome) + m.name))

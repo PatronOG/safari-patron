@@ -26,9 +26,11 @@ object Party {
     private var lastSentAt = 0L
     private const val SEND_GAP_MS = 1500L
 
-    /** Warp kontrolü: Safari'ye girdiğin andan itibaren herkes gelir gelmez duyurur; 6 sn'de gelmeyen varsa eksik der. */
+    /**
+     * Warp kontrolü: Safari dünyası yüklendiği andan (run saatiyle aynı an) itibaren her tick bakar, herkes gelir gelmez
+     * duyurur; o andan 6 sn sonra gelmeyen varsa eksik der.
+     */
     private var warpCheckStart = 0L
-    private var warpNextPoll = 0L
     private const val WARP_DEADLINE_MS = 6000L
 
     private val rosterChange = listOf(
@@ -77,10 +79,10 @@ object Party {
         queue.addLast(message)
     }
 
-    fun onRunStart() {
+    /** [at] = the run's start (when the Safari world loaded), so the 6 s count from there, not from detection. */
+    fun onRunStart(at: Long) {
         if (!known) request(force = true)
-        warpCheckStart = System.currentTimeMillis()
-        warpNextPoll = warpCheckStart
+        warpCheckStart = at
     }
 
     fun tick(client: Minecraft) {
@@ -88,8 +90,7 @@ object Party {
         if (connection == null) { queue.clear(); members = emptySet(); known = false; warpCheckStart = 0L; return }
         val now = System.currentTimeMillis()
 
-        if (warpCheckStart != 0L && now >= warpNextPoll) {
-            warpNextPoll = now + 250
+        if (warpCheckStart != 0L) {
             val deadline = now - warpCheckStart >= WARP_DEADLINE_MS
             if (warpCheck(client, deadline)) warpCheckStart = 0L
         }

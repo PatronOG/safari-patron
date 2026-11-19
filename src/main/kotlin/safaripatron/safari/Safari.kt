@@ -19,6 +19,9 @@ import safaripatron.sparkling.SparklingFinder
  *  4. Scoreboard'daki "Captured Mobs" sayısı 0'a düştüğünde,
  *  5. Run bitmişken (ödül özetinden sonra) Safari'de yeni bir yakalama geldiğinde.
  * Run bitişi: "SAFARI REWARD SUMMARY" mesajı ya da Safari'den çıkış.
+ *
+ * Saat: run, oyunun Safari dünyasını yüklediği andan başlar (scoreboard'u beklemez), 1. ve 2. durum bu anı kullanır.
+ * 4. ve 5. durum (geç başlayan run) ve /sp newrun süresiz sayılır: kaydedilir ama PB ve süre vermez.
  */
 object Safari {
     var inSafari = false
@@ -33,6 +36,10 @@ object Safari {
     private var freshWorldTicks = 0
     private var outsideTicks = 0
     private var entryArmedAt = 0L
+    /** When the game last loaded a new world: the start of the run clock when it turns out to be the Safari. */
+    private var worldChangedAt = 0L
+    /** How long after the world change the Safari may still be confirmed and keep that start time. */
+    private const val ARRIVAL_WINDOW_MS = 30_000L
     private var lastPos: Vec3? = null
 
     private val capturedPattern = Regex("""^Captured Mobs:\s*([\d,]+)""", RegexOption.IGNORE_CASE)
@@ -49,6 +56,7 @@ object Safari {
         }
         if (level !== lastLevel) {
             lastLevel = level
+            worldChangedAt = System.currentTimeMillis()
             freshWorld = true; freshWorldTicks = 0
             lastPos = null
         }
@@ -57,16 +65,18 @@ object Safari {
         // Warp sırasında scoreboard bir süre boş gelebilir: o an karar verme.
         if (lines.isNotEmpty()) {
             val here = lines.any { locationPattern.containsMatchIn(it) }
+            val newCaptured = lines.firstNotNullOfOrNull { capturedPattern.find(it)?.groupValues?.get(1)?.replace(",", "")?.toIntOrNull() }
+            // Back into a run that was already going (rejoin after a disconnect): its start was missed
+            val midRun = (newCaptured ?: 0) > 0
             if (here) {
                 outsideTicks = 0
-                if (!inSafari) { inSafari = true; startRun("enter") }
-                else if (freshWorld) startRun("new world")
+                if (!inSafari) { inSafari = true; startRun(if (midRun) "rejoin" else "enter") }
+                else if (freshWorld) startRun(if (midRun) "rejoin" else "new world")
             } else if (inSafari && ++outsideTicks >= 20) {
                 leave()
             }
             freshWorld = false
 
-            val newCaptured = lines.firstNotNullOfOrNull { capturedPattern.find(it)?.groupValues?.get(1)?.replace(",", "")?.toIntOrNull() }
             if (inSafari && newCaptured == 0 && (capturedMobs ?: 0) > 0 && Run.caught.isNotEmpty()) startRun("counter reset")
             capturedMobs = newCaptured
         } else if (freshWorld && ++freshWorldTicks > 200) {
@@ -87,12 +97,30 @@ object Safari {
         biome = if (inSafari) AreaMap.biomeAt(player.x, player.y, player.z) else null
     }
 
-    private fun startRun(@Suppress("UNUSED_PARAMETER") reason: String) {
+    private fun startRun(reason: String) {
+        entryArmedAt = 0L
+        val now = System.currentTimeMillis()
+        val arrived = reason == "enter" || reason == "new world" || reason == "teleport"
+        val fromWorld = arrived && worldChangedAt > 0 && now - worldChangedAt in 0..ARRIVAL_WINDOW_MS
+        val at = if (fromWorld) worldChangedAt else now
+        // A run started late (first catch, counter reset, rejoin) has missed its real start: no time for it
+        val timed = arrived
+        worldChangedAt = 0L
+        Config.s.runCounter++
+        Run.start(at, timed)
+        SparklingFinder.clear()
+        safaripatron.history.History.onRunStart()
+        safaripatron.profit.Profit.onRunStart(at)
+        if (timed) Party.onRunStart(at) // a late or rejoined run is not a fresh warp
+    }
+
+    /** /sp newrun: a fresh run from now, not timed. */
+    fun manualRun() {
         entryArmedAt = 0L
         Config.s.runCounter++
-        Run.start()
+        Run.start(timed = false)
         SparklingFinder.clear()
-        Party.onRunStart()
+        safaripatron.history.History.onRunStart()
     }
 
     private fun leave() {
@@ -136,7 +164,7 @@ object Safari {
                 }
             }
             ChatParser.RewardSummary -> {
-                Run.end()
+                Run.end() // usually already ended a moment ago by the profit tracker, with the same time
                 SparklingFinder.clear()
             }
         }

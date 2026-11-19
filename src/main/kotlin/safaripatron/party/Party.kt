@@ -27,11 +27,12 @@ object Party {
     private const val SEND_GAP_MS = 1500L
 
     /**
-     * Warp kontrolü: Safari dünyası yüklendiği andan (run saatiyle aynı an) itibaren her tick bakar, herkes gelir gelmez
-     * duyurur; o andan 6 sn sonra gelmeyen varsa eksik der.
+     * Warp kontrolü: Safari onaylandığı an (run saati dünya değişiminden sayılsa da) bakar. Herkes oradaysa "4/4"
+     * hemen gider; biri yoksa tab list'in dolması için 1 sn daha bekler, hâlâ yoksa "Someone missing!" der.
      */
     private var warpCheckStart = 0L
-    private const val WARP_DEADLINE_MS = 6000L
+    private var warpDecideAt = 0L
+    private const val WARP_GRACE_MS = 1000L
 
     private val rosterChange = listOf(
         "joined the party", "has left the party", "has been removed from the party", "has disbanded the party",
@@ -79,10 +80,11 @@ object Party {
         queue.addLast(message)
     }
 
-    /** [at] = the run's start (when the Safari world loaded), so the 6 s count from there, not from detection. */
+    /** [at] = the run's start (when the Safari world loaded); called when the Safari is confirmed. */
     fun onRunStart(at: Long) {
         if (!known) request(force = true)
         warpCheckStart = at
+        warpDecideAt = System.currentTimeMillis() + WARP_GRACE_MS
     }
 
     fun tick(client: Minecraft) {
@@ -91,7 +93,7 @@ object Party {
         val now = System.currentTimeMillis()
 
         if (warpCheckStart != 0L) {
-            val deadline = now - warpCheckStart >= WARP_DEADLINE_MS
+            val deadline = now >= warpDecideAt
             if (warpCheck(client, deadline)) warpCheckStart = 0L
         }
 
@@ -108,7 +110,8 @@ object Party {
     private fun warpCheck(client: Minecraft, deadline: Boolean): Boolean {
         if (!Config.s.warpCheck && !Config.s.warpScreen) return true
         if (!known) {
-            if (deadline) return true
+            // Party not known yet (Mod API answer on its way): wait a few seconds more for it, then give up
+            if (System.currentTimeMillis() >= warpDecideAt + 4000) return true
             request()
             return false
         }

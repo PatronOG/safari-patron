@@ -22,13 +22,17 @@ class Totals {
     var runs = 0
     var timed = 0
     var sumMs = 0L
+    /** Instant Sell / Sell Offer value of all runs. */
     var sumValue = 0.0
+    var sumOffer = 0.0
     var sumMine = 0L
 
     var fastestId = 0
     var fastestMs = 0L
     var richestId = 0
     var richestValue = 0.0
+    var richestOfferId = 0
+    var richestOffer = 0.0
     var sparklyId = 0
     var sparklyCount = 0
     var sparklyYours = 0
@@ -61,6 +65,7 @@ class Totals {
     fun add(r: RunRecord) {
         runs++
         sumValue += r.value
+        sumOffer += r.offer
         sumMine += r.mine
         if (r.ms > 0) {
             timed++
@@ -68,6 +73,7 @@ class Totals {
             if (fastestMs <= 0 || r.ms < fastestMs) { fastestMs = r.ms; fastestId = r.id }
         }
         if (richestId == 0 || r.value > richestValue) { richestValue = r.value; richestId = r.id }
+        if (richestOfferId == 0 || r.offer > richestOffer) { richestOffer = r.offer; richestOfferId = r.id }
 
         // Biomes: time to clear and how often
         val caught = r.players.values.flatten().toHashSet()
@@ -111,16 +117,22 @@ class Totals {
         }
     }
 
-    /** A run's value was worked out again (it was saved as 0 while no prices were known). */
-    fun valueChanged(r: RunRecord, old: Double) {
-        sumValue += r.value - old
+    /** A run's values were worked out again (a price was missing, or an older run got its second value). */
+    fun valueChanged(r: RunRecord, oldValue: Double, oldOffer: Double) {
+        sumValue += r.value - oldValue
+        sumOffer += r.offer - oldOffer
         if (r.value > richestValue) { richestValue = r.value; richestId = r.id }
+        if (r.offer > richestOffer) { richestOffer = r.offer; richestOfferId = r.id }
     }
+
+    /** Total and best run at Sell Offer ([offer]) or Instant Sell prices. */
+    fun sumOf(offer: Boolean) = if (offer) sumOffer else sumValue
+    fun richest(offer: Boolean) = if (offer) richestOfferId to richestOffer else richestId to richestValue
+    fun averageValue(offer: Boolean) = if (runs > 0) sumOf(offer) / runs else Double.NaN
 
     fun biome(key: String): BiomeTotals = biomes[key] ?: BiomeTotals()
 
     val averageMs get() = if (timed > 0) sumMs.toDouble() / timed else Double.NaN
-    val averageValue get() = if (runs > 0) sumValue / runs else Double.NaN
     val averageMine get() = if (runs > 0) sumMine.toDouble() / runs else Double.NaN
     val clearedPercent get() = if (runs > 0) biome("all").cleared * 100.0 / runs else Double.NaN
 

@@ -13,7 +13,15 @@ object Run {
 
     var state = State.IDLE
         private set
-    private var startedAt = 0L
+    /** When the run started: the moment the game loaded the Safari world (every timer uses this one clock). */
+    var startedAt = 0L
+        private set
+    /**
+     * false when the run was started late by a fallback (first catch, counter reset, /sp newrun): it is still
+     * tracked and saved, but has no time, so it can never give a wrong PB.
+     */
+    var timed = false
+        private set
     /** Her yeni run'da değişen damga (yapıların run'a özel durumunu sıfırlamak için). */
     var startStamp = 0L
         private set
@@ -37,25 +45,39 @@ object Run {
 
     val running get() = state == State.RUNNING
 
+    /** Time on the run clock (0 for an untimed run). */
     val elapsedMs: Long
-        get() = when (state) {
+        get() = if (!timed) 0L else when (state) {
             State.RUNNING -> System.currentTimeMillis() - startedAt
             State.ENDED -> endedAt - startedAt
             State.IDLE -> 0L
         }
 
-    fun start() {
+    /** Final length of the run that ended (0 = not timed). History, profit and PBs all read this. */
+    val finalMs: Long
+        get() = if (timed && state == State.ENDED) endedAt - startedAt else 0L
+
+    /**
+     * When each biome / everything was done, on the run clock ("FOREST", ..., "all", "allButMacaw").
+     * The chat announcement, the PB and Run History all use these same numbers.
+     */
+    val doneMs = LinkedHashMap<String, Long>()
+
+    fun start(at: Long = System.currentTimeMillis(), timed: Boolean = true) {
         state = State.RUNNING
-        startedAt = System.currentTimeMillis()
+        startedAt = at
+        this.timed = timed
+        endedAt = 0L
         startStamp++
-        caught.clear(); byPlayer.clear(); announced.clear(); sparklingsCaught.clear()
+        caught.clear(); byPlayer.clear(); announced.clear(); sparklingsCaught.clear(); doneMs.clear()
         hotspotAnnounced = false
     }
 
-    fun end() {
+    /** The run ends (reward summary or leaving). A second call keeps the first end time. */
+    fun end(at: Long = System.currentTimeMillis()) {
         if (state != State.RUNNING) return
         state = State.ENDED
-        endedAt = System.currentTimeMillis()
+        endedAt = at
     }
 
     fun caughtIn(biome: Biome) = biome.critters.count { it.name in caught }
@@ -85,6 +107,13 @@ object Run {
 
     /** finisher = whoever caught the critter that completed it. */
     private fun checkAnnouncements(finisher: String) {
+        // One time for each completion, taken once, so every place shows the same number
+        if (timed && state == State.RUNNING) {
+            val now = System.currentTimeMillis() - startedAt
+            for (biome in Biome.entries) if (biome.critters.all { it.name in caught }) doneMs.putIfAbsent(biome.name, now)
+            if (caught.size >= Critters.TOTAL) doneMs.putIfAbsent("all", now)
+            else if (caught.size == Critters.TOTAL - 1 && Critters.MACAW !in caught) doneMs.putIfAbsent("allButMacaw", now)
+        }
         for (biome in Biome.entries) {
             if (biome.critters.all { it.name in caught } && "biome:$biome" !in announced) {
                 announce("biome:$biome", "${biome.label} Done!", biome.color, finisher)
@@ -102,26 +131,29 @@ object Run {
         if (!announced.add(key)) return
         var full = text
         var short = text
-        if (Config.s.biomeTimes && state == State.RUNNING) {
-            val ms = elapsedMs
+        val ms = doneMs[key.removePrefix("biome:")]
+        if (Config.s.biomeTimes && state == State.RUNNING && ms != null) {
             val best = Config.s.bestTimes[key]
             // Biome PBs name who finished it; "Everything" is the whole party's time, so no name
             val named = key.startsWith("biome:")
             fun by(b: BestTime): String { val who: String? = b.by; return if (named && !who.isNullOrBlank()) " by $who" else "" }
-            full += " Completed in ${time(ms)}"
+            full += " Completed in ${timeTenths(ms)}"
             short += " ${time(ms)}"
             if (best == null || best.ms <= 0 || ms < best.ms) {
-                if (best != null && best.ms > 0) full += " (New PB! Old: ${time(best.ms)}${by(best)})" else full += " (New PB!)"
+                if (best != null && best.ms > 0) full += " (New PB! Old: ${timeTenths(best.ms)}${by(best)})" else full += " (New PB!)"
                 short += " (PB!)"
                 Config.s.bestTimes[key] = BestTime(ms, finisher, if (key.startsWith("biome:")) null else partySnapshot())
                 Config.save()
             } else {
-                full += " (PB ${time(best.ms)}${by(best)})"
+                full += " (PB ${timeTenths(best.ms)}${by(best)})"
             }
         }
         if (Config.s.biomeAnnouncements) Party.chat(full)
         if (Config.s.biomeScreen) Toasts.show(Toasts.Kind.ANNOUNCE, short, color, 4000)
     }
+
+    /** 2:31.4 or 1:02:31.4 (party chat PBs and /sp bestparty; cut, not rounded, like [time]). */
+    fun timeTenths(ms: Long): String = time(ms) + "." + (ms / 100 % 10)
 
     /** 2:31 or 1:02:31 */
     fun time(ms: Long): String {

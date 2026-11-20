@@ -18,8 +18,8 @@ object ChatParser {
     // CAPTURE! You found the Hideyho, and as a reward it gave you 3x Hideyho Shard!
     private val capture = Regex("""^CAPTURE! You (?:caught|found|captured|snagged) (?:an? |the )?(.+?),? and (?:gained|as a reward)\b.*$""")
 
-    // LOOT SHARE! You received a Strongarm Shard from anayinam catching a Strongarm!
-    // LOOT SHARE! You received 3x Hideyho Shard from anayinam finding the Hideyho!
+    // LOOT SHARE! You received a Strongarm Shard from Steve catching a Strongarm!
+    // LOOT SHARE! You received 3x Hideyho Shard from Steve finding the Hideyho!
     private val lootShare = Regex("""^LOOT SHARE! You received .+? from $RANK$IGN (?:catching|finding|capturing|snagging) (?:an? |the )?(.+?)!$""")
 
     // SPARKLING! PatronOG caught a SPARKLING Foxtrot!

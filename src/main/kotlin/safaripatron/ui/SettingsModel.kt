@@ -86,7 +86,7 @@ object SettingsModel {
                 Info("Party chat", "Sent to your party"),
                 toggle("Warp check", "4/4 Players in Safari.", { s.warpCheck }) { s.warpCheck = it },
                 toggle("Hotspot sharing", "Hotspot: Haunted", { s.hotspotAnnounce }) { s.hotspotAnnounce = it },
-                toggle("Hotspot assignment", "Places everyone by their hotspot: Forest: IGN, Icy: IGN ✦ ... §7Only one player in the party should turn this on.",
+                toggle("Hotspot assignment", "Places everyone by their hotspot: IGN: Forest | IGN: Icy ✦ ... §7Only one player in the party should turn this on.",
                     { s.hotspotAssign }) { s.hotspotAssign = it },
                 Stepper("Assignment wait", "If someone doesn't share their hotspot, assign anyway after this", 5, 60,
                     { "${it}s" }, { s.hotspotAssignWait }) { s.hotspotAssignWait = it; Config.save() },

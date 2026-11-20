@@ -88,7 +88,7 @@ object SettingsModel {
                 toggle("Hotspot sharing", "Hotspot: Haunted", { s.hotspotAnnounce }) { s.hotspotAnnounce = it },
                 toggle("Hotspot assignment", "Places everyone by their hotspot: IGN: Forest | IGN: Icy ✦ ... §7Only one player in the party should turn this on.",
                     { s.hotspotAssign }) { s.hotspotAssign = it },
-                Stepper("Assignment wait", "If someone doesn't share their hotspot, assign anyway after this", 5, 60,
+                Stepper("Assignment wait", "If someone doesn't share their hotspot, assign anyway after this", 1, 60,
                     { "${it}s" }, { s.hotspotAssignWait }) { s.hotspotAssignWait = it; Config.save() },
                 toggle("Biome announcements", "Forest Done! and more", { s.biomeAnnouncements }) { s.biomeAnnouncements = it },
                 toggle("Completion times", "Time and PB after Done!", { s.biomeTimes }) { s.biomeTimes = it },

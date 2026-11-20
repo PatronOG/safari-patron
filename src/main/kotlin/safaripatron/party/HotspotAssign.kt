@@ -10,7 +10,7 @@ import safaripatron.safari.ChatParser
 /**
  * Hotspot assignment (Party → Hotspot assignment): the one player who leads the party collects everyone's
  * Hunting Hotspot from party chat and posts where each player should go:
- * `[✦SP✦] Acrohh: Cavern ✦ | Jxnos: Forest | PatronOG: Icy ✦ | Rudolf2305: Haunted` (✦ = their hotspot).
+ * `[✦SP✦] Alex: Cavern ✦ | PatronOG: Icy ✦ | Steve: Forest | Zoe: Haunted` (✦ = their hotspot).
  *
  * - Hotspots come from our `[✦SP✦] Hotspot: Icy`, other mods (`[SM] Hotspot: Icy`, ...) and what players type
  *   themselves (`c`, `cave`, `my hotspot is icy`, one-letter typos).
@@ -107,7 +107,7 @@ object HotspotAssign {
     }
 
     /**
-     * "Acrohh: Cavern ✦ | Jxnos: Forest | ..." by name, so everyone finds themselves in the same place every
+     * "Alex: Cavern ✦ | Steve: Forest | ..." by name, so everyone finds themselves in the same place every
      * run (✦ = at their hotspot).
      */
     fun message(plan: Map<String, Biome>, reports: Map<String, Biome>, names: Map<String, String>): String =

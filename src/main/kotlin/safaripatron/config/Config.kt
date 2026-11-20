@@ -67,6 +67,12 @@ class Settings {
     // Party chat
     var warpCheck = true
     var hotspotAnnounce = true
+    /** Hotspot assignment: post where each party member goes (only the one leading the party turns it on). */
+    var hotspotAssign = false
+    /** Seconds to wait for everyone's hotspot before assigning anyway (5..60). */
+    var hotspotAssignWait = 10
+    /** Hotspot clashes lost (lower-case name): the most goes first next time. */
+    var hotspotDebt: MutableMap<String, Int> = HashMap()
     var biomeAnnouncements = true
 
     // Show on screen (works even when the party message is off)

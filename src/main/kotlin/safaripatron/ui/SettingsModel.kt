@@ -81,11 +81,15 @@ object SettingsModel {
             )
         },
         Category("party", "Party", "⚑", 0xFFC9A0F0.toInt(), "Warp check, hotspot",
-            { s.warpCheck || s.hotspotAnnounce || s.biomeAnnouncements || s.warpScreen || s.hotspotScreen || s.biomeScreen }) {
+            { s.warpCheck || s.hotspotAnnounce || s.hotspotAssign || s.biomeAnnouncements || s.warpScreen || s.hotspotScreen || s.biomeScreen }) {
             listOf(
                 Info("Party chat", "Sent to your party"),
-                toggle("Warp check", "4/4 Players in Safari. §cSometimes slow to detect.", { s.warpCheck }) { s.warpCheck = it },
+                toggle("Warp check", "4/4 Players in Safari.", { s.warpCheck }) { s.warpCheck = it },
                 toggle("Hotspot sharing", "Hotspot: Haunted", { s.hotspotAnnounce }) { s.hotspotAnnounce = it },
+                toggle("Hotspot assignment", "Places everyone by their hotspot: Forest: IGN, Icy: IGN ✦ ... §7Only one player in the party should turn this on.",
+                    { s.hotspotAssign }) { s.hotspotAssign = it },
+                Stepper("Assignment wait", "If someone doesn't share their hotspot, assign anyway after this", 5, 60,
+                    { "${it}s" }, { s.hotspotAssignWait }) { s.hotspotAssignWait = it; Config.save() },
                 toggle("Biome announcements", "Forest Done! and more", { s.biomeAnnouncements }) { s.biomeAnnouncements = it },
                 toggle("Completion times", "Time and PB after Done!", { s.biomeTimes }) { s.biomeTimes = it },
                 Multi("Show on screen", "Only you see these", listOf(

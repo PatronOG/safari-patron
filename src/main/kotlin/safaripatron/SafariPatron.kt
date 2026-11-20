@@ -48,6 +48,7 @@ object SafariPatron : ClientModInitializer {
             Esp.tick(client)
             SparklingFinder.tick(client)
             Party.tick(client)
+            safaripatron.party.HotspotAssign.tick(client)
             Contest.tick(client)
             safaripatron.contest.Honeyhives.tick(client)
             safaripatron.sparkling.Critterdex.tick(client)
@@ -75,6 +76,7 @@ object SafariPatron : ClientModInitializer {
             client.execute {
                 HideyhoClick.onMessage(message)
                 Party.onChatLine(raw)
+                safaripatron.party.HotspotAssign.onChatLine(raw)
                 safaripatron.profit.Profit.onMessage(raw)
                 safaripatron.contest.Honeyhives.onMessage(raw)
                 val self = client.player?.name?.string ?: return@execute

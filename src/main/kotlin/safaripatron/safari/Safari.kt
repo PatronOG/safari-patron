@@ -107,6 +107,7 @@ object Safari {
         Config.s.runCounter++
         Run.start(at)
         SparklingFinder.clear()
+        safaripatron.party.HotspotAssign.onRunStart()
         safaripatron.history.History.onRunStart()
         safaripatron.profit.Profit.onRunStart(at)
         // Only a real arrival is a warp to check (not a rejoin mid-run or a run found late)
@@ -155,6 +156,7 @@ object Safari {
             is ChatParser.Entered -> { entryArmedAt = System.currentTimeMillis(); Party.request() }
             is ChatParser.Hotspot -> {
                 val name = event.biome.lowercase().replaceFirstChar { it.uppercase() }
+                safaripatron.party.HotspotAssign.onOwnHotspot(name, selfName)
                 // Once per run, even if the message shows up twice
                 if ((Config.s.hotspotAnnounce || Config.s.hotspotScreen) && Run.markHotspotAnnounced()) {
                     if (Config.s.hotspotAnnounce) Party.chat("[✦SP✦] Hotspot: $name")

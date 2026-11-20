@@ -47,7 +47,7 @@ Every panel can be moved and resized.
 <td width="33%" valign="top">
 
 ### ⚑ Party Messages
-Warp check, hotspot sharing and biome announcements.<br>
+Warp check, hotspot assignment and biome announcements.<br>
 Completion times with personal bests.<br>
 Each message can be turned off.
 
@@ -196,6 +196,7 @@ Reset buttons ask before deleting.
 ### ⚑ Party Messages
 - **Warp Check:** Sends `[✦SP✦] 4/4 Players in Safari.` or `[✦SP✦] Someone missing!` in party chat within a couple of seconds of arriving. Only players who really reached the new Safari count, so someone kicked on the way shows as missing.
 - **Hotspot Sharing:** It shares the hotspot area assigned to you in the party chat.
+- **Hotspot Assignment:** One player in the party turns it on. It reads everyone's hotspot from party chat, whether it comes from Safari Patron, another mod or someone typing `c`, `cave` or `my hotspot is icy`, and then sends where each player goes, e.g. `[✦SP✦] Acrohh: Cavern ✦ | Jxnos: Forest | PatronOG: Icy ✦`. On a clash, whoever lost the last one goes first. Anyone who stays quiet gets a free biome after a wait you can set.
 - **Biome Announcements:** {Area} Done!, Everything except Macaw done!, Everything Done!
 - **Best Parties:** Your Everything PBs remember who was in your party. `/sp bestparty` shows them in chat, each player in the color of the biome they started in, with times to a tenth of a second.
 - **Alert panels:** Each alert can go to party chat, your screen, or both. 
@@ -238,8 +239,8 @@ Reset buttons ask before deleting.
 | `/sp settings` | Open the settings |
 | `/sp hud` | Move and resize the panels |
 | `/sp history` | Open your run history, stats and achievements |
-| `/sp topshards` | Show each biome's most profitable shards in chat |
-| `/sp bestparty` | Show the parties of your Everything PBs in chat |
+| `/sp topshards` | Show each biome's most profitable shards in chat (click a biome to copy it) |
+| `/sp bestparty` | Show the parties of your Everything PBs in chat (click one to copy it) |
 | `/sp help` | List all commands in chat |
 | `/sp boxes` | Open the hitbox editor |
 | `/sp sparkling` | Toggle the Sparkling Finder |
@@ -260,6 +261,12 @@ Reset buttons ask before deleting.
 | `/sp newrun` | Manually reset the run |
 
 Every toggle is also available in the `/sp` menu.
+
+## Use at Your Own Risk
+
+Safari Patron is a client-side mod. It shows information on your screen and only sends the party chat messages you turn on; it never plays the game for you. Some features, like ESP, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
+
+If something needs to be changed or fixed, [open an issue](https://github.com/PatronOG/safari-patron/issues) and we'll fix it as soon as we can.
 
 ## License
 

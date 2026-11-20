@@ -10,7 +10,7 @@ import safaripatron.safari.ChatParser
 /**
  * Hotspot assignment (Party → Hotspot assignment): the one player who leads the party collects everyone's
  * Hunting Hotspot from party chat and posts where each player should go:
- * `[✦SP✦] Forest: Jxnos, Cavern: Acrohh ✦, Icy: PatronOG ✦, Haunted: Rudolf2305` (✦ = their hotspot).
+ * `[✦SP✦] Acrohh: Cavern ✦ | Jxnos: Forest | PatronOG: Icy ✦ | Rudolf2305: Haunted` (✦ = their hotspot).
  *
  * - Hotspots come from our `[✦SP✦] Hotspot: Icy`, other mods (`[SM] Hotspot: Icy`, ...) and what players type
  *   themselves (`c`, `cave`, `my hotspot is icy`, one-letter typos).
@@ -106,13 +106,14 @@ object HotspotAssign {
         return plan
     }
 
-    /** "Forest: Jxnos, Cavern: Acrohh ✦, ..." in biome order (✦ = at their hotspot). */
+    /**
+     * "Acrohh: Cavern ✦ | Jxnos: Forest | ..." by name, so everyone finds themselves in the same place every
+     * run (✦ = at their hotspot).
+     */
     fun message(plan: Map<String, Biome>, reports: Map<String, Biome>, names: Map<String, String>): String =
-        Biome.entries.mapNotNull { b ->
-            plan.entries.firstOrNull { it.value == b }?.let { (key, _) ->
-                "${b.label}: ${names[key] ?: key}" + if (reports[key] == b) " ✦" else ""
-            }
-        }.joinToString(", ")
+        plan.entries.sortedBy { (names[it.key] ?: it.key).lowercase() }.joinToString(" | ") { (key, b) ->
+            "${names[key] ?: key}: ${b.label}" + if (reports[key] == b) " ✦" else ""
+        }
 
     private val prefix = Regex("""^\[(✦SP✦|SP|SM|SU|SafariUtils|CritterMod|CM)]\s*""", RegexOption.IGNORE_CASE)
     private val filler = setOf("my", "hunting", "hotspot", "is", "the", "biome", "i", "got", "have", "im", "in", "at", "its", "it")

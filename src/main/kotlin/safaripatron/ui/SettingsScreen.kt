@@ -211,7 +211,7 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
 
     private fun descLines(row: Row, rw: Int, searching: Boolean): List<String> {
         val w = descWidth(row, rw) ?: return emptyList()
-        return Ui.wrap(font, descOf(row, searching), w, 2)
+        return Ui.wrap(font, descOf(row, searching), w, 3)
     }
 
     private fun rowHeight(row: Row, rw: Int, searching: Boolean) =

@@ -38,16 +38,16 @@ Your Critterdex sparklings, synced from the game.
 </td>
 <td width="33%" valign="top">
 
-### 📋 Safari HUDs
-Your and your party's uniques per biome.<br>
-Run timer, splits and missing critters.<br>
-Every panel can be moved and resized.
+### 🎯 Hotspot Assignment
+Reads everyone's hotspot from party chat.<br>
+Places each player in one message.<br>
+Fair on clashes, works with other mods.
 
 </td>
 <td width="33%" valign="top">
 
 ### ⚑ Party Messages
-Warp check, hotspot assignment and biome announcements.<br>
+Warp check, hotspot sharing and biome announcements.<br>
 Completion times with personal bests.<br>
 Each message can be turned off.
 
@@ -56,18 +56,18 @@ Each message can be turned off.
 <tr>
 <td width="33%" valign="top">
 
-### ☰ Run History
-Up to 20,000 runs with time, loot and party.<br>
-Filters for sparkling, PB and Dye runs.<br>
-Each player in their biome's color.
+### 📋 Safari HUDs
+Your and your party's uniques per biome.<br>
+Run timer, splits and missing critters.<br>
+Every panel can be moved and resized.
 
 </td>
 <td width="33%" valign="top">
 
-### ▲ Stats
-Run time and profit graphs.<br>
-Clear stats, sparkling rate and records.<br>
-The players you play with most.
+### ☰ Run History & Stats
+Up to 20,000 runs with time, loot and party.<br>
+Run time and profit graphs, clear stats and records.<br>
+Filters for sparkling, PB and Dye runs.
 
 </td>
 <td width="33%" valign="top">

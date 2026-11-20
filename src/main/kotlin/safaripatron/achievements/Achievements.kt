@@ -307,6 +307,7 @@ object Achievements {
         if (joinedAt == 0L) joinedAt = now
         if (now < nextCheck) return
         nextCheck = now + 5_000L
+        if (!safaripatron.config.Config.s.pbsFromHistory) History.bestsFromHistory()
         if (!data.retroDone) {
             if (Bazaar.ready() || now - joinedAt > 60_000L) retro()
             return

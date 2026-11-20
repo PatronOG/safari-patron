@@ -162,23 +162,42 @@ object Commands {
         val out = msg("§6Best PB Run Parties")
         out.append(Component.literal("\n$SEPARATOR"))
         for ((title, best) in entries) {
-            out.append(Component.literal("\n§f§l$title\n"))
+            // Clicking the title or the line copies e.g. "[✦SP✦] Everything Done PB: 1:59.0 - Steve (Forest), ..."
+            fun clickToCopy(c: net.minecraft.network.chat.MutableComponent): Component =
+                if (best == null || best.ms <= 0) c else copyOnClick(c, "$title: ${Run.timeTenths(best.ms)}" +
+                    (best.party?.takeIf { it.isNotEmpty() }
+                        ?.joinToString(", ", " - ") { m -> m.name + (biomeLabel(m.biome)?.let { " ($it)" } ?: "") } ?: ""))
+            out.append(Component.literal("\n"))
+            out.append(clickToCopy(Component.literal("§f§l$title")))
+            out.append(Component.literal("\n"))
+            val line = Component.literal("")
             when {
-                best == null || best.ms <= 0 -> out.append(Component.literal("§7No PB yet."))
-                best.party.isNullOrEmpty() -> out.append(Component.literal("§fBest PB §a${Run.timeTenths(best.ms)}§f. §7(party not recorded yet)"))
+                best == null || best.ms <= 0 -> line.append(Component.literal("§7No PB yet."))
+                best.party.isNullOrEmpty() -> line.append(Component.literal("§fBest PB §a${Run.timeTenths(best.ms)}§f. §7(party not recorded yet)"))
                 else -> {
-                    out.append(Component.literal("§fBest PB §a${Run.timeTenths(best.ms)}§f. "))
+                    line.append(Component.literal("§fBest PB §a${Run.timeTenths(best.ms)}§f. "))
                     best.party!!.forEachIndexed { i, m ->
-                        if (i > 0) out.append(Component.literal("§f, "))
-                        out.append(Component.literal(biomeCode(m.biome) + m.name))
+                        if (i > 0) line.append(Component.literal("§f, "))
+                        line.append(Component.literal(biomeCode(m.biome) + m.name))
                     }
-                    out.append(Component.literal("§f."))
+                    line.append(Component.literal("§f."))
                 }
             }
+            out.append(clickToCopy(line))
             out.append(Component.literal("\n$SEPARATOR"))
         }
         return out
     }
+
+    /** "Forest" for "FOREST"; null when unknown. */
+    private fun biomeLabel(name: String?) = safaripatron.data.Biome.entries.firstOrNull { it.name == name }?.label
+
+    /** Clicking [c] copies "[✦SP✦] " + [text] (without colour codes). */
+    private fun copyOnClick(c: net.minecraft.network.chat.MutableComponent, text: String): Component =
+        c.withStyle {
+            it.withClickEvent(net.minecraft.network.chat.ClickEvent.CopyToClipboard("[✦SP✦] " + text.replace(Regex("§."), "")))
+                .withHoverEvent(net.minecraft.network.chat.HoverEvent.ShowText(Component.literal("Click to copy")))
+        }
 
     /** Chat colour of a biome (by name); grey when unknown. */
     private fun biomeCode(name: String?) = when (name) {
@@ -195,7 +214,12 @@ object Commands {
         val out = msg("§6Most Profitable Shards (per Shard):")
         out.append(Component.literal("\n$SEPARATOR"))
         for ((biome, list) in tops) {
-            out.append(Component.literal("\n${biomeCode(biome.name)}§l${biome.label}\n"))
+            out.append(Component.literal("\n"))
+            // Clicking the biome copies e.g. "[✦SP✦] Forest: Hideyho Shard 10.0k, ..."
+            val name = Component.literal("${biomeCode(biome.name)}§l${biome.label}")
+            out.append(if (list.isEmpty()) name else copyOnClick(name,
+                "${biome.label}: " + list.joinToString(", ") { safaripatron.profit.TopShards.format(it) }))
+            out.append(Component.literal("\n"))
             list.forEachIndexed { i, e ->
                 if (i > 0) out.append(Component.literal("§7, "))
                 out.append(Component.literal(safaripatron.profit.TopShards.format(e)).withStyle {

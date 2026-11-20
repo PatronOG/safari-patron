@@ -43,7 +43,7 @@ object HotspotAssign {
     }
 
     // "Party > [MVP+] Name: text"
-    private val partyLine = Regex("""^Party > (?:\[[^\]]+] )?(\w{1,16}): (.*)$""")
+    val partyLine = Regex("""^Party > (?:\[[^\]]+] )?(\w{1,16}): (.*)$""")
 
     /** Every chat line: party messages may hold someone's hotspot. */
     fun onChatLine(raw: String) {
@@ -71,20 +71,19 @@ object HotspotAssign {
         if (!everyone && !waited) return
         done = true
         present.forEach { names.putIfAbsent(it.lowercase(), it) }
-        val plan = assign(present.map { it.lowercase() })
-        val text = Biome.entries.mapNotNull { b ->
-            plan.entries.firstOrNull { it.value == b }?.let { (key, _) ->
-                "${b.label}: ${names[key] ?: key}" + if (reports[key] == b) " ✦" else ""
-            }
-        }.joinToString(", ")
+        val plan = plan(present.map { it.lowercase() }, reports, Config.s.hotspotDebt)
+        Config.save()
+        val text = message(plan, reports, names)
         log.info("Hotspot assignment ({}): {}", if (everyone) "everyone reported" else "after the wait", text)
         Party.chat("[✦SP✦] $text")
         plan[self.lowercase()]?.let { Toasts.show(Toasts.Kind.ANNOUNCE, "Go: ${it.label}", it.color, 5000) }
     }
 
-    /** Who goes where; updates the saved clash counts. */
-    private fun assign(players: List<String>): Map<String, Biome> {
-        val debt = Config.s.hotspotDebt
+    /**
+     * Who goes where ([players] and the keys are lower-case names). Clash losers' counts in [debt] go up, a clash
+     * winner's goes back to 0.
+     */
+    fun plan(players: List<String>, reports: Map<String, Biome>, debt: MutableMap<String, Int>): Map<String, Biome> {
         val plan = LinkedHashMap<String, Biome>()
         val moved = ArrayList<String>()
         for (b in Biome.entries) {
@@ -104,9 +103,16 @@ object HotspotAssign {
             if (free.isEmpty()) break
             plan[p] = free.removeAt(0)
         }
-        Config.save()
         return plan
     }
+
+    /** "Forest: Jxnos, Cavern: Acrohh ✦, ..." in biome order (✦ = at their hotspot). */
+    fun message(plan: Map<String, Biome>, reports: Map<String, Biome>, names: Map<String, String>): String =
+        Biome.entries.mapNotNull { b ->
+            plan.entries.firstOrNull { it.value == b }?.let { (key, _) ->
+                "${b.label}: ${names[key] ?: key}" + if (reports[key] == b) " ✦" else ""
+            }
+        }.joinToString(", ")
 
     private val prefix = Regex("""^\[(✦SP✦|SP|SM|SU|SafariUtils|CritterMod|CM)]\s*""", RegexOption.IGNORE_CASE)
     private val filler = setOf("my", "hunting", "hotspot", "is", "the", "biome", "i", "got", "have", "im", "in", "at", "its", "it")

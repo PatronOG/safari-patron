@@ -120,6 +120,11 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
         Ui.box(g, rx, top, rw, bottom - top, Ui.CARD, Ui.BORDER)
         val heading = if (searching) "Results for \"${search.value.trim()}\"" else selected.title
         g.text(font, Ui.fit(font, heading, rw - 16), rx + 8, top + 7, Ui.GREEN, false)
+        val note = if (searching) null else selected.note
+        if (note != null) {
+            val nx = rx + 8 + font.width(heading) + 6
+            g.text(font, Ui.fit(font, note, rx + rw - 8 - nx), nx, top + 7, 0xFFFF5555.toInt(), false)
+        }
         g.fill(rx + 1, top + 19, rx + rw - 1, top + 20, Ui.DIVIDER)
 
         val listTop = top + 21

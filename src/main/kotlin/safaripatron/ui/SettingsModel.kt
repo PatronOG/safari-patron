@@ -30,6 +30,8 @@ object SettingsModel {
         val summary: String,
         /** On/Off pill on the main menu card; null = no pill. */
         val enabled: (() -> Boolean)?,
+        /** Red text after the title on its settings page, e.g. "(Use at your own risk)". */
+        val note: String? = null,
         val items: () -> List<Item>,
     )
 
@@ -53,7 +55,7 @@ object SettingsModel {
     private val all: List<Category> = listOf(
         Category("sparkling", "Sparkling", "✦", 0xFFFFB627.toInt(), "Finder and panels", { s.sparklingFinder }) {
             listOf(
-                toggle("Sparkling finder", "Alert, box and waypoint", { s.sparklingFinder }) { s.sparklingFinder = it },
+                toggle("Sparkling finder", "Alert, box and waypoint §cUse at your own risk.", { s.sparklingFinder }) { s.sparklingFinder = it },
                 toggle("Sound", "Ding when a sparkling is found", { s.sparklingSound }) { s.sparklingSound = it },
                 toggle("Auto share to party", "Sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
                 toggle("Last sparkling message", "Runs and time since the last one", { s.sparklingInterval }) { s.sparklingInterval = it },
@@ -69,7 +71,7 @@ object SettingsModel {
                 Action("Clear Sparkling Finder Panel", "Remove the sparkling alert and waypoint on screen", "Clear", confirm = true) { SparklingFinder.clear() },
             )
         },
-        Category("esp", "ESP", "◈", 0xFF5DCAA5.toInt(), "Critters and drops", { s.esp }) {
+        Category("esp", "ESP", "◈", 0xFF5DCAA5.toInt(), "Critters and drops", { s.esp }, "(Use at your own risk)") {
             listOf(
                 toggle("Critter ESP", "Boxes around critters", { s.esp }) { s.esp = it },
                 toggle("Floor drops", "Mark floor drop spots", { s.floorDrops }) { s.floorDrops = it },
@@ -102,7 +104,7 @@ object SettingsModel {
         Category("capsule", "Helpers", "➶", 0xFF85B7EB.toInt(), "Capsule, skips and timers",
             { s.capsuleTrajectory || s.wumpaSkip || s.doomspiralTimer }) {
             listOf(
-                toggle("Capsule Helper", "Shows the capsule's flight path and where it lands", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
+                toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §cUse at your own risk.", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
                 toggle("Capsule Helper Hitbox Editor", "Use the default settings unless you know what you're doing",
                     { safaripatron.esp.BoxTuner.data.forCapsule }) { safaripatron.esp.BoxTuner.setUse(capsule = it) },
                 Action("Open hitbox editor", "Box size of each critter, for capsules and ESP", "Open") {

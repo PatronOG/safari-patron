@@ -67,7 +67,7 @@ object HotspotAssign {
         val present = Party.members.mapNotNull { connection.getPlayerInfo(it)?.profile?.name }.toMutableSet()
         present.add(self)
         val everyone = present.all { it.lowercase() in reports }
-        val waited = System.currentTimeMillis() - hotspotAt >= Config.s.hotspotAssignWait.coerceIn(5, 60) * 1000L
+        val waited = System.currentTimeMillis() - hotspotAt >= Config.s.hotspotAssignWait.coerceIn(1, 60) * 1000L
         if (!everyone && !waited) return
         done = true
         present.forEach { names.putIfAbsent(it.lowercase(), it) }

@@ -136,6 +136,8 @@ class Settings {
     /** "Completed in 2:31 (PB 2:05 by IGN)" after biome announcements. */
     var biomeTimes = true
     var bestTimes: MutableMap<String, BestTime> = HashMap()
+    /** 2.2.1: the PBs were set once from Run History (the old timer made some too fast). */
+    var pbsFromHistory = false
 
     // Chat prefix color style (safari, gold, emerald, sunset, aurora)
     var prefixStyle = "safari"

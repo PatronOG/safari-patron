@@ -123,6 +123,41 @@ object History {
     /** The run being built. */
     private var current: RunRecord? = null
 
+    /**
+     * Once (2.2.1): the PBs from before 2.2.0 were timed from the scoreboard, or from the first catch when the
+     * start was missed, so some are faster than any real run. Each PB that Run History has a time for is set to
+     * the best time there: a biome to the player who caught most of its critters in that run, Everything (except
+     * Macaw) to that run's party with each player's main biome. PBs Run History has nothing for stay as they are.
+     */
+    fun bestsFromHistory() {
+        val s = safaripatron.config.Config.s
+        if (s.pbsFromHistory) return
+        ensureCount(Int.MAX_VALUE)
+        val real = runs.toList()
+        /** The biome a player caught most critters of in a run. */
+        fun mainBiome(caught: List<String>): String? =
+            Biome.entries.maxByOrNull { b -> caught.count { c -> Critters.inBiome(b).any { it.name == c } } }
+                ?.takeIf { b -> caught.any { c -> Critters.inBiome(b).any { it.name == c } } }?.name
+        val keys = Biome.entries.map { it.name to "biome:${it.name}" } + listOf("allButMacaw" to "allButMacaw", "all" to "all")
+        for ((msKey, pbKey) in keys) {
+            val best = real.filter { (it.biomeMs[msKey] ?: 0L) > 0L }.minByOrNull { it.biomeMs.getValue(msKey) } ?: continue
+            val ms = best.biomeMs.getValue(msKey)
+            val biome = Biome.entries.firstOrNull { it.name == msKey }
+            val pb = if (biome != null) {
+                val names = Critters.inBiome(biome).map { it.name }.toSet()
+                val by = best.players.maxByOrNull { (_, caught) -> caught.count { it in names } }?.key ?: best.self
+                safaripatron.config.BestTime(ms, by)
+            } else {
+                val party = best.players.map { (name, caught) -> safaripatron.config.PartyMember(name, mainBiome(caught)) }
+                safaripatron.config.BestTime(ms, best.self, party.toMutableList())
+            }
+            s.bestTimes[pbKey] = pb
+        }
+        s.pbsFromHistory = true
+        safaripatron.config.Config.save()
+        log.info("Personal bests set from Run History ({} runs)", real.size)
+    }
+
     /** Every run has both values (see [fixValues]). */
     val valuesDone get() = index.valuesDone && index.valuesRatio
 

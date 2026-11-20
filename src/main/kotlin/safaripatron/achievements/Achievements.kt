@@ -110,11 +110,12 @@ object Achievements {
 
     private fun under(ms: () -> Long, goalMs: Long) = Pair<() -> Boolean, () -> String?>(
         { ms().let { it in 1 until goalMs } },
-        { ms().takeIf { it > 0 }?.let { "Best ${Run.time(it)}" } },
+        { ms().takeIf { it > 0 }?.let { "Best ${Run.timeTenths(it)}" } },
     )
 
     private fun timeProgress(ms: () -> Long, goalMs: Long): () -> Pair<Double, Double>? = {
-        ms().takeIf { it > 0 }?.let { goalMs.toDouble() / it to 1.0 }
+        // Not reached yet (e.g. 2:00.4 for under 2:00): the bar stops just short of full
+        ms().takeIf { it > 0 }?.let { (goalMs.toDouble() / it).coerceAtMost(if (it < goalMs) 1.0 else 0.99) to 1.0 }
     }
 
     private fun yourCritters(r: RunRecord) = r.players.entries.firstOrNull { isSelf(r, it.key) }?.value.orEmpty()

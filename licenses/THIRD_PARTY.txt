@@ -29,3 +29,20 @@ SkyCofl (https://sky.coflnet.com) - public API
 
 hm-api (AzureAaron) - Apache-2.0
   Bundled inside the jar with its own license.
+
+Sparkling Mutuals (johnceoskyblock) - CC0 1.0, see Sparkling-Mutuals-CC0.txt
+  https://github.com/johnceoskyblock/sparkling-mutuals
+  Floor display grouping, resource-order model and interaction helper references.
+  The new classifier retains competing layouts and does not apply the original
+  first-observed anchor or preferred-Icebreaker-count heuristic.
+
+SafariUtils (Copyright (c) 2026 Serkosea and MrCloudy2) - MIT, see SafariUtils-MIT.txt
+  https://github.com/Serkosea/safariutils
+  Resource-prefix model and mound site/shape references via Sparkling Mutuals
+  (resources/FloorDropModel.kt, helpers/MoundClickClock.kt, assets/safari-patron/mound_sites.txt).
+
+Nebulune (Starred) - BSD 3-Clause, see Nebulune-BSD-3-Clause.txt
+  Repeated mound-attack cadence reference (helpers/MoundClickClock.kt).
+
+Hypixel SkyBlock Wiki contributors - resource sprites
+  See Floor-Drop-Icons.txt and Floor-Drop-Icon-Sources.json for sources and rights.

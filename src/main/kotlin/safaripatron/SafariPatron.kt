@@ -24,7 +24,7 @@ import safaripatron.sparkling.SparklingFinder
 /**
  * Safari Patron — Hypixel SkyBlock Critter Safari yardımcısı.
  * Bölge, yaratık ve koşu bilgilerini gösterir; parti sohbeti anonsları yapar.
- * Cavern Gem Placer açıksa bakılan kaideye uygun hotbar gemini seçip yerleştirir.
+ * İsteğe bağlı yardımcılar (gem, Hideyho, Rockmite, giriş koruması) ayarlardan açılıp kapanır.
  */
 object SafariPatron : ClientModInitializer {
     const val MOD_ID = "safari-patron"
@@ -42,6 +42,7 @@ object SafariPatron : ClientModInitializer {
         Hud.initScroll()
         Party.init()
         Structures.init()
+        safaripatron.resources.FloorDrops.init()
         HideyhoClick.init()
         Commands.init()
         UpdateChecker.init()
@@ -60,6 +61,7 @@ object SafariPatron : ClientModInitializer {
             ScrappyFoodHints.tick(client)
             HideyhoClick.tick(client)
             SparklingFinder.tick(client)
+            safaripatron.helpers.SafariEntryGuard.tick(client)
             Party.tick(client)
             safaripatron.party.HotspotAssign.tick(client)
             Contest.tick(client)
@@ -95,6 +97,8 @@ object SafariPatron : ClientModInitializer {
             client.execute {
                 HideyhoClick.onMessage(message)
                 gemPlacer.onMessage(raw)
+                safaripatron.resources.FloorDrops.onMessage(raw)
+                safaripatron.helpers.RockmiteHoldClick.onMessage(raw)
                 Party.onChatLine(raw)
                 safaripatron.party.HotspotAssign.onChatLine(raw)
                 safaripatron.profit.Profit.onMessage(raw)

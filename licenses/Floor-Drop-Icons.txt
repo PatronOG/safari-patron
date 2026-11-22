@@ -1,0 +1,16 @@
+Floor drop resource sprites
+==========================
+
+Source: Hypixel SkyBlock Wiki contributors
+https://hypixelskyblock.minecraft.wiki/w/Critter_Safari
+Exact unmodified thumbnail URLs are recorded in Floor-Drop-Icon-Sources.json.
+Nine resource sprites are bundled locally; there are no runtime image requests.
+The two question-mark status glyphs were drawn for this project.
+
+Minecraft artwork remains copyright Mojang Studios.
+Custom server artwork retains Hypixel Inc. or its credited creator's rights.
+The wiki's contributed artwork uses CC BY-NC-SA 3.0:
+https://creativecommons.org/licenses/by-nc-sa/3.0/
+https://hypixelskyblock.minecraft.wiki/w/Template:License/Mojang
+https://hypixelskyblock.minecraft.wiki/w/Template:License/Own_Work_(Server)
+These artwork assets are not relicensed under the source code's Apache license.

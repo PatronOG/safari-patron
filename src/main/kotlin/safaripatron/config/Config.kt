@@ -64,6 +64,14 @@ class Settings {
     // ESP
     var esp = true
     var floorDrops = true
+    var floorDropContents = true
+    var floorResourcePriority = true
+    var floorHideOwnedGems = true
+    var floorRewardDrops = true
+    var floorFoodOnly = false
+    var incenseCandleTarget = true
+    var rockmiteHoldClick = true
+    var safariEntryGuard = true
     var beeNests = true
     var snoozleWalls = true
 

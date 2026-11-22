@@ -26,6 +26,18 @@
 
 ## Features
 
+### Resource and interaction helpers
+
+- **Floor drop content icons:** Predicted gems, bird food, incense, coins and Icebreakers are drawn flat on the top block face. Looking at a marker shows its predicted name. Unknown contents keep a `?`; XP, Essence and Shards remain a combined reward category.
+- **Needed resource emphasis:** Highlights resources still needed for the run. Acquiring a gem color hides every remaining marker of that color; confirmed podium placements keep it hidden after use. Lost, unplaced gems become needed again. Unknown markers remain visible in the optional bird-food-only view.
+- **Incense candle targeting:** While holding Soothing Incense in Haunted, target the whole red candle block. Collision and server block state are unchanged.
+- **Rockmite hold click:** Hold the physical left mouse button while aiming at a Rockmite mound to repeat ordinary attacks. Releasing the button, looking away, opening a menu, using an item or losing focus stops the helper.
+- **Safari entry guard:** Blocks Manager attacks/interactions, held tickets and entry-menu ticket controls until the current party is present and the loaded-entity scan has settled. Hold physical **Shift** to bypass a blocked interaction. It never starts a run automatically and only protects the client running the mod.
+
+Floor drop controls are under **ESP**; candle targeting, Rockmite hold click and the entry guard are under **Helpers**. Each helper has its own switch. No extra objectives HUD is added.
+
+Floor contents are inferred from observed entity ordering, not a server reward field. Missing observations, conflicting pickups or an unsupported layout retain unknown labels rather than forcing a result. This does not predict whether bird food will summon a Macaw. The entry scan covers entities already delivered to the client, not unseen chunks; its readiness needs repeated scans, no unresolved Sparkling labels and 0.5 seconds without identity/name changes.
+
 <table>
 <tr>
 <td width="33%" valign="top">

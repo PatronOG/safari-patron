@@ -3,7 +3,7 @@
   "package": "safaripatron.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [],
-  "client": ["ChatClickMixin", "MasterfulUseMixin", "ContainerOverlayMixin", "WaterFogMixin", "WaterSurfaceMixin", "SodiumWaterMixin", "WaterOverlayMixin", "MouseScrollMixin", "ContainerScrollMixin", "TabListMixin"],
+  "client": ["ChatClickMixin", "MasterfulUseMixin", "ContainerOverlayMixin", "WaterFogMixin", "WaterSurfaceMixin", "SodiumWaterMixin", "WaterOverlayMixin", "MouseScrollMixin", "ContainerScrollMixin", "TabListMixin", "AttackInvoker", "RockmiteInputMixin", "CandleTargetMixin", "SafariEntryGuardMixin"],
   "injectors": {
     "defaultRequire": 0
   }

@@ -27,7 +27,7 @@ import kotlin.math.sqrt
 object ScrappyFoodHints {
     private const val RANGE_SQUARED = 128.0 * 128.0
     private val scrappyName = Regex("\\bScrappy\\b", RegexOption.IGNORE_CASE)
-    private data class Hint(val body: Armadillo, val food: ScrappyFood?, val nameTag: ArmorStand?)
+    private data class Hint(val body: Armadillo, val choice: ScrappyFoodMemory.Choice?, val nameTag: ArmorStand?)
     private var hints = emptyList<Hint>()
     private val foodMemory = ScrappyFoodMemory()
     private var availableFoods = emptySet<ScrappyFood>()
@@ -87,15 +87,18 @@ object ScrappyFoodHints {
                 val food = ScrappyFood.fromHunterTexture(CritterId.playerTexture(npc)) ?: return@mapNotNull null
                 ScrappyGuideMatcher.Guide(position, food)
             }
-        val guides = namedGuides + skinGuides
-        val matches = ScrappyGuideMatcher.match(
-            scrappies.map { ScrappyGuideMatcher.Subject(it.id, point(it.position())) }, guides)
+        val subjects = scrappies.map { ScrappyGuideMatcher.Subject(it.id, point(it.position())) }
+        val namedMatches = ScrappyGuideMatcher.match(subjects, namedGuides)
+        val skinMatches = ScrappyGuideMatcher.match(subjects, skinGuides)
+        val choices = foodMemory.update(scrappies.map { body ->
+            val position = point(body.position())
+            val named = namedMatches[body.id]
+            ScrappyFoodMemory.Observation(body.uuid.toString(), position, named, skinMatches[body.id],
+                conflictingHunter = named == null && namedGuides.any { it.pos.distanceSquared(position) <= 16.0 })
+        })
         val nameTags = stands.filter { scrappyName.containsMatchIn(ChatParser.clean(it.customName?.string ?: "")) }
         hints = scrappies.map { body ->
-            val position = point(body.position())
-            val hasGuide = guides.any { it.pos.distanceSquared(position) <= 16.0 }
-            val food = foodMemory.resolve(body.uuid.toString(), position, matches[body.id], hasGuide)
-            Hint(body, food, nameTagFor(body, nameTags))
+            Hint(body, choices[body.uuid.toString()], nameTagFor(body, nameTags))
         }
     }
 
@@ -105,7 +108,7 @@ object ScrappyFoodHints {
         val hint = hints.firstOrNull { it.body === body }
         val sparkling = SparklingFinder.sparks.any { it.body === body } ||
             SparklingFinder.species(hint?.nameTag?.customName?.string) == "Scrappy"
-        return ScrappyPriority.evaluate(true, "Scrappy" in Run.caught, sparkling, hint?.food, availableFoods)
+        return ScrappyPriority.evaluate(true, "Scrappy" in Run.caught, sparkling, hint?.choice?.food, availableFoods)
     }
 
     private fun point(pos: Vec3) = ScrappyGuideMatcher.Point(pos.x, pos.y, pos.z)
@@ -120,20 +123,21 @@ object ScrappyFoodHints {
         val player = client.player ?: return
         for (hint in hints) {
             val body = hint.body
-            if (body.isRemoved || !body.isAlive || (body.isInvisible && !Config.s.scrappyFoodPriority) ||
-                body.distanceToSqr(player) > RANGE_SQUARED) continue
+            if (body.isRemoved || !body.isAlive || body.distanceToSqr(player) > RANGE_SQUARED) continue
             val emphasis = emphasis(body)
             if (emphasis == ScrappyPriority.Emphasis.HIDDEN) continue
             val distance = sqrt(body.distanceToSqr(player)).toInt()
             val far = distance > 12
-            val food = hint.food
+            val food = hint.choice?.food
             val raised = Vec3(body.x, body.boundingBox.maxY + 1.5, body.z)
             if (far && Config.s.scrappyFoodPriority) {
                 val meal = when (food) { ScrappyFood.WHEAT -> "Wheat"; ScrappyFood.LILY_PAD -> "Lily Pad"; ScrappyFood.FISH -> "Fish"; null -> "Food unknown" }
+                val deduction = if (hint.choice?.source == ScrappyFoodMemory.Source.REMAINING) "*" else ""
                 val color = if (emphasis == ScrappyPriority.Emphasis.AVAILABLE) 0xFF55FF55.toInt() else 0xFFAAAAAA.toInt()
-                out.label("Scrappy · $meal · ${distance}m", raised.add(0.0, -0.2, 0.0), color, bold = true)
+                out.label("Scrappy · $meal$deduction · ${distance}m", raised.add(0.0, -0.2, 0.0), color, bold = true)
             }
-            if (!Config.s.scrappyFoodHints || food == null || !body.isScared) continue
+            // Preference icons do not depend on inventory contents or the armadillo's animation state.
+            if (!Config.s.scrappyFoodHints || food == null) continue
             val marker = hint.nameTag?.takeUnless { it.isRemoved }
             val anchor = if (far) raised else if (marker == null) Vec3(body.x, body.boundingBox.maxY + 0.8, body.z)
             else {

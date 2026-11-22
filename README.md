@@ -168,10 +168,10 @@ Reset buttons ask before deleting.
 - **Cavern Gem Helper:** Picks the matching Lime, Purple or Orange Gem in your hotbar while you look at its podium. You place it yourself, or let it place the gem for you after a short delay.
 - **Scrappy Food:** Shows what each Scrappy eats before you feed it, worked out from the Hunter nearby (Luigi: Flavor-packed Fish, Jasper: Lush Lily Pad, Reeves: Wholesale Wheat). Once two foods are known, the third is marked with `*`.
 - **Scrappy Food Priority:** Scrappies whose food you carry are highlighted in green, the others stay in gray. They disappear once your party has caught one.
-- **Hideyho Auto Sure:** Off by default. Clicks `[Sure]` 0.3 seconds after Hideyho's offer in Haunted.
+- **Hideyho Auto-Sure:** Off by default. Accepts Hideyho's challenge in Haunted by clicking `[Sure]` for you.
 - **Helper Sounds:** A bell when it is time to throw. Each helper can be turned off on its own.
 
-> Moving, aiming and throwing are always up to you. The Cavern Gem Helper and Hideyho Auto Sure can act for you; each has its own settings under Helpers.
+> Moving, aiming and throwing are always up to you. The Cavern Gem Helper and Hideyho Auto-Sure can act for you; each has its own settings under Helpers.
 
 ### ✪ Miria's Contest
 - **Contest Tracker:** Time left, bracket and score, read from the scoreboard.
@@ -270,7 +270,7 @@ Every toggle is also available in the `/sp` menu.
 
 ## Use at Your Own Risk
 
-Safari Patron is a client-side mod. Most features only show information on your screen, and it only sends the party chat messages you turn on. A few optional helpers act in the game for you: the Cavern Gem Helper picks or places gems, the Masterful Target Filter can hold back a throw, and Hideyho Auto Sure clicks for you. Some features, like ESP, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
+Safari Patron is a client-side mod. Most features only show information on your screen, and it only sends the party chat messages you turn on. A few optional helpers act in the game for you: the Cavern Gem Helper picks or places gems, the Masterful Target Filter can hold back a throw, and Hideyho Auto-Sure clicks for you. Some features, like ESP, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
 
 If something needs to be changed or fixed, [open an issue](https://github.com/PatronOG/safari-patron/issues) and we'll fix it as soon as we can.
 

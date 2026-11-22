@@ -78,10 +78,30 @@ object Ui {
             else { lines.add(cur); cur = word }
         }
         if (cur.isNotEmpty()) lines.add(cur)
+        // A color code keeps going on the next line, like it does in chat
+        var carry = ""
+        for (i in lines.indices) {
+            lines[i] = carry + lines[i]
+            carry = lastColor(lines[i])
+        }
         if (lines.size <= maxLines) return lines.map { fit(font, it, maxW) }
         val kept = lines.take(maxLines).toMutableList()
         kept[maxLines - 1] = fit(font, lines.drop(maxLines - 1).joinToString(" "), maxW)
         return kept
+    }
+
+    /** The last color code in [s] ("§c"), or "" when there is none or it was reset with §r. */
+    private fun lastColor(s: String): String {
+        var i = s.length - 2
+        while (i >= 0) {
+            if (s[i] == '§') {
+                val c = s[i + 1].lowercaseChar()
+                if (c == 'r') return ""
+                if (c in '0'..'9' || c in 'a'..'f') return "§$c"
+            }
+            i--
+        }
+        return ""
     }
 
     /** Small pill label; returns its width. */

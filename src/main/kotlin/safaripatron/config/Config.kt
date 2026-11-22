@@ -144,8 +144,8 @@ class Settings {
     var scrappyFoodHints = true
     /** Highlight Scrappies whose verified food is in the inventory, until the party catches one. */
     var scrappyFoodPriority = true
-    /** Accept Hideyho's Sure dialogue action after 300 ms. */
-    var hideyhoAutoSure = true
+    /** Accept Hideyho's Sure dialogue action after 300 ms. Off by default: it clicks for you. */
+    var hideyhoAutoSure = false
     /** Bell when it is time to throw. */
     var prefireSound = true
     /** Wumpa skip: seconds × 10 from the first capsule to the Masterful throw (12 = 1.2 s), 5..30. */

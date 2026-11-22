@@ -39,7 +39,7 @@ class MainMenuScreen(private val parent: Screen? = null) : Screen(Component.lite
         "sparkling" to "Finder with waypoints, alert and your Sparkling collection",
         "esp" to "Highlights critters, floor drops and critter hiding spots",
         "party" to "Party chat alerts, hotspot, biome and PB announcements",
-        "capsule" to "Tools for capsules, skips and timers",
+        "capsule" to "Tools for capsules, skips, gems and food",
         "contest" to "Timer, ticket progress, honeyhives and alerts",
         "profit" to "Session and all-time profit from every drop",
     )

@@ -111,7 +111,7 @@ Clear water in the Safari.
 ### ➶ Helpers
 Capsule path and hit check.<br>
 Doomspiral timer and Wumpa skip spots.<br>
-Hitbox editor for every critter.
+Gem, Scrappy food and Hideyho helpers.
 
 </td>
 <td width="33%" valign="top">
@@ -141,7 +141,7 @@ Reset buttons ask before deleting.
 - **Run Timer:** Starts the moment the Safari loads. The panel, party chat, personal bests and Run History all use this one clock.
 - **Run Splits:** Includes party member's unique catches per biome.
 - **Missing Critters Hud:** Shows the remaining uncaptured unique critters in the biome.
-- **Critter List Icons:** Bundles all 37 creature sprites from the Hypixel SkyBlock Wiki and shows them beside names in the missing-critter, sparkling collection and total sparkling lists. Existing checkmarks and caught/missing filters are preserved. Enabled by default; toggle under `/sp` → **Sparkling** → **Critter list icons**.
+- **Critter List Icons:** Critter pictures next to the names in the missing critters and sparkling lists.
 - **Sparkling HUD:** When a Sparkling Critter is spotted, it appears on the screen. It remains there until it is caught.
 - **Alert HUD:** It alerts you as to whether all players have warped into the area or someone missing.
 - **Done HUD:** Biome completion alerts. Includes per biome or every area. (with and without Macaw)
@@ -161,17 +161,17 @@ Reset buttons ask before deleting.
 
 ### ➶ Helpers
 - **Capsule Helper:** Shows where your capsule will fly and whether it will hit a critter.
-- **Masterful Target Filter:** Optional, disabled by default. While holding a Masterful Critter Capsule, right click only proceeds when the same flight prediction used by Capsule Helper first hits **Doomspiral, Wumpa, Macaw, Gemzie or Scrappy**. Other targets are red in the trajectory preview; regular capsules are unaffected. The filter works even with the trajectory drawing off. Toggle under `/sp` → **Helpers**. Intentional prefire with no currently predicted eligible target requires disabling this filter.
+- **Masterful Target Filter:** Off by default. With a Masterful Critter Capsule in hand, a right click only throws when the Capsule Helper's flight path hits Doomspiral, Wumpa, Macaw, Gemzie or Scrappy. Other targets show in red.
 - **Hitbox Editor:** Every critter has its own box size, measured in game, used for the Capsule Helper and ESP. Change any of them with `/sp boxes`. Use the default settings unless you know what you're doing.
 - **Doomspiral Timer:** Marks where to stand and where to aim, then counts down to the perfect Masterful Capsule throw while Doomspiral rises.
 - **Wumpa Skip Helper:** Marks where to stand and the two points to aim at: a Critter Capsule first, then the Masterful Capsule with a countdown. Set the delay between them with **Masterful delay** (1.2 s by default).
-- **Cavern Gem Helper:** Selects the matching Lime, Purple or Orange Gem from your hotbar while looking at its podium. The default **Gem action** is **Select gem; I right-click**, so you place it yourself. Alternatively choose **Select and place automatically**. The optional **Gem placement delay (0.3s + 0.2s)** waits while aiming for 0.3 seconds before selecting the gem, then another 0.2 seconds before the automatic click. It is enabled by default and applies to automatic mode. Looking away cancels either pending step. All settings are under `/sp` → **Helpers**. Makes one selection or placement per continuous look and remembers successful placements for the current run.
-- **Scrappy Food:** Shows the food icon beside every loaded Scrappy with a known preference, independently of carried food or its animation. Identifies nearby Hunters: Luigi → Flavor-packed Fish, Jasper → Lush Lily Pad, Reeves → Wholesale Wheat. Hunter NPC skins are a fallback when name tags are absent. Evidence is remembered by spawn position for the current run, including entity unload/reload. After three distinct spawns and two different observed foods, the remaining food is shown with `*`; a later Hunter name confirms or corrects it. Ambiguous evidence or more than three spawns disables this deduction. Enabled by default under `/sp` → **Helpers** → **Scrappy food**.
-- **Scrappy Food Priority:** Highlights the existing ESP in green when you carry the required food. All other known foods, including Fish, remain visible with their icons and gray labels. Far targets get food/distance indicators up to the loaded ESP range (128 blocks). Unknown foods stay visible in gray. After the party's first unique Scrappy catch, normal Scrappy indicators disappear; Sparkling targets remain visible. Enabled by default; separate toggle under **Helpers**.
-- **Hideyho Auto Sure:** Accepts the clickable `[Sure]` action 0.3 seconds after Hideyho's offer appears. Only responds to his "How about it?" dialogue during a Haunted run. Pauses while the game is unfocused or another screen is open, and cancels stale offers on world/run changes. Enabled by default; toggle it with `/sp` → **Helpers** → **Hideyho auto Sure**. With auto acceptance off, a left click anywhere in open chat can still pick the pending `[Sure]`.
+- **Cavern Gem Helper:** Picks the matching Lime, Purple or Orange Gem in your hotbar while you look at its podium. You place it yourself, or let it place the gem for you after a short delay.
+- **Scrappy Food:** Shows what each Scrappy eats before you feed it, worked out from the Hunter nearby (Luigi: Flavor-packed Fish, Jasper: Lush Lily Pad, Reeves: Wholesale Wheat). Once two foods are known, the third is marked with `*`.
+- **Scrappy Food Priority:** Scrappies whose food you carry are highlighted in green, the others stay in gray. They disappear once your party has caught one.
+- **Hideyho Auto Sure:** Off by default. Clicks `[Sure]` 0.3 seconds after Hideyho's offer in Haunted.
 - **Helper Sounds:** A bell when it is time to throw. Each helper can be turned off on its own.
 
-> Moving, aiming and throwing capsules remain manual. Gem selection is automatic while aiming at a podium; gem placement and Hideyho Sure acceptance have separate controls under Helpers.
+> Moving, aiming and throwing are always up to you. The Cavern Gem Helper and Hideyho Auto Sure can act for you; each has its own settings under Helpers.
 
 ### ✪ Miria's Contest
 - **Contest Tracker:** Time left, bracket and score, read from the scoreboard.
@@ -270,7 +270,7 @@ Every toggle is also available in the `/sp` menu.
 
 ## Use at Your Own Risk
 
-Safari Patron is a client-side mod. It shows information on your screen and only sends the party chat messages you turn on; it never plays the game for you. Some features, like ESP, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
+Safari Patron is a client-side mod. Most features only show information on your screen, and it only sends the party chat messages you turn on. A few optional helpers act in the game for you: the Cavern Gem Helper picks or places gems, the Masterful Target Filter can hold back a throw, and Hideyho Auto Sure clicks for you. Some features, like ESP, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
 
 If something needs to be changed or fixed, [open an issue](https://github.com/PatronOG/safari-patron/issues) and we'll fix it as soon as we can.
 

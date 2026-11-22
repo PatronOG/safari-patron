@@ -119,7 +119,6 @@ object SettingsModel {
                     { when (it) { "off" -> "Off"; "auto" -> "Select and Place"; else -> "Select Gem" } },
                     { s.cavernGemMode }) { s.cavernGemMode = it },
                 toggle("Scrappy food", "Shows its food icon before feeding, identified by the nearby Hunter", { s.scrappyFoodHints }) { s.scrappyFoodHints = it },
-                Info("Scrappy food labels", "* marks the remaining food after learning the other two Scrappies"),
                 toggle("Hideyho Auto-Sure", "Accepts Hideyho's challenge §c(Use at your own risk)", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
                 toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
             )

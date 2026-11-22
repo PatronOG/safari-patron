@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.minecraft.client.Minecraft
+import net.minecraft.core.BlockPos
 import safaripatron.config.Config
 import safaripatron.contest.Contest
 import safaripatron.esp.Esp
@@ -13,17 +14,26 @@ import safaripatron.hud.Hud
 import safaripatron.party.Party
 import safaripatron.render.WorldRender
 import safaripatron.safari.ChatParser
+import safaripatron.safari.CavernGem
+import safaripatron.safari.GemPlacer
 import safaripatron.safari.HideyhoClick
 import safaripatron.safari.Safari
+import safaripatron.safari.ScrappyFoodHints
 import safaripatron.sparkling.SparklingFinder
 
 /**
  * Safari Patron — Hypixel SkyBlock Critter Safari yardımcısı.
- * Sadece okur ve gösterir; oyuncu adına tıklamaz, yürümez, nişan almaz.
- * (Tek otomatik eylem: ayarlardan kapatılabilen parti chati anonsları.)
+ * Bölge, yaratık ve koşu bilgilerini gösterir; parti sohbeti anonsları yapar.
+ * Cavern Gem Placer açıksa bakılan kaideye uygun hotbar gemini seçip yerleştirir.
  */
 object SafariPatron : ClientModInitializer {
     const val MOD_ID = "safari-patron"
+
+    private val gemPlacer = GemPlacer(mapOf(
+        BlockPos(-140, 61, 56) to CavernGem.PURPLE,
+        BlockPos(-137, 61, 51) to CavernGem.LIME,
+        BlockPos(-140, 61, 46) to CavernGem.ORANGE,
+    ))
 
     override fun onInitializeClient() {
         Config.load()
@@ -45,7 +55,10 @@ object SafariPatron : ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register { client ->
             Safari.tick(client)
+            gemPlacer.tick(client)
             Esp.tick(client)
+            ScrappyFoodHints.tick(client)
+            HideyhoClick.tick(client)
             SparklingFinder.tick(client)
             Party.tick(client)
             safaripatron.party.HotspotAssign.tick(client)
@@ -61,11 +74,17 @@ object SafariPatron : ClientModInitializer {
 
         // Hypixel bazı NPC mesajlarını oyuncu sohbeti olarak gönderebiliyor; Hideyho seçenekleri için onu da dinle
         ClientReceiveMessageEvents.CHAT.register { message, _, _, _, _ ->
-            Minecraft.getInstance().execute { HideyhoClick.onMessage(message) }
+            Minecraft.getInstance().execute {
+                HideyhoClick.onMessage(message)
+                gemPlacer.onMessage(message.string)
+            }
         }
         // Başka modlar (sohbet düzenleyiciler) mesajı değiştirmeden önceki hâlini de yakala
         ClientReceiveMessageEvents.ALLOW_GAME.register { message, overlay ->
-            if (!overlay) Minecraft.getInstance().execute { HideyhoClick.onMessage(message) }
+            if (!overlay) Minecraft.getInstance().execute {
+                HideyhoClick.onMessage(message)
+                gemPlacer.onMessage(message.string)
+            }
             true
         }
 
@@ -75,6 +94,7 @@ object SafariPatron : ClientModInitializer {
             val client = Minecraft.getInstance()
             client.execute {
                 HideyhoClick.onMessage(message)
+                gemPlacer.onMessage(raw)
                 Party.onChatLine(raw)
                 safaripatron.party.HotspotAssign.onChatLine(raw)
                 safaripatron.profit.Profit.onMessage(raw)

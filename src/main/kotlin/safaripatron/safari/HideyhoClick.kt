@@ -10,11 +10,12 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket
 import safaripatron.Brand
+import safaripatron.config.Config
+import safaripatron.data.Biome
 
 /**
- * When Hideyho asks "Select an option: [Sure] [No thanks...]", a left click anywhere in the open
- * chat counts as clicking [Sure]. The player still does the clicking;
- * the mod never accepts on its own.
+ * Accepts Hideyho's authenticated offer after 300 ms when enabled. A left click anywhere
+ * in open chat can also pick the pending Sure action.
  */
 object HideyhoClick {
     private const val VALID_MS = 30_000L
@@ -25,6 +26,29 @@ object HideyhoClick {
     private var connection: Any? = null
     private var lastText = ""
     private var lastAt = 0L
+    private val autoSure = HideyhoAutoSureState()
+    private var lastLevel: Any? = null
+    private var lastConnection: Any? = null
+    private var runMarker = -1L
+
+    private fun inHaunted() = Safari.inSafari && Run.running && Safari.biome == Biome.HAUNTED
+
+    private fun clear() {
+        pending = null
+        autoSure.clear()
+    }
+
+    private fun sync(client: Minecraft) {
+        if (lastLevel !== client.level || lastConnection !== client.connection || runMarker != Run.startStamp) {
+            clear()
+            lastText = ""
+            lastAt = 0L
+            lastLevel = client.level
+            lastConnection = client.connection
+            runMarker = Run.startStamp
+        }
+        if (!inHaunted()) clear()
+    }
 
     fun init() {
         // Fallback in case the low-level mixin is not reached
@@ -40,19 +64,37 @@ object HideyhoClick {
 
     /** Every incoming chat message (as a Component) is passed here. */
     fun onMessage(message: Component) {
+        val client = Minecraft.getInstance()
+        sync(client)
+        if (!inHaunted() || client.connection == null) return
         val text = ChatParser.clean(message.string)
+        val now = System.currentTimeMillis()
+        autoSure.onMessage(text, now)
+        if (HideyhoDialogMessages.isHiding(text) || HideyhoDialogMessages.isOtherNpc(text)) {
+            clear()
+            return
+        }
         if (!text.contains("Select an option", ignoreCase = true)) return
         // The same message can arrive from more than one listener
-        val now = System.currentTimeMillis()
         if (text == lastText && now - lastAt < 1000) return
         lastText = text; lastAt = now
 
         val button = findSure(message) ?: return
+        if (!autoSure.schedule(now)) return
         pending = button
         offeredAt = now
-        connection = Minecraft.getInstance().connection
-        Minecraft.getInstance().player?.sendSystemMessage(
+        connection = client.connection
+        if (!Config.s.hideyhoAutoSure) client.player?.sendSystemMessage(
             Brand.msg("Click anywhere for §a[Sure]"))
+    }
+
+    fun tick(client: Minecraft) {
+        sync(client)
+        val now = System.currentTimeMillis()
+        if (pending != null && now - offeredAt !in 0L..VALID_MS) clear()
+        if (!Config.s.hideyhoAutoSure || pending == null || !autoSure.isDue(now) || !client.isWindowActive) return
+        val screen = client.gui.screen()
+        if (screen == null || screen is ChatScreen) fire()
     }
 
     /** Finds the click action of the [Sure] button (shortest matching text, inherited styles included). */
@@ -79,12 +121,14 @@ object HideyhoClick {
     private fun fire(): Boolean {
         val event = pending ?: return false
         val client = Minecraft.getInstance()
+        sync(client)
+        if (pending == null) return false
         val active = client.connection
         if (active == null || active !== connection ||
-            System.currentTimeMillis() - offeredAt > VALID_MS) {
-            pending = null; return false
+            System.currentTimeMillis() - offeredAt !in 0L..VALID_MS) {
+            clear(); return false
         }
-        pending = null
+        clear()
         // Close the chat so it doesn't stay open after the click
         client.execute { if (client.gui.screen() is ChatScreen) client.gui.setScreen(null) }
         when (event) {

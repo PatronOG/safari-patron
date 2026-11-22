@@ -206,7 +206,7 @@ Reset buttons ask before deleting.
 ### ⚑ Party Messages
 - **Warp Check:** Sends `[✦SP✦] 4/4 Players in Safari.` or `[✦SP✦] Someone missing!` in party chat within a couple of seconds of arriving. Only players who really reached the new Safari count, so someone kicked on the way shows as missing.
 - **Hotspot Sharing:** It shares the hotspot area assigned to you in the party chat.
-- **Hotspot Assignment:** One player in the party turns it on. It reads everyone's hotspot from party chat, whether it comes from Safari Patron, another mod or someone typing `c`, `cave` or `my hotspot is icy`, and then sends where each player goes, e.g. `[✦SP✦] Alex: Cavern ✦ | PatronOG: Icy ✦ | Steve: Forest`. On a clash, whoever lost the last one goes first. Anyone who stays quiet gets a free biome after a wait you can set.
+- **Hotspot Assignment:** One player in the party turns it on. It reads everyone's hotspot from party chat, whether it comes from Safari Patron, another mod or someone typing `c`, `cave` or `my hotspot is icy`, and then sends where each player goes, e.g. `[✦SP✦] Alex: Cavern ✦ | Steve: Icy ✦ | Zoe: Forest`. On a clash, whoever lost the last one goes first. Anyone who stays quiet gets a free biome after a wait you can set.
 - **Biome Announcements:** {Area} Done!, Everything except Macaw done!, Everything Done!
 - **Best Parties:** Your Everything PBs remember who was in your party. `/sp bestparty` shows them in chat, each player in the color of the biome they started in, with times to a tenth of a second.
 - **Alert panels:** Each alert can go to party chat, your screen, or both. 
@@ -280,8 +280,14 @@ Safari Patron is a client-side mod. Most features only show information on your 
 
 If something needs to be changed or fixed, [open an issue](https://github.com/PatronOG/safari-patron/issues) and we'll fix it as soon as we can.
 
+## Credits
+
+- [PatronOG](https://github.com/PatronOG): creator and maintainer
+- [plutonmoyai](https://github.com/plutonmoyai): floor drop holograms, Cavern Gem Helper, Scrappy Food, Hideyho Auto-Sure, Rockmite Clicker, Incense Candle Hitbox, Safari Entry Guard, Masterful Target Filter and critter list icons
+- [z1rr31](https://github.com/z1rr31): profit panels
+
 ## License
 
 Safari Patron is released under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
 
-Some parts are based on code and data from other open-source projects, which keep their own licenses. See the [`licenses`](licenses) folder for details.
+Some parts are based on code and data from other open-source projects, which keep their own licenses. The critter and floor drop icons come from the Hypixel SkyBlock Wiki and the Minecraft Wiki under CC BY-NC-SA. See the [`licenses`](licenses) folder for details.

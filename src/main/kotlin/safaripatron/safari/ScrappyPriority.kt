@@ -12,33 +12,71 @@ internal object ScrappyPriority {
         !enabled || sparkling -> Emphasis.NORMAL
         caught -> Emphasis.HIDDEN
         food == null -> Emphasis.UNKNOWN
-        available.isEmpty() -> Emphasis.NORMAL
         food in available -> Emphasis.AVAILABLE
-        else -> Emphasis.HIDDEN
+        else -> Emphasis.NORMAL
     }
 }
 
-/** Keeps verified associations while a nearby Hunter tag is not loaded; never infers an unseen Hunter. */
+/** Run-local evidence survives entity tracking changes; deductions never become direct evidence. */
 internal class ScrappyFoodMemory {
-    private data class Known(val position: ScrappyGuideMatcher.Point, val food: ScrappyFood)
-    private val known = HashMap<String, Known>()
+    enum class Source { HUNTER, SKIN, REMAINING }
+    data class Choice(val food: ScrappyFood, val source: Source)
+    data class Observation(val key: String, val position: ScrappyGuideMatcher.Point,
+                           val hunterFood: ScrappyFood? = null, val skinFood: ScrappyFood? = null,
+                           val conflictingHunter: Boolean = false)
+    private class Spawn(var position: ScrappyGuideMatcher.Point, var learned: Choice? = null, var conflict: Boolean = false)
+    private val spawns = LinkedHashMap<Int, Spawn>()
+    private val entities = HashMap<String, Int>()
+    private var nextId = 0
 
-    fun resolve(key: String, position: ScrappyGuideMatcher.Point, observed: ScrappyFood?, nearbyGuide: Boolean): ScrappyFood? {
-        if (!position.x.isFinite() || !position.y.isFinite() || !position.z.isFinite()) {
-            known.remove(key)
-            return null
+    fun update(observations: List<Observation>): Map<String, Choice> {
+        val current = LinkedHashMap<String, Int>()
+        val used = HashSet<Int>()
+        for (observation in observations.distinctBy { it.key }) {
+            val position = observation.position
+            if (!position.x.isFinite() || !position.y.isFinite() || !position.z.isFinite()) {
+                entities.remove(observation.key)?.let { id ->
+                    spawns.remove(id)
+                    entities.entries.removeIf { it.value == id }
+                }
+                continue
+            }
+            val previous = entities[observation.key]?.takeIf { it !in used && it in spawns }
+            val id = previous ?: spawns.entries.firstOrNull {
+                it.key !in used && it.value.position.distanceSquared(position) <= 0.25
+            }?.key ?: (nextId++).also { spawns[it] = Spawn(position) }
+            val spawn = spawns.getValue(id)
+            if (spawn.position.distanceSquared(position) > 0.25) {
+                spawn.learned = null
+                spawn.conflict = false
+            }
+            spawn.position = position
+            when {
+                observation.hunterFood != null -> {
+                    spawn.learned = Choice(observation.hunterFood, Source.HUNTER)
+                    spawn.conflict = false
+                }
+                observation.conflictingHunter -> { spawn.learned = null; spawn.conflict = true }
+                observation.skinFood != null && !spawn.conflict && spawn.learned?.source != Source.HUNTER -> {
+                    spawn.learned = Choice(observation.skinFood, Source.SKIN)
+                    spawn.conflict = false
+                }
+            }
+            entities[observation.key] = id
+            current[observation.key] = id
+            used.add(id)
         }
-        if (observed != null) {
-            known[key] = Known(position, observed)
-            return observed
+
+        val choices = spawns.mapNotNull { (id, spawn) -> spawn.learned?.let { id to it } }.toMap().toMutableMap()
+        if (spawns.size == 3 && choices.size == 2 && choices.values.map { it.food }.toSet().size == 2) {
+            val unknown = spawns.entries.single { it.key !in choices }
+            if (!unknown.value.conflict) {
+                val remaining = ScrappyFood.entries.single { food -> choices.values.none { it.food == food } }
+                choices[unknown.key] = Choice(remaining, Source.REMAINING)
+            }
         }
-        val previous = known[key] ?: return null
-        if (nearbyGuide || previous.position.distanceSquared(position) > 0.25) {
-            known.remove(key)
-            return null
-        }
-        return previous.food
+        return current.mapNotNull { (key, id) -> choices[id]?.let { key to it } }.toMap()
     }
 
-    fun clear() = known.clear()
+    fun clear() { spawns.clear(); entities.clear(); nextId = 0 }
 }

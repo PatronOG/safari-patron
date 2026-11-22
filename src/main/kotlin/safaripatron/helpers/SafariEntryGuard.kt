@@ -81,7 +81,7 @@ object SafariEntryGuard {
         val reason = state.reason ?: return false
         if (now - noticeAt >= 3000) {
             noticeAt = now
-            player.sendSystemMessage(Component.literal("§6[Safari Patron] §e$reason. §7Hold Shift to enter anyway."))
+            player.sendSystemMessage(safaripatron.Brand.msg("§e$reason. §7Hold Shift to enter anyway."))
         }
         return true
     }

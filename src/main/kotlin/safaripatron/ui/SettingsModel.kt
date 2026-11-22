@@ -125,10 +125,10 @@ object SettingsModel {
                     { s.cavernGemMode }) { s.cavernGemMode = it },
                 toggle("Scrappy food", "Shows its food icon before feeding, identified by the nearby Hunter", { s.scrappyFoodHints }) { s.scrappyFoodHints = it },
                 toggle("Hideyho Auto-Sure", "Accepts Hideyho's challenge §c(Use at your own risk)", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
-                toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
-                toggle("Incense candle targeting", "Target the full red candle block while holding Soothing Incense in Haunted", { s.incenseCandleTarget }) { s.incenseCandleTarget = it },
-                toggle("Rockmite hold click", "Hold left mouse on a Rockmite mound to repeat attacks", { s.rockmiteHoldClick }) { s.rockmiteHoldClick = it },
+                toggle("Incense candle targeting", "Target the full red candle block while holding Soothing Incense in Haunted §c(Use at your own risk)", { s.incenseCandleTarget }) { s.incenseCandleTarget = it },
+                toggle("Rockmite hold click", "Hold left mouse on a Rockmite mound to repeat attacks §c(Use at your own risk)", { s.rockmiteHoldClick }) { s.rockmiteHoldClick = it },
                 toggle("Safari entry guard", "Wait for party presence and the loaded-entity scan; hold Shift to bypass", { s.safariEntryGuard }) { s.safariEntryGuard = it },
+                toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
             )
         },
         Category("contest", "Miria's Contest", "✪", 0xFFFFCC66.toInt(), "Timer, ticket, alerts", { s.contest }) {

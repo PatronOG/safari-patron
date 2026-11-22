@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.client.renderer.rendertype.LayeringTransform
 import net.minecraft.client.renderer.rendertype.RenderSetup
 import net.minecraft.client.renderer.rendertype.RenderType
+import net.minecraft.client.renderer.rendertype.RenderTypes
 import net.minecraft.resources.Identifier
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
@@ -60,6 +61,12 @@ object WorldRender {
         val segments = ArrayList<Seg>()
         val labels = ArrayList<Label>()
         val icons = ArrayList<ItemIcon>()
+        val surfaceIcons = ArrayList<SurfaceIcon>()
+        class SurfaceIcon(val texture: Identifier, val pos: Vec3, val size: Float)
+        fun surfaceIcon(texture: Identifier, pos: Vec3, size: Float) {
+            if (size.isFinite() && size in .1f..1.2f && pos.x.isFinite() && pos.y.isFinite() && pos.z.isFinite())
+                surfaceIcons.add(SurfaceIcon(texture, pos, size))
+        }
         class Label(val text: String, val pos: Vec3, val color: Int, val bold: Boolean, val line: Int)
         class ItemIcon(val stack: ItemStack, val pos: Vec3, val pixels: Float)
 
@@ -128,6 +135,20 @@ object WorldRender {
             }
         }
         if (batch.labels.isNotEmpty()) drawLabels(context, client, cam, batch.labels)
+        for ((texture, icons) in batch.surfaceIcons.groupBy { it.texture }) {
+            val frozen = icons.toList()
+            // Normal depth-tested text geometry keeps these horizontal quads on their block surfaces.
+            context.submitNodeCollector().submitCustomGeometry(context.poseStack(), RenderTypes.text(texture)) { pose, vertices ->
+                for (icon in frozen) {
+                    val x = (icon.pos.x - cam.x).toFloat(); val y = (icon.pos.y - cam.y).toFloat(); val z = (icon.pos.z - cam.z).toFloat()
+                    val r = icon.size / 2
+                    vertices.addVertex(pose, x-r, y, z-r).setColor(-1).setUv(0f, 0f).setLight(LightCoordsUtil.FULL_BRIGHT)
+                    vertices.addVertex(pose, x-r, y, z+r).setColor(-1).setUv(0f, 1f).setLight(LightCoordsUtil.FULL_BRIGHT)
+                    vertices.addVertex(pose, x+r, y, z+r).setColor(-1).setUv(1f, 1f).setLight(LightCoordsUtil.FULL_BRIGHT)
+                    vertices.addVertex(pose, x+r, y, z-r).setColor(-1).setUv(1f, 0f).setLight(LightCoordsUtil.FULL_BRIGHT)
+                }
+            }
+        }
         if (batch.icons.isNotEmpty()) drawIcons(context, client, cam, batch.icons)
     }
 

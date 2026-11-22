@@ -70,7 +70,10 @@ object Party {
     /** Parti değişikliği mesajlarında üye listesini tazeler. */
     fun onChatLine(raw: String) {
         val l = ChatParser.clean(raw)
-        if (rosterChange.any { l.contains(it, ignoreCase = true) }) request(force = true)
+        if (rosterChange.any { l.contains(it, ignoreCase = true) }) {
+            if (safaripatron.helpers.EntryRecognition.rosterChange(l)) known = false
+            request(force = true)
+        }
     }
 
     val inParty get() = members.size > 1

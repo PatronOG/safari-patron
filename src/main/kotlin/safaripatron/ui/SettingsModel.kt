@@ -76,6 +76,11 @@ object SettingsModel {
             listOf(
                 toggle("Critter ESP", "Boxes around critters", { s.esp }) { s.esp = it },
                 toggle("Floor drops", "Mark floor drop spots", { s.floorDrops }) { s.floorDrops = it },
+                toggle("Floor drop icons", "Predicted contents on the top face; ? means unknown", { s.floorDropContents }) { s.floorDropContents = it },
+                toggle("Needed resource priority", "Emphasize resources still needed for the current run", { s.floorResourcePriority }) { s.floorResourcePriority = it },
+                toggle("Hide acquired gem colors", "Hide every drop of a gem color you hold or have placed", { s.floorHideOwnedGems }) { s.floorHideOwnedGems = it },
+                toggle("Reward floor drops", "Show the combined XP / Essence / Shard category", { s.floorRewardDrops }) { s.floorRewardDrops = it },
+                toggle("Forest food drops only", "In Forest, show predicted bird food and unknown drops", { s.floorFoodOnly }) { s.floorFoodOnly = it },
                 toggle("Bee nests", "Honeybug nests in Forest", { s.beeNests }) { s.beeNests = it },
                 toggle("Snoozle walls", "Breakable walls in Cavern", { s.snoozleWalls }) { s.snoozleWalls = it },
                 toggle("Clear water", "See through Safari water", { s.clearWater }) { s.clearWater = it },
@@ -103,7 +108,7 @@ object SettingsModel {
             )
         },
         Category("capsule", "Helpers", "➶", 0xFF85B7EB.toInt(), "Capsules, gems and food",
-            { s.capsuleTrajectory || s.masterfulTargetFilter || s.wumpaSkip || s.doomspiralTimer || s.cavernGemMode != "off" || s.scrappyFoodHints || s.hideyhoAutoSure }) {
+            { s.capsuleTrajectory || s.masterfulTargetFilter || s.wumpaSkip || s.doomspiralTimer || s.cavernGemMode != "off" || s.scrappyFoodHints || s.hideyhoAutoSure || s.incenseCandleTarget || s.rockmiteHoldClick || s.safariEntryGuard }) {
             listOf(
                 toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §c(Use at your own risk)", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
                 toggle("Masterful target filter", "Only throw at Doomspiral, Wumpa, Macaw, Gemzie or Scrappy §c(Use at your own risk)", { s.masterfulTargetFilter }) { s.masterfulTargetFilter = it },
@@ -121,6 +126,9 @@ object SettingsModel {
                 toggle("Scrappy food", "Shows its food icon before feeding, identified by the nearby Hunter", { s.scrappyFoodHints }) { s.scrappyFoodHints = it },
                 toggle("Hideyho Auto-Sure", "Accepts Hideyho's challenge §c(Use at your own risk)", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
                 toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
+                toggle("Incense candle targeting", "Target the full red candle block while holding Soothing Incense in Haunted", { s.incenseCandleTarget }) { s.incenseCandleTarget = it },
+                toggle("Rockmite hold click", "Hold left mouse on a Rockmite mound to repeat attacks", { s.rockmiteHoldClick }) { s.rockmiteHoldClick = it },
+                toggle("Safari entry guard", "Wait for party presence and the loaded-entity scan; hold Shift to bypass", { s.safariEntryGuard }) { s.safariEntryGuard = it },
             )
         },
         Category("contest", "Miria's Contest", "✪", 0xFFFFCC66.toInt(), "Timer, ticket, alerts", { s.contest }) {

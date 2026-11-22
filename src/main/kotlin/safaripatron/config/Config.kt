@@ -42,6 +42,10 @@ class PartyMember(var name: String = "", var biome: String? = null)
 class Settings {
     // Capsule
     var capsuleTrajectory = true
+    /** Show the bundled creature sprite next to each name in the biome and collection lists. */
+    var critterListIcons = true
+    /** Allow Masterful throws only when the capsule prediction hits one of the five selected species. */
+    var masterfulTargetFilter = false
     /** Not shown in the menu; per-critter values will replace it in a later update. */
     var hitMargin = 0.1
 
@@ -138,6 +142,8 @@ class Settings {
     var cavernGemPlacementDelay = true
     /** Food icons from the Hunter next to each Scrappy, available before feeding. */
     var scrappyFoodHints = true
+    /** Highlight Scrappies whose verified food is in the inventory, until the party catches one. */
+    var scrappyFoodPriority = true
     /** Accept Hideyho's Sure dialogue action after 300 ms. */
     var hideyhoAutoSure = true
     /** Bell when it is time to throw. */

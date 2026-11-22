@@ -10,6 +10,7 @@ import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import safaripatron.config.Config
 import safaripatron.esp.CritterId
+import safaripatron.data.Critter
 import safaripatron.render.WorldRender
 
 /**
@@ -47,28 +48,28 @@ object Trajectory {
 
     private fun holding(p: Player) = CapsuleModel.isCapsule(p.mainHandItem)
 
-    fun collect(client: Minecraft, out: WorldRender.Batch) {
-        if (!Config.s.capsuleTrajectory) return
-        val player = client.player ?: return
-        val level = client.level ?: return
-        if (!holding(player)) return
+    data class Prediction(val points: List<Pair<Vec3, Boolean>>, val target: Critter?, val hitBox: AABB?, val blockHit: Vec3?)
 
-        val partial = client.deltaTracker.getGameTimeDeltaPartialTick(false)
-        val eye = player.getEyePosition(partial)
+    /** The renderer and the optional Masterful filter use this same first-hit prediction. */
+    fun predict(client: Minecraft, partialTick: Float = 1f): Prediction? {
+        val player = client.player ?: return null
+        val level = client.level ?: return null
+        val eye = player.getEyePosition(partialTick)
         val dir = player.lookAngle.normalize()
 
         // Hedefler: tanınan critter'lar (ESP ile aynı kutular) + isabet payı
-        val targets = ArrayList<AABB>()
+        val targets = ArrayList<Pair<AABB, Critter>>()
         for (e in level.entitiesForRendering()) {
             if (e === player || e.distanceToSqr(player) > 64.0 * 64.0) continue
             val critter = CritterId.identify(e) ?: continue
-            targets.add(safaripatron.esp.BoxTuner.box(e, critter, capsule = true).inflate(Config.s.hitMargin))
+            targets.add(safaripatron.esp.BoxTuner.box(e, critter, capsule = true).inflate(Config.s.hitMargin) to critter)
         }
 
         val points = ArrayList<Pair<Vec3, Boolean>>()
         var prev = eye
         var n = CapsuleModel.START_N
         var hitBox: AABB? = null
+        var target: Critter? = null
         var blockHit: Vec3? = null
         while (n <= CapsuleModel.MAX_N) {
             val cur = CapsuleModel.point(eye, dir, n)
@@ -80,26 +81,37 @@ object Trajectory {
             var best = Double.MAX_VALUE
             var bestPoint: Vec3? = null
             var bestBox: AABB? = null
-            for (t in targets) {
+            var bestTarget: Critter? = null
+            for ((t, critter) in targets) {
                 val hit = t.clip(prev, segEnd)
                 if (hit.isPresent) {
                     val d = hit.get().distanceToSqr(prev)
-                    if (d < best) { best = d; bestPoint = hit.get(); bestBox = t }
+                    if (d < best) { best = d; bestPoint = hit.get(); bestBox = t; bestTarget = critter }
                 }
             }
-            if (bestPoint != null) { hitBox = bestBox; points.add(bestPoint to calibrated); break }
+            if (bestPoint != null) { hitBox = bestBox; target = bestTarget; points.add(bestPoint to calibrated); break }
             if (blocked) { blockHit = clip.location; points.add(clip.location to calibrated); break }
             points.add(cur to calibrated)
             prev = cur
             n += STEP
         }
 
-        val hit = hitBox != null
-        for ((a, b) in points.zipWithNext()) {
-            out.line(a.first, b.first, if (hit) GREEN else if (b.second) WHITE else YELLOW)
+        return Prediction(points, target, hitBox, blockHit)
+    }
+
+    fun collect(client: Minecraft, out: WorldRender.Batch) {
+        if (!Config.s.capsuleTrajectory) return
+        val player = client.player ?: return
+        if (!holding(player)) return
+        val prediction = predict(client, client.deltaTracker.getGameTimeDeltaPartialTick(false)) ?: return
+        val filtered = MasterfulGuard.active(client)
+        val allowed = !filtered || MasterfulTargetPolicy.permits(true, true, prediction.target?.name)
+        val hit = prediction.hitBox != null && allowed
+        for ((a, b) in prediction.points.zipWithNext()) {
+            out.line(a.first, b.first, if (!allowed) RED else if (hit) GREEN else if (b.second) WHITE else YELLOW)
         }
-        hitBox?.let { out.box(it, GREEN) }
-        blockHit?.let { p ->
+        prediction.hitBox?.let { out.box(it, if (allowed) GREEN else RED) }
+        prediction.blockHit?.let { p ->
             val s = 0.12
             out.box(AABB(p.x - s, p.y - s, p.z - s, p.x + s, p.y + s, p.z + s), RED)
         }

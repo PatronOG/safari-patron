@@ -166,7 +166,7 @@ Reset buttons ask before deleting.
 - **Hitbox Editor:** Every critter has its own box size, measured in game, used for the Capsule Helper and ESP. Change any of them with `/sp boxes`. Use the default settings unless you know what you're doing.
 - **Doomspiral Timer:** Marks where to stand and where to aim, then counts down to the perfect Masterful Capsule throw while Doomspiral rises.
 - **Wumpa Skip Helper:** Marks where to stand and the two points to aim at: a Critter Capsule first, then the Masterful Capsule with a countdown. Set the delay between them with **Wumpa Masterful Delay** (1.2 s by default).
-- **Cavern Gem Helper:** Picks the matching Lime, Purple or Orange Gem in your hotbar while you look at its podium. You place it yourself, or let it place the gem for you after a short delay.
+- **Cavern Gem Helper:** Off by default. Picks the matching Lime, Purple or Orange Gem in your hotbar while you look at its podium. You place it yourself, or let it place the gem for you after a short delay.
 - **Scrappy Food:** Shows what each Scrappy eats before you feed it, worked out from the Hunter nearby (Luigi: Flavor-packed Fish, Jasper: Lush Lily Pad, Reeves: Wholesale Wheat). Once two foods are known, the third is marked with `*`.
 - **Scrappy Food Priority:** Scrappies whose food you carry are highlighted in green, the others stay in gray. They disappear once your party has caught one.
 - **Hideyho Auto-Sure:** Off by default. Accepts Hideyho's challenge in Haunted by clicking `[Sure]` for you.
@@ -191,7 +191,7 @@ Reset buttons ask before deleting.
 - **Emerald Dye:** Your own Emerald Dyes count too, at the Auction House's lowest BIN price.
 - **Top Shards:** `/sp topshards` lists each biome's 5 most profitable shards in chat.
 - **Scroll Support:** Choose how many items it shows (5, 10, 15 or 20); scroll with your mouse wheel over the panel while an inventory is open.
-- **Bazaar Prices:** Choose Instant Sell or Sell Offer prices. Warns you when prices can't be loaded instead of showing 0. A run saved while a price was missing is worked out again once it's in.
+- **Bazaar Prices:** Sell Offer prices by default, or Instant Sell. Warns you when prices can't be loaded instead of showing 0. A run saved while a price was missing is worked out again once it's in.
 - **Safe Data:** Settings, profit, run history, achievements and hitbox sizes are saved in their own folder, `config/safari-patron/`, and kept between updates.
 
 ### ☰ Run History

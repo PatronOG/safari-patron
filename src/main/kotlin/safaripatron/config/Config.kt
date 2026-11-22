@@ -136,7 +136,7 @@ class Settings {
     /** Item-by-item all-time panel, shown in SkyBlock outside the Safari. */
     var totalProfitHud = true
     /** false = Instant Sell price, true = Sell Offer price. */
-    var profitSellOffer = false
+    var profitSellOffer = true
     var profit = ProfitData()
 
     // Run stats
@@ -155,7 +155,7 @@ class Settings {
     /** Old on/off switch of the Cavern Gem Helper; only read once to move it into cavernGemMode. */
     var cavernGemPlacer: Boolean? = null
     /** Cavern Gem Helper: off; select = choose the hotbar gem, the player right-clicks; auto = also place it. */
-    var cavernGemMode = "select"
+    var cavernGemMode = "off"
     /** Scrappy food icons from the nearby Hunter, and the food labels that highlight what you carry. */
     var scrappyFoodHints = true
     /** Accept Hideyho's Sure dialogue action after 300 ms. Off by default: it clicks for you. */
@@ -257,7 +257,7 @@ object Config {
             // The Cavern Gem Helper switch and its action are now one setting
             if (s.cavernGemPlacer == false) s.cavernGemMode = "off"
             s.cavernGemPlacer = null
-            if (s.cavernGemMode !in setOf("off", "select", "auto")) s.cavernGemMode = "select"
+            if (s.cavernGemMode !in setOf("off", "select", "auto")) s.cavernGemMode = "off"
             if (s.contestWarnTitle == false) s.contestWarnTitleMode = "off"
             s.contestWarnTitle = null
             if (s.contestWarnTitleMode !in setOf("off", "incomplete", "custom")) s.contestWarnTitleMode = "incomplete"

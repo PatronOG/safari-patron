@@ -1,0 +1,261 @@
+[
+  {
+    "critter": "Foxtrot",
+    "asset": "textures/critters/foxtrot.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Fox_Sprite.png/32px-Fox_Sprite.png?0919d",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Fox_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Bluebird",
+    "asset": "textures/critters/bluebird.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Parrot_%28Blue%29_Sprite.png/32px-Parrot_%28Blue%29_Sprite.png?24cce",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Parrot_%28Blue%29_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Honeybug",
+    "asset": "textures/critters/honeybug.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Bee_Sprite.png/32px-Bee_Sprite.png?0919d",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Bee_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Treefrog",
+    "asset": "textures/critters/treefrog.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Frog_%28Warm%29_Sprite.png/32px-Frog_%28Warm%29_Sprite.png?d15dc",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Frog_%28Warm%29_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Woodchucker",
+    "asset": "textures/critters/woodchucker.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Creaking_Sprite.png/32px-Creaking_Sprite.png?0919d",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Creaking_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Fluffling",
+    "asset": "textures/critters/fluffling.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Panda_Sprite.png/32px-Panda_Sprite.png?4a4b1",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Panda_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Hideonfloor",
+    "asset": "textures/critters/hideonfloor.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Green_Shulker_Sprite.png/32px-Green_Shulker_Sprite.png?ebfcb",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Green_Shulker_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Parakeet",
+    "asset": "textures/critters/parakeet.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Parrot_%28Green%29_Sprite.png/32px-Parrot_%28Green%29_Sprite.png?365b1",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Parrot_%28Green%29_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Macaw",
+    "asset": "textures/critters/macaw.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Parrot_%28Red_Blue%29_Sprite.png/32px-Parrot_%28Red_Blue%29_Sprite.png?365b1",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Parrot_%28Red_Blue%29_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Cavernfish",
+    "asset": "textures/critters/cavernfish.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Cavernfish_Sprite.png/32px-Cavernfish_Sprite.png?e7bb1",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Cavernfish_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Flitter",
+    "asset": "textures/critters/flitter.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Flitter_Sprite.png/32px-Flitter_Sprite.png?ede62",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Flitter_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Shyworm",
+    "asset": "textures/critters/shyworm.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Shyworm_Sprite.png/32px-Shyworm_Sprite.png?74d95",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Shyworm_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Driftling",
+    "asset": "textures/critters/driftling.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Driftling_Sprite.png/32px-Driftling_Sprite.png?c8d7c",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Driftling_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Chuckwalla",
+    "asset": "textures/critters/chuckwalla.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Chuckwalla_Sprite.png/32px-Chuckwalla_Sprite.png?6ffa9",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Chuckwalla_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Rockmite",
+    "asset": "textures/critters/rockmite.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Silverfish_Sprite.png/32px-Silverfish_Sprite.png?855e5",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Silverfish_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Scrappy",
+    "asset": "textures/critters/scrappy.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Armadillo_Sprite.png/32px-Armadillo_Sprite.png?66284",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Armadillo_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Snoozle",
+    "asset": "textures/critters/snoozle.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Sniffer_%28baby%29_Sprite.png/32px-Sniffer_%28baby%29_Sprite.png?f96c9",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Sniffer_%28baby%29_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Gemzie",
+    "asset": "textures/critters/gemzie.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Vex_Sprite.png/32px-Vex_Sprite.png?0919d",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Vex_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Strongarm",
+    "asset": "textures/critters/strongarm.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Snow_Golem_Sprite.png/32px-Snow_Golem_Sprite.png?eb0ea",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Snow_Golem_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Tepid",
+    "asset": "textures/critters/tepid.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Tepid_Sprite.png/32px-Tepid_Sprite.png?b40a6",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Tepid_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Polaris",
+    "asset": "textures/critters/polaris.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Polar_Bear_Sprite.png/32px-Polar_Bear_Sprite.png?0919d",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Polar_Bear_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Shuddersquid",
+    "asset": "textures/critters/shuddersquid.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Glow_Squid_Sprite.png/32px-Glow_Squid_Sprite.png?ea30e",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Glow_Squid_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Billygoat",
+    "asset": "textures/critters/billygoat.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Goat_Sprite.png/32px-Goat_Sprite.png?6b48f",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Goat_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Mantis Shrimp",
+    "asset": "textures/critters/mantis_shrimp.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Mantis_Shrimp_Sprite.png/32px-Mantis_Shrimp_Sprite.png?7284c",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Mantis_Shrimp_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Nozzlenose",
+    "asset": "textures/critters/nozzlenose.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Dolphin_Sprite.png/32px-Dolphin_Sprite.png?7f06e",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Dolphin_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Troodon",
+    "asset": "textures/critters/troodon.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Troodon_Sprite.png/32px-Troodon_Sprite.png?1d060",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Troodon_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Wumpa",
+    "asset": "textures/critters/wumpa.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Ravager_Sprite.png/32px-Ravager_Sprite.png?0919d",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Ravager_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Areita",
+    "asset": "textures/critters/areita.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Cave_Spider_Sprite.png/32px-Cave_Spider_Sprite.png?4a4b1",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Cave_Spider_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Bloodbat",
+    "asset": "textures/critters/bloodbat.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Bat_Sprite.png/32px-Bat_Sprite.png?4a4b1",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Bat_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Duplico",
+    "asset": "textures/critters/duplico.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Duplico_Sprite.gif/32px-Duplico_Sprite.gif?8da44",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Duplico_Sprite.gif",
+    "changes": "First animation frame converted to PNG."
+  },
+  {
+    "critter": "Gazer",
+    "asset": "textures/critters/gazer.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Gazer_Sprite.png/32px-Gazer_Sprite.png?af012",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Gazer_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Litterbug",
+    "asset": "textures/critters/litterbug.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Endermite_Sprite.png/32px-Endermite_Sprite.png?02926",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Endermite_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Solsnatcher",
+    "asset": "textures/critters/solsnatcher.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Phantom_Sprite.png/32px-Phantom_Sprite.png?4a4b1",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Phantom_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Gimmiegold",
+    "asset": "textures/critters/gimmiegold.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Gimmiegold_Sprite.png/32px-Gimmiegold_Sprite.png?88969",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Gimmiegold_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Hideonwall",
+    "asset": "textures/critters/hideonwall.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Purple_Shulker_Sprite.png/32px-Purple_Shulker_Sprite.png?0cf59",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Purple_Shulker_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Hideyho",
+    "asset": "textures/critters/hideyho.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Hideyho_Sprite.png/32px-Hideyho_Sprite.png?a8116",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Hideyho_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "critter": "Doomspiral",
+    "asset": "textures/critters/doomspiral.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Warden_Sprite.png/32px-Warden_Sprite.png?0919d",
+    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Warden_Sprite.png",
+    "changes": "Unmodified wiki thumbnail."
+  }
+]

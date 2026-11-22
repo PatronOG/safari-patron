@@ -23,16 +23,23 @@ private fun withPriceWarning(rows: List<Pair<String, Int>>): List<Pair<String, I
     safaripatron.profit.Bazaar.warning()?.let { rows + (it to RED) } ?: rows
 
 /** Draws a title + rows box. rows: (text, color). */
-private fun drawBox(g: GuiGraphicsExtractor?, font: Font, title: String, titleColor: Int, rows: List<Pair<String, Int>>): Panels.Size {
+private fun drawBox(g: GuiGraphicsExtractor?, font: Font, title: String, titleColor: Int, rows: List<Pair<String, Int>>,
+                    iconNames: List<String> = emptyList()): Panels.Size {
+    val iconAdvance = if (iconNames.isEmpty()) 0 else CritterIcons.advance
+    val rowHeight = if (iconNames.isEmpty()) LH else CritterIcons.rowHeight
     var w = PAD + font.width(title) + PAD
-    for ((t, _) in rows) w = maxOf(w, PAD + font.width(t) + PAD)
-    val h = PAD + LH + rows.size * LH + PAD
+    for ((t, _) in rows) w = maxOf(w, PAD + iconAdvance + font.width(t) + PAD)
+    val h = PAD + LH + rows.size * rowHeight + PAD
     val gx = g ?: return Panels.Size(w, h)
     gx.fill(0, 0, w, h, BG)
     var y = PAD
     gx.text(font, title, PAD, y, titleColor, true)
     y += LH
-    for ((t, c) in rows) { gx.text(font, t, PAD, y, c, true); y += LH }
+    rows.forEachIndexed { index, (t, c) ->
+        iconNames.getOrNull(index)?.let { CritterIcons.draw(gx, it, PAD, y) }
+        gx.text(font, t, PAD + iconAdvance, y + (rowHeight - LH) / 2, c, true)
+        y += rowHeight
+    }
     return Panels.Size(w, h)
 }
 
@@ -50,10 +57,11 @@ object CollectionElement : HudElement {
         val critters = biome.critters.sortedBy { it.rarity.ordinal }
         val have = critters.count { it.name in owned }
         val missingOnly = Config.s.sparklingCollectionMissingOnly
-        val rows = critters.filter { !missingOnly || it.name !in owned }.map { c ->
+        val shown = critters.filter { !missingOnly || it.name !in owned }
+        val rows = shown.map { c ->
             if (c.name in owned) "✔ ${c.name}" to GREEN else "✘ ${c.name}" to GRAY
         }.ifEmpty { listOf("All caught!" to GREEN) }
-        return drawBox(g, font, "✦ Sparklings · ${biome.label} $have/${critters.size}", biome.color, rows)
+        return drawBox(g, font, "✦ Sparklings · ${biome.label} $have/${critters.size}", biome.color, rows, shown.map { it.name })
     }
 }
 
@@ -112,14 +120,15 @@ object TotalElement : HudElement {
             val list = b.critters.sortedBy { it.rarity.ordinal }
             val got = list.count { it.name in owned }
             val rows = list.filter { !missingOnly || it.name !in owned }.map { c ->
-                if (c.name in owned) "✔ ${c.name}" to GREEN else "✘ ${c.name}" to GRAY
-            }.ifEmpty { listOf("All caught!" to GREEN) }
+                Triple(if (c.name in owned) "✔ ${c.name}" else "✘ ${c.name}", if (c.name in owned) GREEN else GRAY, c.name)
+            }.ifEmpty { listOf(Triple("All caught!", GREEN, null)) }
             Triple("${b.label} $got/${list.size}" to b.color, rows, maxOf(font.width("${b.label} $got/${list.size}"),
-                rows.maxOf { font.width(it.first) }))
+                rows.maxOf { font.width(it.first) + (if (it.third != null) CritterIcons.advance else 0) }))
         }
         val colsW = columns.sumOf { it.third } + COL_GAP * (columns.size - 1)
         val w = PAD + maxOf(colsW, font.width(title)) + PAD
-        val h = PAD + LH + 2 + LH + columns.maxOf { it.second.size } * LH + PAD
+        val rowHeight = CritterIcons.rowHeight
+        val h = PAD + LH + 2 + LH + columns.maxOf { it.second.size } * rowHeight + PAD
         val gx = g ?: return Panels.Size(w, h)
 
         gx.fill(0, 0, w, h, BG)
@@ -129,7 +138,11 @@ object TotalElement : HudElement {
             var y = PAD + LH + 2
             gx.text(font, header.first, x, y, header.second, true)
             y += LH
-            for ((t, c) in rows) { gx.text(font, t, x, y, c, true); y += LH }
+            for ((t, c, name) in rows) {
+                name?.let { CritterIcons.draw(gx, it, x, y) }
+                gx.text(font, t, x + (if (name != null) CritterIcons.advance else 0), y + (rowHeight - LH) / 2, c, true)
+                y += rowHeight
+            }
             x += colW + COL_GAP
         }
         return Panels.Size(w, h)

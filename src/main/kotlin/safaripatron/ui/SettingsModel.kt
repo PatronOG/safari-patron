@@ -60,6 +60,7 @@ object SettingsModel {
                 toggle("Auto share to party", "Sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
                 toggle("Last sparkling message", "Runs and time since the last one", { s.sparklingInterval }) { s.sparklingInterval = it },
                 toggle("Sparklings panel", "Caught in this biome, all time", { s.sparklingCollectionHud }) { s.sparklingCollectionHud = it },
+                toggle("Critter list icons", "Creature sprites beside names in the biome and sparkling lists", { s.critterListIcons }) { s.critterListIcons = it },
                 toggle("Total sparklings panel", "All 37, in the middle area", { s.sparklingTotalHud }) { s.sparklingTotalHud = it },
                 choice("Panel list", "What the sparklings panels list", listOf("all", "missing"),
                     { if (it == "missing") "Missing only" else "All" },
@@ -102,9 +103,10 @@ object SettingsModel {
             )
         },
         Category("capsule", "Helpers", "➶", 0xFF85B7EB.toInt(), "Capsules, gems and food",
-            { s.capsuleTrajectory || s.wumpaSkip || s.doomspiralTimer || s.cavernGemPlacer || s.scrappyFoodHints || s.hideyhoAutoSure }) {
+            { s.capsuleTrajectory || s.masterfulTargetFilter || s.wumpaSkip || s.doomspiralTimer || s.cavernGemPlacer || s.scrappyFoodHints || s.scrappyFoodPriority || s.hideyhoAutoSure }) {
             listOf(
                 toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §cUse at your own risk.", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
+                toggle("Masterful target filter", "Only throw at Doomspiral, Wumpa, Macaw, Gemzie or Scrappy", { s.masterfulTargetFilter }) { s.masterfulTargetFilter = it },
                 toggle("Capsule Helper Hitbox Editor", "Use the default settings unless you know what you're doing",
                     { safaripatron.esp.BoxTuner.data.forCapsule }) { safaripatron.esp.BoxTuner.setUse(capsule = it) },
                 Action("Open hitbox editor", "Box size of each critter, for capsules and ESP", "Open") {
@@ -121,6 +123,7 @@ object SettingsModel {
                     { s.cavernGemMode }) { s.cavernGemMode = it },
                 toggle("Gem placement delay (0.3s + 0.2s)", "Automatic mode: wait before selecting, then wait before placing", { s.cavernGemPlacementDelay }) { s.cavernGemPlacementDelay = it },
                 toggle("Scrappy food", "Shows its food icon before feeding, identified by the nearby Hunter", { s.scrappyFoodHints }) { s.scrappyFoodHints = it },
+                toggle("Scrappy food priority", "Highlight food you carry; hide other known foods until the first unique catch", { s.scrappyFoodPriority }) { s.scrappyFoodPriority = it },
                 toggle("Hideyho auto Sure", "Accepts Hideyho's offer after 0.3 seconds", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
                 toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
             )

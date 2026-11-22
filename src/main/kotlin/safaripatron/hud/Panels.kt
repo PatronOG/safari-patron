@@ -118,8 +118,9 @@ object Panels {
     fun drawBiome(g: GuiGraphicsExtractor?, font: Font, x: Int, y: Int, d: BiomeData): Size {
         val title = if (d.remaining.isEmpty()) "${d.biome.label} Biome — Done!" else "${d.biome.label} Biome — ${d.remaining.size} left"
         var w = PAD + font.width(title) + PAD
-        for (c in d.remaining) w = maxOf(w, PAD + font.width(c.name) + PAD)
-        val h = PAD + LH + d.remaining.size * LH + PAD
+        for (c in d.remaining) w = maxOf(w, PAD + CritterIcons.advance + font.width(c.name) + PAD)
+        val rowHeight = CritterIcons.rowHeight
+        val h = PAD + LH + d.remaining.size * rowHeight + PAD
         val gx = g ?: return Size(w, h)
 
         gx.fill(x, y, x + w, y + h, BG)
@@ -127,8 +128,9 @@ object Panels {
         gx.text(font, title, x + PAD, cy, d.biome.color, true)
         cy += LH
         for (c in d.remaining) {
-            gx.text(font, c.name, x + PAD, cy, c.rarity.color, true)
-            cy += LH
+            CritterIcons.draw(gx, c.name, x + PAD, cy)
+            gx.text(font, c.name, x + PAD + CritterIcons.advance, cy + (rowHeight - LH) / 2, c.rarity.color, true)
+            cy += rowHeight
         }
         return Size(w, h)
     }

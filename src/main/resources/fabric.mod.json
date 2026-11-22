@@ -5,6 +5,7 @@
   "name": "Safari Patron",
   "description": "QoL Critter Safari mod for Hypixel Skyblock.",
   "authors": ["PatronOG"],
+  "contributors": ["plutonmoyai", "z1rr31"],
   "license": "Apache-2.0",
   "icon": "assets/safari-patron/icon.png",
   "environment": "client",

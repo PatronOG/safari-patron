@@ -23,7 +23,7 @@ object Profit {
     private val featherRe = Regex("""(?:(\d+)x |\ban? )Rainbow Feather\b""")
     private val essenceRe = Regex("""^\+([0-9,]+) Safari Essence$""")
     private const val MACAW_BONUS = "MACAW! You found a bonus Rainbow Feather!"
-    /** WOW! [MVP+] PatronOG found an Emerald Dye! (a broadcast: only your own name counts) */
+    /** WOW! [MVP+] Alex found an Emerald Dye! (a broadcast: only your own name counts) */
     private val dyeRe = Regex("""^WOW! (?:\[[^\]]+]\s*)*([A-Za-z0-9_]{1,16}) found an? Emerald Dye!$""")
     private const val MANAGER = "[NPC] Safari Manager: "
     /** What the Safari Manager says when he takes a ticket and the run starts (he has other lines too). */

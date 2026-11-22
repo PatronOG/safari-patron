@@ -10,7 +10,7 @@ import safaripatron.safari.ChatParser
 /**
  * Hotspot assignment (Party → Hotspot assignment): the one player who leads the party collects everyone's
  * Hunting Hotspot from party chat and posts where each player should go:
- * `[✦SP✦] Alex: Cavern ✦ | PatronOG: Icy ✦ | Steve: Forest | Zoe: Haunted` (✦ = their hotspot).
+ * `[✦SP✦] Alex: Cavern ✦ | Steve: Icy ✦ | Zoe: Forest | Max: Haunted` (✦ = their hotspot).
  *
  * - Hotspots come from our `[✦SP✦] Hotspot: Icy`, other mods (`[SM] Hotspot: Icy`, ...) and what players type
  *   themselves (`c`, `cave`, `my hotspot is icy`, one-letter typos).

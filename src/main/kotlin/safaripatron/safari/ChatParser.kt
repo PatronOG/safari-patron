@@ -22,7 +22,7 @@ object ChatParser {
     // LOOT SHARE! You received 3x Hideyho Shard from Steve finding the Hideyho!
     private val lootShare = Regex("""^LOOT SHARE! You received .+? from $RANK$IGN (?:catching|finding|capturing|snagging) (?:an? |the )?(.+?)!$""")
 
-    // SPARKLING! PatronOG caught a SPARKLING Foxtrot!
+    // SPARKLING! Alex caught a SPARKLING Foxtrot!
     private val sparkling = Regex("""^SPARKLING! $RANK$IGN (?:caught|found|captured) (?:an? |the )?SPARKLING (.+?)!$""")
 
     /** Kalıp tutmazsa yedek: satırda geçen bilinen bir critter adını bul (uzun isimler önce). */
@@ -30,7 +30,7 @@ object ChatParser {
     fun findCritter(text: String): String? = namesLongestFirst.firstOrNull { text.contains(it, ignoreCase = true) }
     private val lootFrom = Regex("""\bfrom $RANK$IGN\b""")
 
-    // [MVP+] PatronOG entered Critter Safari!
+    // [MVP+] Alex entered Critter Safari!
     private val entered = Regex("""^$RANK$IGN entered Critter Safari!$""")
 
     // HOTSPOT! Your Hunting Hotspot is the Haunted Biome!

@@ -19,8 +19,7 @@ import safaripatron.sparkling.SparklingFinder
 
 /**
  * Safari Patron — Hypixel SkyBlock Critter Safari yardımcısı.
- * Sadece okur ve gösterir; oyuncu adına tıklamaz, yürümez, nişan almaz.
- * (Tek otomatik eylem: ayarlardan kapatılabilen parti chati anonsları.)
+ * Optional interaction helpers remain tied to the player's physical input and current target.
  */
 object SafariPatron : ClientModInitializer {
     const val MOD_ID = "safari-patron"
@@ -32,6 +31,7 @@ object SafariPatron : ClientModInitializer {
         Hud.initScroll()
         Party.init()
         Structures.init()
+        safaripatron.resources.FloorDrops.init()
         HideyhoClick.init()
         Commands.init()
         UpdateChecker.init()
@@ -47,6 +47,7 @@ object SafariPatron : ClientModInitializer {
             Safari.tick(client)
             Esp.tick(client)
             SparklingFinder.tick(client)
+            safaripatron.helpers.SafariEntryGuard.tick(client)
             Party.tick(client)
             safaripatron.party.HotspotAssign.tick(client)
             Contest.tick(client)
@@ -75,6 +76,8 @@ object SafariPatron : ClientModInitializer {
             val client = Minecraft.getInstance()
             client.execute {
                 HideyhoClick.onMessage(message)
+                safaripatron.resources.FloorDrops.onMessage(raw)
+                safaripatron.helpers.RockmiteHoldClick.onMessage(raw)
                 Party.onChatLine(raw)
                 safaripatron.party.HotspotAssign.onChatLine(raw)
                 safaripatron.profit.Profit.onMessage(raw)

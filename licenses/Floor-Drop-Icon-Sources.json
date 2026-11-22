@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Lime Gem",
+    "asset": "textures/drops/lime.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Lime_Gem.png/42px-Lime_Gem.png?8385d",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "name": "Purple Gem",
+    "asset": "textures/drops/purple.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Purple_Gem.png/42px-Purple_Gem.png?d9b55",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "name": "Orange Gem",
+    "asset": "textures/drops/orange.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Orange_Gem.png/42px-Orange_Gem.png?b68d6",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "name": "Wriggleworm",
+    "asset": "textures/drops/worm.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Wriggleworm.png/42px-Wriggleworm.png?c3632",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "name": "Yogi Berry",
+    "asset": "textures/drops/berry.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Yogi_Berry.png/42px-Yogi_Berry.png?66918",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "name": "Bag of Seeds",
+    "asset": "textures/drops/seeds.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Bag_of_Seeds.png/42px-Bag_of_Seeds.png?172a1",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "name": "Soothing Incense",
+    "asset": "textures/drops/incense.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Soothing_Incense.png/42px-Soothing_Incense.png?73bda",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "name": "Shining Coin",
+    "asset": "textures/drops/coin.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Shining_Coin.png/42px-Shining_Coin.png?399e0",
+    "changes": "Unmodified wiki thumbnail."
+  },
+  {
+    "name": "Icebreaker",
+    "asset": "textures/drops/icebreaker.png",
+    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Enchanted_Diamond_Pickaxe.png/42px-Enchanted_Diamond_Pickaxe.png?9a662",
+    "changes": "Unmodified wiki thumbnail."
+  }
+]

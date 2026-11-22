@@ -75,6 +75,11 @@ object SettingsModel {
             listOf(
                 toggle("Critter ESP", "Boxes around critters", { s.esp }) { s.esp = it },
                 toggle("Floor drops", "Mark floor drop spots", { s.floorDrops }) { s.floorDrops = it },
+                toggle("Floor drop icons", "Predicted contents on the top face; ? means unknown", { s.floorDropContents }) { s.floorDropContents = it },
+                toggle("Needed resource priority", "Emphasize resources still needed for the current run", { s.floorResourcePriority }) { s.floorResourcePriority = it },
+                toggle("Hide acquired gem colors", "Hide every drop of a gem color you hold or have placed", { s.floorHideOwnedGems }) { s.floorHideOwnedGems = it },
+                toggle("Reward floor drops", "Show the combined XP / Essence / Shard category", { s.floorRewardDrops }) { s.floorRewardDrops = it },
+                toggle("Forest food drops only", "In Forest, show predicted bird food and unknown drops", { s.floorFoodOnly }) { s.floorFoodOnly = it },
                 toggle("Bee nests", "Honeybug nests in Forest", { s.beeNests }) { s.beeNests = it },
                 toggle("Snoozle walls", "Breakable walls in Cavern", { s.snoozleWalls }) { s.snoozleWalls = it },
                 toggle("Clear water", "See through Safari water", { s.clearWater }) { s.clearWater = it },
@@ -102,7 +107,7 @@ object SettingsModel {
             )
         },
         Category("capsule", "Helpers", "➶", 0xFF85B7EB.toInt(), "Capsule, skips and timers",
-            { s.capsuleTrajectory || s.wumpaSkip || s.doomspiralTimer }) {
+            { s.capsuleTrajectory || s.wumpaSkip || s.doomspiralTimer || s.incenseCandleTarget || s.rockmiteHoldClick || s.safariEntryGuard }) {
             listOf(
                 toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §cUse at your own risk.", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
                 toggle("Capsule Helper Hitbox Editor", "Use the default settings unless you know what you're doing",
@@ -116,6 +121,9 @@ object SettingsModel {
                     { s.masterfulDelayTenths }) { s.masterfulDelayTenths = it; Config.save() },
                 toggle("Doomspiral Timer", "Where to stand and aim, and when to throw the Masterful Capsule", { s.doomspiralTimer }) { s.doomspiralTimer = it },
                 toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
+                toggle("Incense candle targeting", "Target the full red candle block while holding Soothing Incense in Haunted", { s.incenseCandleTarget }) { s.incenseCandleTarget = it },
+                toggle("Rockmite hold click", "Hold left mouse on a Rockmite mound to repeat attacks", { s.rockmiteHoldClick }) { s.rockmiteHoldClick = it },
+                toggle("Safari entry guard", "Wait for party presence and the loaded-entity scan; hold Shift to bypass", { s.safariEntryGuard }) { s.safariEntryGuard = it },
             )
         },
         Category("contest", "Miria's Contest", "✪", 0xFFFFCC66.toInt(), "Timer, ticket, alerts", { s.contest }) {

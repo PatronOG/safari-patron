@@ -103,13 +103,11 @@ object SettingsModel {
             )
         },
         Category("capsule", "Helpers", "➶", 0xFF85B7EB.toInt(), "Capsules, gems and food",
-            { s.capsuleTrajectory || s.masterfulTargetFilter || s.wumpaSkip || s.doomspiralTimer || s.cavernGemPlacer || s.scrappyFoodHints || s.scrappyFoodPriority || s.hideyhoAutoSure }) {
+            { s.capsuleTrajectory || s.masterfulTargetFilter || s.wumpaSkip || s.doomspiralTimer || s.cavernGemMode != "off" || s.scrappyFoodHints || s.hideyhoAutoSure }) {
             listOf(
                 toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §cUse at your own risk.", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
                 toggle("Masterful target filter", "Only throw at Doomspiral, Wumpa, Macaw, Gemzie or Scrappy §cUse at your own risk.", { s.masterfulTargetFilter }) { s.masterfulTargetFilter = it },
-                toggle("Capsule Helper Hitbox Editor", "Use the default settings unless you know what you're doing",
-                    { safaripatron.esp.BoxTuner.data.forCapsule }) { safaripatron.esp.BoxTuner.setUse(capsule = it) },
-                Action("Open hitbox editor", "Box size of each critter, for capsules and ESP", "Open") {
+                Action("Open hitbox editor", "Box size of each critter, for capsules and ESP §eUse the default settings unless you know what you're doing.", "Open") {
                     MenuNav.open(BoxScreen())
                 },
                 toggle("Wumpa Skip Helper", "Where to stand and aim, with a Masterful timer", { s.wumpaSkip }) { s.wumpaSkip = it },
@@ -117,13 +115,10 @@ object SettingsModel {
                     { String.format(java.util.Locale.ROOT, "%.1fs", it / 10.0) },
                     { s.masterfulDelayTenths }) { s.masterfulDelayTenths = it; Config.save() },
                 toggle("Doomspiral Timer", "Where to stand and aim, and when to throw the Masterful Capsule", { s.doomspiralTimer }) { s.doomspiralTimer = it },
-                toggle("Cavern Gem Helper", "Selects the matching hotbar gem while looking at its podium §cUse at your own risk.", { s.cavernGemPlacer }) { s.cavernGemPlacer = it },
-                choice("Gem action", "Choose who right-clicks the podium", listOf("select", "auto"),
-                    { if (it == "auto") "Select and place automatically" else "Select gem; I right-click" },
+                choice("Cavern Gem Helper", "Selects the matching hotbar gem while looking at its podium §cUse at your own risk.", listOf("off", "select", "auto"),
+                    { when (it) { "off" -> "Off"; "auto" -> "Select and Place"; else -> "Select Gem" } },
                     { s.cavernGemMode }) { s.cavernGemMode = it },
-                toggle("Gem placement delay (0.3s + 0.2s)", "Automatic mode: wait before selecting, then wait before placing", { s.cavernGemPlacementDelay }) { s.cavernGemPlacementDelay = it },
                 toggle("Scrappy food", "Shows its food icon before feeding, identified by the nearby Hunter", { s.scrappyFoodHints }) { s.scrappyFoodHints = it },
-                toggle("Scrappy food priority", "Highlight food you carry; all known meals stay visible until the first unique catch", { s.scrappyFoodPriority }) { s.scrappyFoodPriority = it },
                 Info("Scrappy food labels", "* marks the remaining food after learning the other two Scrappies"),
                 toggle("Hideyho auto Sure", "Accepts Hideyho's offer after 0.3 seconds §cUse at your own risk.", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
                 toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },

@@ -48,7 +48,7 @@ object ScrappyFoodHints {
         }
     }
 
-    private fun enabled() = (Config.s.scrappyFoodHints || Config.s.scrappyFoodPriority) &&
+    private fun enabled() = Config.s.scrappyFoodHints &&
         Safari.inSafari && Run.running && Safari.biome == Biome.CAVERN
 
     fun tick(client: Minecraft) {
@@ -103,7 +103,7 @@ object ScrappyFoodHints {
     }
 
     internal fun emphasis(body: Entity): ScrappyPriority.Emphasis {
-        val active = Config.s.scrappyFoodPriority && enabled() && lastLevel === Minecraft.getInstance().level && runMarker == Run.startStamp
+        val active = enabled() && lastLevel === Minecraft.getInstance().level && runMarker == Run.startStamp
         if (!active) return ScrappyPriority.Emphasis.NORMAL
         val hint = hints.firstOrNull { it.body === body }
         val sparkling = SparklingFinder.sparks.any { it.body === body } ||
@@ -130,11 +130,11 @@ object ScrappyFoodHints {
             val far = distance > 12
             val food = hint.choice?.food
             val raised = Vec3(body.x, body.boundingBox.maxY + 1.5, body.z)
-            if (far && Config.s.scrappyFoodPriority) {
+            if (far) {
                 val meal = when (food) { ScrappyFood.WHEAT -> "Wheat"; ScrappyFood.LILY_PAD -> "Lily Pad"; ScrappyFood.FISH -> "Fish"; null -> "Food unknown" }
                 val deduction = if (hint.choice?.source == ScrappyFoodMemory.Source.REMAINING) "*" else ""
                 val color = if (emphasis == ScrappyPriority.Emphasis.AVAILABLE) 0xFF55FF55.toInt() else 0xFFAAAAAA.toInt()
-                out.label("Scrappy · $meal$deduction · ${distance}m", raised.add(0.0, -0.2, 0.0), color, bold = true)
+                out.label("$meal$deduction · ${distance}m", raised.add(0.0, -0.2, 0.0), color, bold = true)
             }
             // Preference icons do not depend on inventory contents or the armadillo's animation state.
             if (!Config.s.scrappyFoodHints || food == null) continue

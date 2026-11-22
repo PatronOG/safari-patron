@@ -50,7 +50,7 @@ internal class GemPlacer(podiums: Map<BlockPos, CavernGem>) {
             if (stack.isEmpty) null else stack.get(DataComponents.CUSTOM_DATA)?.copyTag()?.getStringOr("id", "")
         }
         when (val action = state.nextAction(ids, inventory.selectedSlot, tick,
-            GemMode.fromSetting(Config.s.cavernGemMode), Config.s.cavernGemPlacementDelay) ?: return) {
+            GemMode.fromSetting(Config.s.cavernGemMode), true) ?: return) {
             is GemPlacementState.Action.Select -> { inventory.selectedSlot = action.slot; return }
             is GemPlacementState.Action.Place -> if (inventory.selectedSlot != action.slot) return
         }
@@ -62,7 +62,7 @@ internal class GemPlacer(podiums: Map<BlockPos, CavernGem>) {
     }
 
     private fun target(client: Minecraft): Target? {
-        if (!Config.s.cavernGemPlacer || !Safari.inSafari || !Run.running || Safari.biome != Biome.CAVERN ||
+        if (Config.s.cavernGemMode == "off" || !Safari.inSafari || !Run.running || Safari.biome != Biome.CAVERN ||
             client.gui.screen() != null || !client.isWindowActive) return null
         val player = client.player ?: return null
         val level = client.level ?: return null

@@ -13,6 +13,8 @@ import safaripatron.config.Config
 import safaripatron.data.Critters
 import safaripatron.render.WorldRender
 import safaripatron.safari.Safari
+import safaripatron.safari.ScrappyFoodHints
+import safaripatron.safari.ScrappyPriority
 
 object Esp {
     private const val FLOOR_COLOR = 0xFF00FF00.toInt()
@@ -53,7 +55,14 @@ object Esp {
             if (e === player || e.distanceToSqr(player) > RANGE_SQ) continue
             val critter = CritterId.identify(e) ?: continue
             if (critter.biome != playerBiome) continue
-            out.box(BoxTuner.box(e, critter, capsule = false), critter.espColor)
+            val emphasis = if (critter.name == "Scrappy") ScrappyFoodHints.emphasis(e) else ScrappyPriority.Emphasis.NORMAL
+            if (emphasis == ScrappyPriority.Emphasis.HIDDEN) continue
+            val color = when (emphasis) {
+                ScrappyPriority.Emphasis.AVAILABLE -> 0xFF55FF55.toInt()
+                ScrappyPriority.Emphasis.UNKNOWN -> 0xFFAAAAAA.toInt()
+                else -> critter.espColor
+            }
+            out.box(BoxTuner.box(e, critter, capsule = false), color)
         }
     }
 }

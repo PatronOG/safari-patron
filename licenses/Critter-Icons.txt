@@ -1,0 +1,22 @@
+Critter list sprites
+===================
+
+Source: Hypixel SkyBlock Wiki contributors
+https://hypixelskyblock.minecraft.wiki/w/Critter_Safari
+
+37 sprite thumbnails are bundled in assets/safari-patron/textures/critters/.
+They are packaged locally; using this feature makes no requests to the wiki.
+Individual file pages and exact thumbnail URLs are listed in Critter-Icon-Sources.json.
+All thumbnails are unchanged except Duplico: the first GIF frame was converted to PNG.
+
+The wiki identifies vanilla entity renders with its Copyright Mojang Studios notice:
+https://hypixelskyblock.minecraft.wiki/w/Template:License/Mojang
+Minecraft textures and their underlying artwork remain copyright Mojang Studios.
+Minecraft usage guidelines: https://www.minecraft.net/en-us/usage-guidelines
+
+Custom server sprite renders retain their underlying Hypixel Inc. or credited
+creator's design rights and the wiki's Self-provided Game Material notice:
+https://hypixelskyblock.minecraft.wiki/w/Template:License/Own_Work_(Server)
+The wiki's site license for its contributed material is CC BY-NC-SA 3.0:
+https://creativecommons.org/licenses/by-nc-sa/3.0/
+The bundled sprite assets are not relicensed under the mod source code's Apache license.

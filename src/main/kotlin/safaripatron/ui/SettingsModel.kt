@@ -55,7 +55,7 @@ object SettingsModel {
     private val all: List<Category> = listOf(
         Category("sparkling", "Sparkling", "✦", 0xFFFFB627.toInt(), "Finder and panels", { s.sparklingFinder }) {
             listOf(
-                toggle("Sparkling finder", "Alert, box and waypoint §cUse at your own risk.", { s.sparklingFinder }) { s.sparklingFinder = it },
+                toggle("Sparkling finder", "Alert, box and waypoint §c(Use at your own risk)", { s.sparklingFinder }) { s.sparklingFinder = it },
                 toggle("Sound", "Ding when a sparkling is found", { s.sparklingSound }) { s.sparklingSound = it },
                 toggle("Auto share to party", "Sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
                 toggle("Last sparkling message", "Runs and time since the last one", { s.sparklingInterval }) { s.sparklingInterval = it },
@@ -105,9 +105,9 @@ object SettingsModel {
         Category("capsule", "Helpers", "➶", 0xFF85B7EB.toInt(), "Capsules, gems and food",
             { s.capsuleTrajectory || s.masterfulTargetFilter || s.wumpaSkip || s.doomspiralTimer || s.cavernGemMode != "off" || s.scrappyFoodHints || s.hideyhoAutoSure }) {
             listOf(
-                toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §cUse at your own risk.", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
-                toggle("Masterful target filter", "Only throw at Doomspiral, Wumpa, Macaw, Gemzie or Scrappy §cUse at your own risk.", { s.masterfulTargetFilter }) { s.masterfulTargetFilter = it },
-                Action("Open hitbox editor", "Box size of each critter, for capsules and ESP §eUse the default settings unless you know what you're doing.", "Open") {
+                toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §c(Use at your own risk)", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
+                toggle("Masterful target filter", "Only throw at Doomspiral, Wumpa, Macaw, Gemzie or Scrappy §c(Use at your own risk)", { s.masterfulTargetFilter }) { s.masterfulTargetFilter = it },
+                Action("Open hitbox editor", "Box size of each critter, for capsules and ESP §eUse the default settings§r unless you know what you're doing.", "Open") {
                     MenuNav.open(BoxScreen())
                 },
                 toggle("Wumpa Skip Helper", "Where to stand and aim, with a Masterful timer", { s.wumpaSkip }) { s.wumpaSkip = it },
@@ -115,12 +115,12 @@ object SettingsModel {
                     { String.format(java.util.Locale.ROOT, "%.1fs", it / 10.0) },
                     { s.masterfulDelayTenths }) { s.masterfulDelayTenths = it; Config.save() },
                 toggle("Doomspiral Timer", "Where to stand and aim, and when to throw the Masterful Capsule", { s.doomspiralTimer }) { s.doomspiralTimer = it },
-                choice("Cavern Gem Helper", "Selects the matching hotbar gem while looking at its podium §cUse at your own risk.", listOf("off", "select", "auto"),
+                choice("Cavern Gem Helper", "Selects the matching hotbar gem while looking at its podium §c(Use at your own risk)", listOf("off", "select", "auto"),
                     { when (it) { "off" -> "Off"; "auto" -> "Select and Place"; else -> "Select Gem" } },
                     { s.cavernGemMode }) { s.cavernGemMode = it },
                 toggle("Scrappy food", "Shows its food icon before feeding, identified by the nearby Hunter", { s.scrappyFoodHints }) { s.scrappyFoodHints = it },
                 Info("Scrappy food labels", "* marks the remaining food after learning the other two Scrappies"),
-                toggle("Hideyho auto Sure", "Accepts Hideyho's offer after 0.3 seconds §cUse at your own risk.", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
+                toggle("Hideyho Auto-Sure", "Accepts Hideyho's challenge §c(Use at your own risk)", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
                 toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
             )
         },

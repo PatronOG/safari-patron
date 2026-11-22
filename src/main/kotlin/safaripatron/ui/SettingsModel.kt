@@ -123,7 +123,8 @@ object SettingsModel {
                     { s.cavernGemMode }) { s.cavernGemMode = it },
                 toggle("Gem placement delay (0.3s + 0.2s)", "Automatic mode: wait before selecting, then wait before placing", { s.cavernGemPlacementDelay }) { s.cavernGemPlacementDelay = it },
                 toggle("Scrappy food", "Shows its food icon before feeding, identified by the nearby Hunter", { s.scrappyFoodHints }) { s.scrappyFoodHints = it },
-                toggle("Scrappy food priority", "Highlight food you carry; hide other known foods until the first unique catch", { s.scrappyFoodPriority }) { s.scrappyFoodPriority = it },
+                toggle("Scrappy food priority", "Highlight food you carry; all known meals stay visible until the first unique catch", { s.scrappyFoodPriority }) { s.scrappyFoodPriority = it },
+                Info("Scrappy food labels", "* marks the remaining food after learning the other two Scrappies"),
                 toggle("Hideyho auto Sure", "Accepts Hideyho's offer after 0.3 seconds", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
                 toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
             )

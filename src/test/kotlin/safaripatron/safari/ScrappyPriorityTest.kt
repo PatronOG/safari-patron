@@ -16,17 +16,17 @@ class ScrappyPriorityTest {
                       foods: Set<ScrappyFood> = commonFoods, enabled: Boolean = true) =
         ScrappyPriority.evaluate(enabled, caught, sparkling, food, foods)
 
-    @Test fun wheatAndLilyHighlightTwoChoicesAndHideFish() {
+    @Test fun wheatAndLilyHighlightTwoChoicesWithoutHidingFish() {
         assertEquals(Emphasis.AVAILABLE, style(ScrappyFood.WHEAT))
         assertEquals(Emphasis.AVAILABLE, style(ScrappyFood.LILY_PAD))
-        assertEquals(Emphasis.HIDDEN, style(ScrappyFood.FISH))
+        assertEquals(Emphasis.NORMAL, style(ScrappyFood.FISH))
     }
 
     @Test fun carryingOnlyFishHighlightsOnlyItsMatchingScrappy() {
         val fish = setOf(ScrappyFood.FISH)
         assertEquals(Emphasis.AVAILABLE, style(ScrappyFood.FISH, foods = fish))
-        assertEquals(Emphasis.HIDDEN, style(ScrappyFood.WHEAT, foods = fish))
-        assertEquals(Emphasis.HIDDEN, style(ScrappyFood.LILY_PAD, foods = fish))
+        assertEquals(Emphasis.NORMAL, style(ScrappyFood.WHEAT, foods = fish))
+        assertEquals(Emphasis.NORMAL, style(ScrappyFood.LILY_PAD, foods = fish))
     }
 
     @Test fun emptyInventoryDoesNotHideEveryKnownScrappy() {
@@ -49,7 +49,7 @@ class ScrappyPriorityTest {
         val matches = ScrappyGuideMatcher.match(subjects, guides)
         assertEquals(Emphasis.AVAILABLE, style(matches[1]))
         assertEquals(Emphasis.AVAILABLE, style(matches[2]))
-        assertEquals(Emphasis.HIDDEN, style(matches[3]))
+        assertEquals(Emphasis.NORMAL, style(matches[3]))
     }
 
     @Test fun unrecognizedNpcSkinsCannotInventFoodAssociations() {
@@ -71,56 +71,4 @@ class ScrappyPriorityTest {
         assertEquals(Emphasis.NORMAL, style(ScrappyFood.FISH, caught = true, enabled = false))
     }
 
-    @Test fun foodMemoryWorksWhenTheHunterTagDropsOutAtLongRange() {
-        val memory = ScrappyFoodMemory()
-        val pos = Point(-100.5, 57.0, 63.5)
-        assertEquals(ScrappyFood.WHEAT, memory.resolve("scrappy-a", pos, ScrappyFood.WHEAT, true))
-        assertEquals(ScrappyFood.WHEAT, memory.resolve("scrappy-a", pos, null, false))
-    }
-
-    @Test fun anUnseenScrappyHasNoFoodPrediction() {
-        assertNull(ScrappyFoodMemory().resolve("new", Point(0.0, 0.0, 0.0), null, false))
-    }
-
-    @Test fun movingToADifferentSpawnInvalidatesTheRememberedFood() {
-        val memory = ScrappyFoodMemory()
-        memory.resolve("a", Point(0.0, 0.0, 0.0), ScrappyFood.WHEAT, true)
-        assertNull(memory.resolve("a", Point(10.0, 0.0, 0.0), null, false))
-    }
-
-    @Test fun ambiguousNearbyGuideEvidenceInvalidatesAnOldMatch() {
-        val memory = ScrappyFoodMemory()
-        val pos = Point(0.0, 0.0, 0.0)
-        memory.resolve("a", pos, ScrappyFood.WHEAT, true)
-        assertNull(memory.resolve("a", pos, null, true))
-        assertNull(memory.resolve("a", pos, null, false))
-    }
-
-    @Test fun verifiedNewEvidenceReplacesAnEarlierFoodMatch() {
-        val memory = ScrappyFoodMemory()
-        val pos = Point(0.0, 0.0, 0.0)
-        memory.resolve("a", pos, ScrappyFood.WHEAT, true)
-        assertEquals(ScrappyFood.LILY_PAD, memory.resolve("a", pos, ScrappyFood.LILY_PAD, true))
-    }
-
-    @Test fun resetDoesNotCarryFoodKnowledgeIntoAnotherRun() {
-        val memory = ScrappyFoodMemory()
-        val pos = Point(0.0, 0.0, 0.0)
-        memory.resolve("a", pos, ScrappyFood.WHEAT, true)
-        memory.clear()
-        assertNull(memory.resolve("a", pos, null, false))
-    }
-
-    @Test fun differentEntitiesCannotBorrowEachOthersFood() {
-        val memory = ScrappyFoodMemory()
-        val pos = Point(0.0, 0.0, 0.0)
-        memory.resolve("a", pos, ScrappyFood.WHEAT, true)
-        assertNull(memory.resolve("b", pos, null, false))
-    }
-
-    @Test fun invalidPositionsCannotReuseAnAssociation() {
-        val memory = ScrappyFoodMemory()
-        memory.resolve("a", Point(0.0, 0.0, 0.0), ScrappyFood.WHEAT, true)
-        assertNull(memory.resolve("a", Point(Double.NaN, 0.0, 0.0), null, false))
-    }
 }

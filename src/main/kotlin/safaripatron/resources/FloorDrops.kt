@@ -11,7 +11,6 @@ import net.minecraft.world.entity.Display
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.phys.AABB
-import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import safaripatron.SafariPatron
 import safaripatron.config.Config
@@ -95,28 +94,32 @@ object FloorDrops {
         }
     }
 
+    private const val GREEN = 0xFF00FF00.toInt()
+    private const val PURPLE = 0xFFB04CFF.toInt()
+    private const val RED = 0xFFFF5555.toInt()
+
     fun collect(client: Minecraft, out: WorldRender.Batch) {
         if (!Config.s.floorDrops || !Safari.inSafari || !Run.running) return
         val player = client.player ?: return
-        val hit = client.hitResult?.takeIf { it.type != HitResult.Type.MISS }?.location
+        val s = Config.s
+        val rules = NeedRules(s.floorGemRule, s.floorFoodRule, s.floorIncenseRule, s.floorCoinRule, s.floorIceRule)
         for (drop in visible) {
             if (drop.collected || drop.biome != Safari.biome ||
                 drop.point.distanceSquared(DropPoint(player.x, player.y, player.z)) > 128.0 * 128) continue
             val kind = drop.kind
-            val emphasis = DropVisibility.emphasis(kind, needs, Run.caught, Config.s.floorHideOwnedGems,
-                Config.s.floorResourcePriority, Config.s.floorRewardDrops, Config.s.floorFoodOnly && Safari.biome == Biome.FOREST)
-            if (emphasis == DropEmphasis.HIDDEN) continue
-            val highlight = emphasis == DropEmphasis.NEEDED
-            val color = if (highlight) 0xFF80FF60.toInt() else kind?.color ?: 0xFFFFFFFF.toInt()
+            val emphasis = DropVisibility.emphasis(kind, needs, Run.caught, s.floorResourcePriority,
+                s.floorRewardDrops, s.floorFoodOnly && Safari.biome == Biome.FOREST, rules)
+            val color = when (emphasis) {
+                DropEmphasis.HIDDEN -> continue
+                DropEmphasis.NEEDED -> PURPLE
+                DropEmphasis.UNKNOWN -> RED
+                DropEmphasis.NORMAL -> GREEN
+            }
             val (x, y, z) = drop.point.block
             out.box(AABB(x.toDouble(), y + 1.01, z.toDouble(), x + 1.0, y + 1.01, z + 1.0), color)
-            if (Config.s.floorDropContents) {
-                val texture = Identifier.fromNamespaceAndPath(SafariPatron.MOD_ID, kind?.texture ?: "textures/drops/unknown.png")
-                out.surfaceIcon(texture, Vec3(x + .5, y + 1.018, z + .5), if (highlight) .78f else .62f)
-                if (hit != null && hit.distanceToSqr(Vec3(x + .5, y + 1.0, z + .5)) <= 1.5)
-                    out.label(kind?.let { "${it.label} (predicted)" } ?: "? Contents unknown",
-                        Vec3(x + .5, y + 1.3, z + .5), color)
-            }
+            // Like Scrappy's food: the item floats above the drop, facing the camera
+            if (s.floorDropContents && kind != null && kind != DropKind.REWARD)
+                out.billboard(Identifier.fromNamespaceAndPath(SafariPatron.MOD_ID, kind.texture), Vec3(x + .5, y + 1.3, z + .5))
         }
     }
 }

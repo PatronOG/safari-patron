@@ -215,8 +215,8 @@ Reset buttons ask before deleting.
 - **Sparkling ESP:** Spots Sparkling critters and alerts you in chat with their distance and coordinates. Marks the critter with a box in the world.
 - **Critter ESP:** Boxes around critters.
 - **Floor Drop ESP:** Marks floor drop spots.
-- **Floor Drop Icons:** Shows what each drop most likely holds on top of its block: gems, bird food, incense, coins or Icebreakers. Look at one to see its name. `?` means unknown; XP, Essence and Shards share one icon.
-- **Needed Resources:** Drops you still need for the run stand out. Once you hold or place a gem color, the rest of that color is hidden. Optionally, in Forest only bird food and unknown drops are shown.
+- **Floor Drop Holograms:** The item each drop most likely holds floats above it: gems, bird food, incense, coins or Icebreakers. A red drop means its contents aren't worked out yet.
+- **Needed Resources:** Drops you still need for the run are purple, the rest green. Choose when each one turns green, e.g. gems once you have that color, incense at 4. Optionally, in Forest only bird food is shown.
 - **Bee Nest ESP:** Honeybug nests in Forest. A nest goes away once you hit it.
 - **Snoozle Walls:** Breakable walls in Cavern.
 - **Clear Water:** See through the water in the Safari, with adjustable opacity.
@@ -276,7 +276,7 @@ Every toggle is also available in the `/sp` menu.
 
 ## Use at Your Own Risk
 
-Safari Patron is a client-side mod. Most features only show information on your screen, and it only sends the party chat messages you turn on. A few optional helpers act in the game for you: the Cavern Gem Helper picks or places gems, the Masterful Target Filter can hold back a throw, Hideyho Auto-Sure clicks for you and Rockmite Hold Click keeps attacking while you hold the button. Some features, like ESP, Floor Drop Icons, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
+Safari Patron is a client-side mod. Most features only show information on your screen, and it only sends the party chat messages you turn on. A few optional helpers act in the game for you: the Cavern Gem Helper picks or places gems, the Masterful Target Filter can hold back a throw, Hideyho Auto-Sure clicks for you and Rockmite Hold Click keeps attacking while you hold the button. Some features, like ESP, Floor Drop Holograms, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
 
 If something needs to be changed or fixed, [open an issue](https://github.com/PatronOG/safari-patron/issues) and we'll fix it as soon as we can.
 

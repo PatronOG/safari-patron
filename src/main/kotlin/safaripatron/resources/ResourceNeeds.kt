@@ -1,5 +1,19 @@
 package safaripatron.resources
 
+/** When a still-needed resource turns from purple back to an ordinary green drop. */
+data class NeedRules(
+    /** "have" = once you hold or place that color; "always" = only when Gemzie is caught. */
+    val gems: String = "have",
+    /** "always" = bird food stays purple; "allcaught" = until Bluebird, Parakeet and Macaw are caught. */
+    val food: String = "always",
+    /** "four" = at 4 Soothing Incense; "always" = only when Doomspiral is caught. */
+    val incense: String = "four",
+    /** "one" = once you hold a Shining Coin or Gimmiegold is caught; "always" = always purple. */
+    val coin: String = "one",
+    /** "always" = always purple; "one" = once you hold an Icebreaker or Wumpa is caught. */
+    val icebreaker: String = "always",
+)
+
 /** Possession and confirmed placements are independent from predicted floor contents. */
 class ResourceNeeds {
     private val placed = HashSet<DropKind>()
@@ -8,23 +22,26 @@ class ResourceNeeds {
     fun inventory(counts: Map<DropKind, Int>) { held = counts.filterValues { it > 0 } }
     fun placed(kind: DropKind) { if (kind.gem) placed.add(kind) }
     fun hasGem(kind: DropKind) = kind.gem && (kind in placed || (held[kind] ?: 0) > 0)
-    fun needed(kind: DropKind, caught: Set<String>): Boolean = when {
-        kind.gem -> !hasGem(kind) && "Gemzie" !in caught
-        kind in setOf(DropKind.WORM, DropKind.BERRY, DropKind.SEEDS) -> !caught.containsAll(listOf("Bluebird", "Parakeet", "Macaw"))
-        kind == DropKind.INCENSE -> (held[kind] ?: 0) < 4 && "Doomspiral" !in caught
-        kind == DropKind.COIN -> (held[kind] ?: 0) == 0 && "Gimmiegold" !in caught
-        kind == DropKind.ICEBREAKER -> (held[kind] ?: 0) == 0 && "Wumpa" !in caught
+    private fun count(kind: DropKind) = held[kind] ?: 0
+    fun needed(kind: DropKind, caught: Set<String>, rules: NeedRules = NeedRules()): Boolean = when {
+        kind.gem -> "Gemzie" !in caught && (rules.gems == "always" || !hasGem(kind))
+        kind in setOf(DropKind.WORM, DropKind.BERRY, DropKind.SEEDS) ->
+            rules.food == "always" || !caught.containsAll(listOf("Bluebird", "Parakeet", "Macaw"))
+        kind == DropKind.INCENSE -> "Doomspiral" !in caught && (rules.incense == "always" || count(kind) < 4)
+        kind == DropKind.COIN -> rules.coin == "always" || count(kind) == 0 && "Gimmiegold" !in caught
+        kind == DropKind.ICEBREAKER -> rules.icebreaker == "always" || count(kind) == 0 && "Wumpa" !in caught
         else -> false
     }
 }
 
-enum class DropEmphasis { HIDDEN, NORMAL, NEEDED }
+/** NEEDED = purple, NORMAL = green, UNKNOWN = contents not worked out yet (red, no hologram). */
+enum class DropEmphasis { HIDDEN, NORMAL, NEEDED, UNKNOWN }
 object DropVisibility {
-    fun emphasis(kind: DropKind?, needs: ResourceNeeds, caught: Set<String>, hideGems: Boolean,
-                 prioritize: Boolean, rewards: Boolean, foodOnly: Boolean): DropEmphasis {
-        if (kind == null) return DropEmphasis.NORMAL
-        if (hideGems && needs.hasGem(kind) || !rewards && kind == DropKind.REWARD ||
+    fun emphasis(kind: DropKind?, needs: ResourceNeeds, caught: Set<String>, prioritize: Boolean,
+                 rewards: Boolean, foodOnly: Boolean, rules: NeedRules = NeedRules()): DropEmphasis {
+        if (kind == null) return DropEmphasis.UNKNOWN
+        if (!rewards && kind == DropKind.REWARD ||
             foodOnly && kind !in setOf(DropKind.WORM, DropKind.BERRY, DropKind.SEEDS)) return DropEmphasis.HIDDEN
-        return if (prioritize && needs.needed(kind, caught)) DropEmphasis.NEEDED else DropEmphasis.NORMAL
+        return if (prioritize && needs.needed(kind, caught, rules)) DropEmphasis.NEEDED else DropEmphasis.NORMAL
     }
 }

@@ -66,7 +66,12 @@ class Settings {
     var floorDrops = true
     var floorDropContents = true
     var floorResourcePriority = true
-    var floorHideOwnedGems = true
+    /** When a needed floor drop turns from purple to green; see resources/NeedRules. */
+    var floorGemRule = "have"
+    var floorFoodRule = "always"
+    var floorIncenseRule = "four"
+    var floorCoinRule = "one"
+    var floorIceRule = "always"
     var floorRewardDrops = true
     var floorFoodOnly = false
     var incenseCandleTarget = true
@@ -249,6 +254,11 @@ object Config {
             if (s.cavernGemPlacer == false) s.cavernGemMode = "off"
             s.cavernGemPlacer = null
             if (s.cavernGemMode !in setOf("off", "select", "auto")) s.cavernGemMode = "select"
+            if (s.floorGemRule !in setOf("have", "always")) s.floorGemRule = "have"
+            if (s.floorFoodRule !in setOf("always", "allcaught")) s.floorFoodRule = "always"
+            if (s.floorIncenseRule !in setOf("four", "always")) s.floorIncenseRule = "four"
+            if (s.floorCoinRule !in setOf("one", "always")) s.floorCoinRule = "one"
+            if (s.floorIceRule !in setOf("always", "one")) s.floorIceRule = "always"
             // "Prefire spots" was split into Wumpa Skip Helper and Doomspiral Timer
             if (!s.prefireSpots) { s.wumpaSkip = false; s.doomspiralTimer = false; s.prefireSpots = true }
         }

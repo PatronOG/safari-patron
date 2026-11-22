@@ -60,11 +60,12 @@ object WorldRender {
         val segments = ArrayList<Seg>()
         val labels = ArrayList<Label>()
         val icons = ArrayList<ItemIcon>()
-        val surfaceIcons = ArrayList<SurfaceIcon>()
-        class SurfaceIcon(val texture: Identifier, val pos: Vec3, val size: Float)
-        fun surfaceIcon(texture: Identifier, pos: Vec3, size: Float) {
-            if (size.isFinite() && size in .1f..1.2f && pos.x.isFinite() && pos.y.isFinite() && pos.z.isFinite())
-                surfaceIcons.add(SurfaceIcon(texture, pos, size))
+        val billboards = ArrayList<Billboard>()
+        class Billboard(val texture: Identifier, val pos: Vec3, val pixels: Float)
+        /** Camera-facing picture whose bottom edge sits at [pos]; grows with distance like the labels. */
+        fun billboard(texture: Identifier, pos: Vec3, pixels: Float = 16f) {
+            if (pixels.isFinite() && pixels in 4f..64f && pos.x.isFinite() && pos.y.isFinite() && pos.z.isFinite())
+                billboards.add(Billboard(texture, pos, pixels))
         }
         class Label(val text: String, val pos: Vec3, val color: Int, val bold: Boolean, val line: Int)
         class ItemIcon(val stack: ItemStack, val pos: Vec3, val pixels: Float)
@@ -134,21 +135,34 @@ object WorldRender {
             }
         }
         if (batch.labels.isNotEmpty()) drawLabels(context, client, cam, batch.labels)
-        for ((texture, icons) in batch.surfaceIcons.groupBy { it.texture }) {
-            val frozen = icons.toList()
-            // Normal depth-tested text geometry keeps these horizontal quads on their block surfaces.
-            context.submitNodeCollector().submitCustomGeometry(context.poseStack(), RenderTypes.text(texture)) { pose, vertices ->
-                for (icon in frozen) {
-                    val x = (icon.pos.x - cam.x).toFloat(); val y = (icon.pos.y - cam.y).toFloat(); val z = (icon.pos.z - cam.z).toFloat()
-                    val r = icon.size / 2
-                    vertices.addVertex(pose, x-r, y, z-r).setColor(-1).setUv(0f, 0f).setLight(LightCoordsUtil.FULL_BRIGHT)
-                    vertices.addVertex(pose, x-r, y, z+r).setColor(-1).setUv(0f, 1f).setLight(LightCoordsUtil.FULL_BRIGHT)
-                    vertices.addVertex(pose, x+r, y, z+r).setColor(-1).setUv(1f, 1f).setLight(LightCoordsUtil.FULL_BRIGHT)
-                    vertices.addVertex(pose, x+r, y, z-r).setColor(-1).setUv(1f, 0f).setLight(LightCoordsUtil.FULL_BRIGHT)
+        if (batch.billboards.isNotEmpty()) drawBillboards(context, client, cam, batch.billboards)
+        if (batch.icons.isNotEmpty()) drawIcons(context, client, cam, batch.icons)
+    }
+
+    private fun drawBillboards(context: LevelRenderContext, client: Minecraft, cam: Vec3, boards: List<Batch.Billboard>) {
+        val rotation = client.gameRenderer.mainCamera().rotation()
+        val right = rotation.transform(org.joml.Vector3f(1f, 0f, 0f))
+        val up = rotation.transform(org.joml.Vector3f(0f, 1f, 0f))
+        for ((texture, group) in boards.groupBy { it.texture }) {
+            val frozen = group.toList()
+            context.submitNodeCollector().submitCustomGeometry(context.poseStack(), RenderTypes.text(texture)) { pose, v ->
+                for (b in frozen) {
+                    val dx = (b.pos.x - cam.x).toFloat(); val dy = (b.pos.y - cam.y).toFloat(); val dz = (b.pos.z - cam.z).toFloat()
+                    val distance = kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
+                    if (!distance.isFinite()) continue
+                    val pixelScale = 0.025f * maxOf(1f, distance / 10f)
+                    val h = b.pixels * pixelScale / 2
+                    // Center of the picture, half its size above the anchor
+                    val cx = dx + up.x * h; val cy = dy + up.y * h; val cz = dz + up.z * h
+                    fun corner(sx: Float, sy: Float, u: Float, w: Float) =
+                        v.addVertex(pose, cx + (right.x * sx + up.x * sy) * h, cy + (right.y * sx + up.y * sy) * h,
+                            cz + (right.z * sx + up.z * sy) * h).setColor(-1).setUv(u, w).setLight(LightCoordsUtil.FULL_BRIGHT)
+                    // Both windings, so it shows whichever way the render type culls
+                    corner(-1f, 1f, 0f, 0f); corner(-1f, -1f, 0f, 1f); corner(1f, -1f, 1f, 1f); corner(1f, 1f, 1f, 0f)
+                    corner(1f, 1f, 1f, 0f); corner(1f, -1f, 1f, 1f); corner(-1f, -1f, 0f, 1f); corner(-1f, 1f, 0f, 0f)
                 }
             }
         }
-        if (batch.icons.isNotEmpty()) drawIcons(context, client, cam, batch.icons)
     }
 
     private fun drawIcons(context: LevelRenderContext, client: Minecraft, cam: Vec3, icons: List<Batch.ItemIcon>) {

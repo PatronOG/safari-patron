@@ -6,12 +6,15 @@ package safaripatron.safari
 
 import kotlin.math.abs
 
-internal enum class ScrappyFood(val hunter: String, val label: String, val itemId: String) {
-    FISH("Hunter Luigi", "Flavor-packed Fish", "FLAVOR_PACKED_FISH"),
-    LILY_PAD("Hunter Jasper", "Lush Lily Pad", "LUSH_LILY_PAD"),
-    WHEAT("Hunter Reeves", "Wholesale Wheat", "WHOLESALE_WHEAT");
+internal enum class ScrappyFood(val hunter: String, val label: String, val itemId: String, val hunterTexture: String) {
+    FISH("Hunter Luigi", "Flavor-packed Fish", "FLAVOR_PACKED_FISH", "4538c727edceb5e29cc53d2b5c4231802ac5d7b9899d423ace81e7366e2e7ebc"),
+    LILY_PAD("Hunter Jasper", "Lush Lily Pad", "LUSH_LILY_PAD", "e4d0b57123433985923d6085dbea9ef760c2dbedd9c65ee9ba85a26148582459"),
+    WHEAT("Hunter Reeves", "Wholesale Wheat", "WHOLESALE_WHEAT", "eacd215ccde2f677c7c144e2b698ff33ea06a87aaf468d05d1f0dc5ec2bdbfe8");
 
     companion object {
+        /** NPC skin identities recorded beside the verified Hunter name tags during feeding checks. */
+        fun fromHunterTexture(hash: String?): ScrappyFood? = entries.firstOrNull { it.hunterTexture == hash }
+
         fun fromHunterName(raw: String?): ScrappyFood? {
             val name = raw?.let(ChatParser::clean)?.removePrefix("[NPC] ")?.trim() ?: return null
             return entries.firstOrNull { it.hunter.equals(name, ignoreCase = true) }

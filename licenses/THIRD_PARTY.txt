@@ -1,6 +1,10 @@
 Third-party code and data used in Safari Patron
 ================================================
 
+Hypixel SkyBlock Wiki contributors - see Critter-Icons.txt and Critter-Icon-Sources.json
+  https://hypixelskyblock.minecraft.wiki/w/Critter_Safari
+  37 critter list sprites; original Minecraft/Hypixel art rights are retained.
+
 Nebulune (Copyright (c) 2025, Starred) - BSD 3-Clause, see Nebulune-BSD-3-Clause.txt
   Critter detection, floor drop detection and ESP colors
   (esp/CritterId.kt, esp/Esp.kt, data/Critters.kt)

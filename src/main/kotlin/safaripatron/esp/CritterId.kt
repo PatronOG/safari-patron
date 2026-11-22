@@ -59,7 +59,7 @@ object CritterId {
 
     fun texture(stack: ItemStack): String? = texture(stack.get(DataComponents.PROFILE)?.partialProfile())
 
-    private fun playerTexture(p: Player): String? =
+    internal fun playerTexture(p: Player): String? =
         texture(Minecraft.getInstance().connection?.getPlayerInfo(p.uuid)?.profile ?: p.gameProfile)
 
     private fun shulkerColor(e: Entity): String? = when (e) {

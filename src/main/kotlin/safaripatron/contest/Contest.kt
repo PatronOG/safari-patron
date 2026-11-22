@@ -199,15 +199,20 @@ object Contest {
         val due = minutes.filter { remaining <= it * 60 && it !in warnedMinutes }
         if (due.isEmpty()) return
         warnedMinutes.addAll(due)
-        if (s.contestWarnTitle) {
+        if (s.contestWarnTitleMode != "off") {
             val hud = client.gui.hud
             hud.setTimes(5, 60, 15)
-            hud.setTitle(Component.literal("§c§lINCOMPLETE!"))
+            hud.setTitle(Component.literal("§c§l" + warningTitle()))
             hud.setSubtitle(Component.literal(
                 "§e${format(remaining)} left to reach ${if (selectedFirstClass) "Legendary" else "Uncommon"}"))
         }
         if (s.contestWarnSound) client.soundManager.play(SimpleSoundInstance.forUI(SoundEvents.BELL_BLOCK, 1f, 1f))
     }
+
+    /** Custom text with a blank or unusable entry falls back to INCOMPLETE!. */
+    fun warningTitle(): String =
+        if (s.contestWarnTitleMode != "custom") "INCOMPLETE!"
+        else s.contestWarnTitleCustom.filter { !it.isISOControl() && it != '§' }.trim().take(40).ifBlank { "INCOMPLETE!" }
 
     fun ticketMessage() = resolve(s.contestTicketChoice, s.contestTicketCustom, TICKET_CHOICES, "Ticket earned!")
     fun startMessage() = resolve(s.contestStartChoice, s.contestStartCustom, START_CHOICES, "New Miria's Contest started.")

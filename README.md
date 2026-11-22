@@ -165,23 +165,23 @@ Reset buttons ask before deleting.
 - **Masterful Target Filter:** Off by default. With a Masterful Critter Capsule in hand, a right click only throws when the Capsule Helper's flight path hits Doomspiral, Wumpa, Macaw, Gemzie or Scrappy. Other targets show in red.
 - **Hitbox Editor:** Every critter has its own box size, measured in game, used for the Capsule Helper and ESP. Change any of them with `/sp boxes`. Use the default settings unless you know what you're doing.
 - **Doomspiral Timer:** Marks where to stand and where to aim, then counts down to the perfect Masterful Capsule throw while Doomspiral rises.
-- **Wumpa Skip Helper:** Marks where to stand and the two points to aim at: a Critter Capsule first, then the Masterful Capsule with a countdown. Set the delay between them with **Masterful delay** (1.2 s by default).
+- **Wumpa Skip Helper:** Marks where to stand and the two points to aim at: a Critter Capsule first, then the Masterful Capsule with a countdown. Set the delay between them with **Wumpa Masterful Delay** (1.2 s by default).
 - **Cavern Gem Helper:** Picks the matching Lime, Purple or Orange Gem in your hotbar while you look at its podium. You place it yourself, or let it place the gem for you after a short delay.
 - **Scrappy Food:** Shows what each Scrappy eats before you feed it, worked out from the Hunter nearby (Luigi: Flavor-packed Fish, Jasper: Lush Lily Pad, Reeves: Wholesale Wheat). Once two foods are known, the third is marked with `*`.
 - **Scrappy Food Priority:** Scrappies whose food you carry are highlighted in green, the others stay in gray. They disappear once your party has caught one.
 - **Hideyho Auto-Sure:** Off by default. Accepts Hideyho's challenge in Haunted by clicking `[Sure]` for you.
-- **Rockmite Hold Click:** Off by default. Hold left click on a Rockmite mound in Cavern and it keeps hitting until the mound breaks. Let go, look away or open a menu to stop.
-- **Incense Candle Targeting:** With Soothing Incense in hand in Haunted, the whole red candle block counts as the candle, so it's easier to aim at.
+- **Rockmite Clicker:** Off by default. Hold left click on a Rockmite mound in Cavern and it keeps hitting until the mound breaks. Let go, look away or open a menu to stop.
+- **Incense Candle Hitbox:** With Soothing Incense in hand in Haunted, the whole red candle block counts as the candle, so it's easier to aim at.
 - **Safari Entry Guard:** Stops you from entering the Safari at the Manager, with a ticket or from the entry menu until your whole party is there and the critters have loaded. Hold Shift to enter anyway.
 - **Helper Sounds:** A bell when it is time to throw. Each helper can be turned off on its own.
 
-> Moving, aiming and throwing are always up to you. The Cavern Gem Helper, Hideyho Auto-Sure and Rockmite Hold Click can act for you; each has its own settings under Helpers.
+> Moving, aiming and throwing are always up to you. The Cavern Gem Helper, Hideyho Auto-Sure and Rockmite Clicker can act for you; each has its own settings under Helpers.
 
 ### ✪ Miria's Contest
 - **Contest Tracker:** Time left, bracket and score, read from the scoreboard.
 - **Ticket Message:** Sends `Ticket earned!`, `r` or your own text to party chat when your Basic or First-Class ticket is earned.
 - **Start Message:** Sends `New Miria's Contest started.`, `!dt contest` or your own text to party chat when a new contest starts.
-- **Incomplete Warnings:** Title and sound if your ticket isn't done. 5 minutes left by default, 3 and 1 minute can be turned on too.
+- **Incomplete Warnings:** Title and sound if your ticket isn't done. 5 minutes left by default, 3 and 1 minute can be turned on too. The title can be `INCOMPLETE!`, your own text or off.
 - **Honeyhives:** During a contest every full Honeyhive in Torrhus Canyon gets a waypoint. A looted hive shows its one-hour refill timer, and the contest panel shows how many are ready.
 
 ### ♦ Profit Tracker
@@ -276,7 +276,7 @@ Every toggle is also available in the `/sp` menu.
 
 ## Use at Your Own Risk
 
-Safari Patron is a client-side mod. Most features only show information on your screen, and it only sends the party chat messages you turn on. A few optional helpers act in the game for you: the Cavern Gem Helper picks or places gems, the Masterful Target Filter can hold back a throw, Hideyho Auto-Sure clicks for you and Rockmite Hold Click keeps attacking while you hold the button. Some features, like ESP, Floor Drop Holograms, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
+Safari Patron is a client-side mod. Most features only show information on your screen, and it only sends the party chat messages you turn on. A few optional helpers act in the game for you: the Cavern Gem Helper picks or places gems, the Masterful Target Filter can hold back a throw, Hideyho Auto-Sure clicks for you and Rockmite Clicker keeps attacking while you hold the button. Some features, like ESP, Floor Drop Holograms, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
 
 If something needs to be changed or fixed, [open an issue](https://github.com/PatronOG/safari-patron/issues) and we'll fix it as soon as we can.
 

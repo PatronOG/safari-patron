@@ -31,7 +31,10 @@ dependencies {
     implementation(include("net.azureaaron:hm-api:${property("hm_api_version")}")!!)
     // Mod Menu: only needed to compile the config button, not bundled
     compileOnly("maven.modrinth:modmenu:${property("modmenu_version")}")
+    testImplementation(kotlin("test-junit"))
 }
+
+tasks.test { useJUnit() }
 
 tasks.processResources {
     val props = mapOf("version" to version.toString(), "minecraft" to targetMinecraft)

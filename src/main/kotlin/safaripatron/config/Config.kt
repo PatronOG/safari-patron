@@ -110,7 +110,11 @@ class Settings {
     var contestTicketChoice = "Ticket earned!"
     var contestTicketCustom = ""
     var contestWarn = true
-    var contestWarnTitle = true
+    /** Old on/off switch of the warning title; only read once to move it into contestWarnTitleMode. */
+    var contestWarnTitle: Boolean? = null
+    /** off, incomplete = "INCOMPLETE!", custom = contestWarnTitleCustom. */
+    var contestWarnTitleMode = "incomplete"
+    var contestWarnTitleCustom = ""
     var contestWarnSound = true
     var contestWarn5 = true
     var contestWarn3 = false
@@ -254,6 +258,10 @@ object Config {
             if (s.cavernGemPlacer == false) s.cavernGemMode = "off"
             s.cavernGemPlacer = null
             if (s.cavernGemMode !in setOf("off", "select", "auto")) s.cavernGemMode = "select"
+            if (s.contestWarnTitle == false) s.contestWarnTitleMode = "off"
+            s.contestWarnTitle = null
+            if (s.contestWarnTitleMode !in setOf("off", "incomplete", "custom")) s.contestWarnTitleMode = "incomplete"
+            if (s.contestWarnTitleCustom == null) s.contestWarnTitleCustom = ""
             if (s.floorGemRule !in setOf("have", "always")) s.floorGemRule = "have"
             if (s.floorFoodRule !in setOf("always", "allcaught")) s.floorFoodRule = "always"
             if (s.floorIncenseRule !in setOf("four", "always")) s.floorIncenseRule = "four"

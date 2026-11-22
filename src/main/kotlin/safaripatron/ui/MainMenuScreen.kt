@@ -162,7 +162,7 @@ class MainMenuScreen(private val parent: Screen? = null) : Screen(Component.lite
             y += rh + gap
         }
 
-        val credit = "Made by PatronOG"
+        val credit = "Made by Patron, Pluton, z1rr"
         g.text(font, credit, x0 + (w - font.width(credit)) / 2, y + 2, Ui.FAINT, false)
 
         // Update checker switch, bottom right

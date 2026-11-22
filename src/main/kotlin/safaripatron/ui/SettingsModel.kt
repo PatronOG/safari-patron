@@ -56,13 +56,13 @@ object SettingsModel {
         Category("sparkling", "Sparkling", "✦", 0xFFFFB627.toInt(), "Finder and panels", { s.sparklingFinder }) {
             listOf(
                 toggle("Sparkling finder", "Alert, box and waypoint §c(Use at your own risk)", { s.sparklingFinder }) { s.sparklingFinder = it },
-                toggle("Sound", "Ding when a sparkling is found", { s.sparklingSound }) { s.sparklingSound = it },
                 toggle("Auto share to party", "Sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
                 toggle("Last sparkling message", "Runs and time since the last one", { s.sparklingInterval }) { s.sparklingInterval = it },
+                toggle("Sound", "Ding when a sparkling is found", { s.sparklingSound }) { s.sparklingSound = it },
                 toggle("Sparklings panel", "Caught in this biome, all time", { s.sparklingCollectionHud }) { s.sparklingCollectionHud = it },
-                toggle("Critter list icons", "Creature sprites beside names in the biome and sparkling lists", { s.critterListIcons }) { s.critterListIcons = it },
                 toggle("Total sparklings panel", "All 37, in the middle area", { s.sparklingTotalHud }) { s.sparklingTotalHud = it },
-                choice("Panel list", "What the sparklings panels list", listOf("all", "missing"),
+                toggle("Critter list icons", "Creature sprites beside names in the biome and sparkling lists", { s.critterListIcons }) { s.critterListIcons = it },
+                choice("Panel list", "What the sparklings panels list", listOf("missing", "all"),
                     { if (it == "missing") "Missing only" else "All" },
                     { if (s.sparklingCollectionMissingOnly) "missing" else "all" }) { s.sparklingCollectionMissingOnly = it == "missing" },
                 Info("Critterdex sync", "Open the Sparkling Critterdex"),
@@ -78,18 +78,18 @@ object SettingsModel {
                 toggle("Floor drops", "Mark floor drop spots", { s.floorDrops }) { s.floorDrops = it },
                 toggle("Floor drop holograms", "The predicted item floats above the drop. Red: contents not worked out yet", { s.floorDropContents }) { s.floorDropContents = it },
                 toggle("Needed resource priority", "Drops you still need for the run are purple, the rest green", { s.floorResourcePriority }) { s.floorResourcePriority = it },
+                toggle("Reward floor drops", "Show the combined XP / Essence / Shard category", { s.floorRewardDrops }) { s.floorRewardDrops = it },
+                toggle("Forest food drops only", "In Forest, show predicted bird food and unknown drops", { s.floorFoodOnly }) { s.floorFoodOnly = it },
+                choice("Bird food", "When a bird food drop turns green", listOf("allcaught", "always"),
+                    { if (it == "always") "Always purple" else "When all birds are caught" }, { s.floorFoodRule }) { s.floorFoodRule = it },
                 choice("Gems", "When a gem drop turns green. Always green after Gemzie", listOf("have", "always"),
                     { if (it == "have") "When you have that color" else "Always purple" }, { s.floorGemRule }) { s.floorGemRule = it },
-                choice("Bird food", "When a bird food drop turns green", listOf("always", "allcaught"),
-                    { if (it == "always") "Always purple" else "When all birds are caught" }, { s.floorFoodRule }) { s.floorFoodRule = it },
+                choice("Icebreaker", "When an Icebreaker drop turns green", listOf("one", "always"),
+                    { if (it == "always") "Always purple" else "At 1 Icebreaker" }, { s.floorIceRule }) { s.floorIceRule = it },
                 choice("Incense", "When an incense drop turns green. Always green after Doomspiral", listOf("four", "always"),
                     { if (it == "four") "At 4 Incense" else "Always purple" }, { s.floorIncenseRule }) { s.floorIncenseRule = it },
                 choice("Shining Coin", "When a coin drop turns green", listOf("one", "always"),
                     { if (it == "one") "At 1 Coin" else "Always purple" }, { s.floorCoinRule }) { s.floorCoinRule = it },
-                choice("Icebreaker", "When an Icebreaker drop turns green", listOf("always", "one"),
-                    { if (it == "always") "Always purple" else "At 1 Icebreaker" }, { s.floorIceRule }) { s.floorIceRule = it },
-                toggle("Reward floor drops", "Show the combined XP / Essence / Shard category", { s.floorRewardDrops }) { s.floorRewardDrops = it },
-                toggle("Forest food drops only", "In Forest, show predicted bird food and unknown drops", { s.floorFoodOnly }) { s.floorFoodOnly = it },
                 toggle("Bee nests", "Honeybug nests in Forest", { s.beeNests }) { s.beeNests = it },
                 toggle("Snoozle walls", "Breakable walls in Cavern", { s.snoozleWalls }) { s.snoozleWalls = it },
                 toggle("Clear water", "See through Safari water", { s.clearWater }) { s.clearWater = it },
@@ -100,7 +100,6 @@ object SettingsModel {
         Category("party", "Party", "⚑", 0xFFC9A0F0.toInt(), "Warp check, hotspot",
             { s.warpCheck || s.hotspotAnnounce || s.hotspotAssign || s.biomeAnnouncements || s.warpScreen || s.hotspotScreen || s.biomeScreen }) {
             listOf(
-                Info("Party chat", "Sent to your party"),
                 toggle("Warp check", "4/4 Players in Safari.", { s.warpCheck }) { s.warpCheck = it },
                 toggle("Hotspot sharing", "Hotspot: Haunted §eYou can turn this off while using Hotspot assignment.", { s.hotspotAnnounce }) { s.hotspotAnnounce = it },
                 toggle("Hotspot assignment", "Places everyone by their hotspot: IGN: Forest | IGN: Icy ✦ ...",
@@ -120,24 +119,24 @@ object SettingsModel {
             { s.capsuleTrajectory || s.masterfulTargetFilter || s.wumpaSkip || s.doomspiralTimer || s.cavernGemMode != "off" || s.scrappyFoodHints || s.hideyhoAutoSure || s.incenseCandleTarget || s.rockmiteHoldClick || s.safariEntryGuard }) {
             listOf(
                 toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §c(Use at your own risk)", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
-                toggle("Masterful target filter", "Only throw at Doomspiral, Wumpa, Macaw, Gemzie or Scrappy §c(Use at your own risk)", { s.masterfulTargetFilter }) { s.masterfulTargetFilter = it },
                 Action("Open hitbox editor", "Box size of each critter, for capsules and ESP §eUse the default settings§r unless you know what you're doing.", "Open") {
                     MenuNav.open(BoxScreen())
                 },
+                toggle("Masterful target filter", "Only throw at Doomspiral, Wumpa, Macaw, Gemzie or Scrappy §c(Use at your own risk)", { s.masterfulTargetFilter }) { s.masterfulTargetFilter = it },
                 toggle("Wumpa Skip Helper", "Where to stand and aim, with a Masterful timer", { s.wumpaSkip }) { s.wumpaSkip = it },
-                Stepper("Masterful delay", "Wumpa skip: time from the first capsule to the Masterful throw", 5, 30,
+                Stepper("Wumpa Masterful delay", "Wumpa skip: time from the first capsule to the Masterful throw", 5, 30,
                     { String.format(java.util.Locale.ROOT, "%.1fs", it / 10.0) },
                     { s.masterfulDelayTenths }) { s.masterfulDelayTenths = it; Config.save() },
                 toggle("Doomspiral Timer", "Where to stand and aim, and when to throw the Masterful Capsule", { s.doomspiralTimer }) { s.doomspiralTimer = it },
+                toggle("Masterful Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
                 choice("Cavern Gem Helper", "Selects the matching hotbar gem while looking at its podium §c(Use at your own risk)", listOf("off", "select", "auto"),
                     { when (it) { "off" -> "Off"; "auto" -> "Select and Place"; else -> "Select Gem" } },
                     { s.cavernGemMode }) { s.cavernGemMode = it },
                 toggle("Scrappy food", "Shows its food icon before feeding, identified by the nearby Hunter", { s.scrappyFoodHints }) { s.scrappyFoodHints = it },
+                toggle("Rockmite Clicker", "Hold left mouse on a Rockmite mound to repeat attacks §c(Use at your own risk)", { s.rockmiteHoldClick }) { s.rockmiteHoldClick = it },
                 toggle("Hideyho Auto-Sure", "Accepts Hideyho's challenge §c(Use at your own risk)", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
-                toggle("Incense candle targeting", "Target the full red candle block while holding Soothing Incense in Haunted §c(Use at your own risk)", { s.incenseCandleTarget }) { s.incenseCandleTarget = it },
-                toggle("Rockmite hold click", "Hold left mouse on a Rockmite mound to repeat attacks §c(Use at your own risk)", { s.rockmiteHoldClick }) { s.rockmiteHoldClick = it },
+                toggle("Incense Candle Hitbox", "Target the full red candle block while holding Soothing Incense in Haunted §c(Use at your own risk)", { s.incenseCandleTarget }) { s.incenseCandleTarget = it },
                 toggle("Safari entry guard", "Wait for party presence and the loaded-entity scan; hold Shift to bypass", { s.safariEntryGuard }) { s.safariEntryGuard = it },
-                toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
             )
         },
         Category("contest", "Miria's Contest", "✪", 0xFFFFCC66.toInt(), "Timer, ticket, alerts", { s.contest }) {
@@ -146,7 +145,7 @@ object SettingsModel {
                 add(toggle("Contest panel", "Time, bracket, score, ticket", { s.contestHud }) { s.contestHud = it })
                 add(toggle("Honeyhives", "Waypoints and refill timers", { s.honeyhives }) { s.honeyhives = it })
                 add(toggle("Hide hives when done", "Once your ticket is earned", { s.honeyhivesHideWhenDone }) { s.honeyhivesHideWhenDone = it })
-                add(choice("Ticket", "Which ticket counts as done", listOf("basic", "first"),
+                add(choice("Ticket tier", "Which ticket counts as done", listOf("basic", "first"),
                     { if (it == "first") "First-Class" else "Basic" },
                     { if (s.contestFirstClass) "first" else "basic" }) { s.contestFirstClass = it == "first" })
                 add(toggle("Ticket message", "When your ticket is earned", { s.contestTicketAnnounce }) { s.contestTicketAnnounce = it })
@@ -165,15 +164,19 @@ object SettingsModel {
                     option("3 minutes", { s.contestWarn3 }) { s.contestWarn3 = it },
                     option("1 minute", { s.contestWarn1 }) { s.contestWarn1 = it },
                 )))
-                add(toggle("Warning title", "Big INCOMPLETE! text on screen", { s.contestWarnTitle }) { s.contestWarnTitle = it })
+                add(choice("Warning title", "Big red text on screen", listOf("off", "incomplete", "custom"),
+                    { when (it) { "off" -> "Off"; "custom" -> "Custom"; else -> "INCOMPLETE!" } },
+                    { s.contestWarnTitleMode }) { s.contestWarnTitleMode = it })
+                if (s.contestWarnTitleMode == "custom")
+                    add(text("Custom warning title", "Your own text", { s.contestWarnTitleCustom }) { s.contestWarnTitleCustom = it })
                 add(toggle("Warning sound", "Bell sound", { s.contestWarnSound }) { s.contestWarnSound = it })
             }
         },
         Category("profit", "Profit", "♦", 0xFF8FD16A.toInt(), "Session and total", { s.profitTracker }) {
             listOf(
                 toggle("Profit tracker", "Shards, feathers, essence, dyes", { s.profitTracker }) { s.profitTracker = it },
-                toggle("Session profit panel", "Shown in the Safari", { s.profitHud }) { s.profitHud = it },
                 toggle("Total profit panel", "All-time, outside the Safari", { s.totalProfitHud }) { s.totalProfitHud = it },
+                toggle("Session profit panel", "Shown in the Safari", { s.profitHud }) { s.profitHud = it },
                 choice("Total panel shows", "Never inside the Safari", listOf("entrance", "all"),
                     { if (it == "entrance") "Critter Safari Entrance" else "All Places" },
                     { s.totalProfitWhere }) { s.totalProfitWhere = it },

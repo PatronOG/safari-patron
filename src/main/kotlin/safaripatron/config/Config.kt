@@ -134,16 +134,12 @@ class Settings {
     /** Helpers: Wumpa skip spot and Doomspiral spot + timer, each on its own. */
     var wumpaSkip = true
     var doomspiralTimer = true
-    /** Select a hotbar gem and place it once while looking directly at its Cavern podium. */
-    var cavernGemPlacer = true
-    /** select = choose the hotbar gem and leave the right click to the player; auto = also place it. */
+    /** Old on/off switch of the Cavern Gem Helper; only read once to move it into cavernGemMode. */
+    var cavernGemPlacer: Boolean? = null
+    /** Cavern Gem Helper: off; select = choose the hotbar gem, the player right-clicks; auto = also place it. */
     var cavernGemMode = "select"
-    /** Automatic mode waits 0.3 seconds before selecting, then 0.2 seconds before placing. */
-    var cavernGemPlacementDelay = true
-    /** Food icons from the Hunter next to each Scrappy, available before feeding. */
+    /** Scrappy food icons from the nearby Hunter, and the food labels that highlight what you carry. */
     var scrappyFoodHints = true
-    /** Highlight Scrappies whose verified food is in the inventory, until the party catches one. */
-    var scrappyFoodPriority = true
     /** Accept Hideyho's Sure dialogue action after 300 ms. Off by default: it clicks for you. */
     var hideyhoAutoSure = false
     /** Bell when it is time to throw. */
@@ -240,7 +236,10 @@ object Config {
             if (s.totalProfitRows !in listOf(5, 10, 15, 20)) s.totalProfitRows = 15
             if (s.achievementToasts == null) s.achievementToasts = "common"
             if (s.achievementPanel == null) s.achievementPanel = PanelPos(-1f, 0.08f)
-            if (s.cavernGemMode !in setOf("select", "auto")) s.cavernGemMode = "select"
+            // The Cavern Gem Helper switch and its action are now one setting
+            if (s.cavernGemPlacer == false) s.cavernGemMode = "off"
+            s.cavernGemPlacer = null
+            if (s.cavernGemMode !in setOf("off", "select", "auto")) s.cavernGemMode = "select"
             // "Prefire spots" was split into Wumpa Skip Helper and Doomspiral Timer
             if (!s.prefireSpots) { s.wumpaSkip = false; s.doomspiralTimer = false; s.prefireSpots = true }
         }

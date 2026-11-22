@@ -107,9 +107,9 @@
   {
     "critter": "Scrappy",
     "asset": "textures/critters/scrappy.png",
-    "source": "https://hypixelskyblock.minecraft.wiki/images/thumb/Armadillo_Sprite.png/32px-Armadillo_Sprite.png?66284",
-    "file_page": "https://hypixelskyblock.minecraft.wiki/w/File:Armadillo_Sprite.png",
-    "changes": "Unmodified wiki thumbnail."
+    "source": "https://minecraft.wiki/images/Armadillo_JE2_BE2.png",
+    "file_page": "https://minecraft.wiki/w/File:Armadillo_JE2_BE2.png",
+    "changes": "Cropped to content and scaled down to 32x31."
   },
   {
     "critter": "Snoozle",

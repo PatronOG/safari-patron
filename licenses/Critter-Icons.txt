@@ -4,10 +4,15 @@ Critter list sprites
 Source: Hypixel SkyBlock Wiki contributors
 https://hypixelskyblock.minecraft.wiki/w/Critter_Safari
 
-37 sprite thumbnails are bundled in assets/safari-patron/textures/critters/.
+36 sprite thumbnails are bundled in assets/safari-patron/textures/critters/.
 They are packaged locally; using this feature makes no requests to the wiki.
 Individual file pages and exact thumbnail URLs are listed in Critter-Icon-Sources.json.
 All thumbnails are unchanged except Duplico: the first GIF frame was converted to PNG.
+
+Scrappy uses the armadillo render from the Minecraft Wiki instead, cropped and
+scaled down to 32x31: https://minecraft.wiki/w/File:Armadillo_JE2_BE2.png
+The Minecraft Wiki's own material is CC BY-NC-SA 3.0; the render shows Minecraft
+artwork, copyright Mojang Studios.
 
 The wiki identifies vanilla entity renders with its Copyright Mojang Studios notice:
 https://hypixelskyblock.minecraft.wiki/w/Template:License/Mojang

@@ -163,9 +163,12 @@ Reset buttons ask before deleting.
 - **Hitbox Editor:** Every critter has its own box size, measured in game, used for the Capsule Helper and ESP. Change any of them with `/sp boxes`. Use the default settings unless you know what you're doing.
 - **Doomspiral Timer:** Marks where to stand and where to aim, then counts down to the perfect Masterful Capsule throw while Doomspiral rises.
 - **Wumpa Skip Helper:** Marks where to stand and the two points to aim at: a Critter Capsule first, then the Masterful Capsule with a countdown. Set the delay between them with **Masterful delay** (1.2 s by default).
+- **Cavern Gem Helper:** Selects the matching Lime, Purple or Orange Gem from your hotbar while looking at its podium. The default **Gem action** is **Select gem; I right-click**, so you place it yourself. Alternatively choose **Select and place automatically**. The optional **Gem placement delay (0.3s + 0.2s)** waits while aiming for 0.3 seconds before selecting the gem, then another 0.2 seconds before the automatic click. It is enabled by default and applies to automatic mode. Looking away cancels either pending step. All settings are under `/sp` → **Helpers**. Makes one selection or placement per continuous look and remembers successful placements for the current run.
+- **Scrappy Food:** Shows the food's item icon above a curled-up Scrappy before its first feeding. Identifies its nearby Hunter: Luigi → Flavor-packed Fish, Jasper → Lush Lily Pad, Reeves → Wholesale Wheat. Works when their locations change between runs. Unknown or ambiguous Hunter associations show no hint. Enabled by default; toggle it with `/sp` → **Helpers** → **Scrappy food**.
+- **Hideyho Auto Sure:** Accepts the clickable `[Sure]` action 0.3 seconds after Hideyho's offer appears. Only responds to his "How about it?" dialogue during a Haunted run. Pauses while the game is unfocused or another screen is open, and cancels stale offers on world/run changes. Enabled by default; toggle it with `/sp` → **Helpers** → **Hideyho auto Sure**. With auto acceptance off, a left click anywhere in open chat can still pick the pending `[Sure]`.
 - **Helper Sounds:** A bell when it is time to throw. Each helper can be turned off on its own.
 
-> Helpers only show where and when. Moving, aiming and throwing are always up to you.
+> Moving, aiming and throwing capsules remain manual. Gem selection is automatic while aiming at a podium; gem placement and Hideyho Sure acceptance have separate controls under Helpers.
 
 ### ✪ Miria's Contest
 - **Contest Tracker:** Time left, bracket and score, read from the scoreboard.

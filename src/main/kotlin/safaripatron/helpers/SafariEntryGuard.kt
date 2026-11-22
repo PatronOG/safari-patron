@@ -70,7 +70,7 @@ object SafariEntryGuard {
         tick(client)
         val player = client.player ?: return false
         val connection = client.connection ?: return false
-        val shift = InputConstants.isKeyDown(InputConstants.KEY_LSHIFT) || InputConstants.isKeyDown(InputConstants.KEY_RSHIFT)
+        val shift = InputConstants.isKeyDown(client.window, InputConstants.KEY_LSHIFT) || InputConstants.isKeyDown(client.window, InputConstants.KEY_RSHIFT)
         val present = if (TabList.active) TabList.players().toMutableSet() else connection.listedOnlinePlayers.mapTo(HashSet()) { it.profile.id }
         // A dimension respawn need not resend our own tab entry; the current local entity is direct presence evidence.
         if (player.level() === client.level) present.add(player.uuid)

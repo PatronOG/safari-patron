@@ -20,6 +20,11 @@ import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.resources.Identifier
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import net.minecraft.client.renderer.item.ItemStackRenderState
+import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.world.item.ItemDisplayContext
+import net.minecraft.world.item.ItemStack
+import safaripatron.safari.ScrappyFoodHints
 import safaripatron.SafariPatron
 import safaripatron.capsule.Trajectory
 import safaripatron.esp.Esp
@@ -53,7 +58,15 @@ object WorldRender {
     class Batch(private val cam: Vec3) {
         val segments = ArrayList<Seg>()
         val labels = ArrayList<Label>()
+        val icons = ArrayList<ItemIcon>()
         class Label(val text: String, val pos: Vec3, val color: Int, val bold: Boolean, val line: Int)
+        class ItemIcon(val stack: ItemStack, val pos: Vec3, val pixels: Float)
+
+        /** Camera-facing item icon whose bottom edge sits above the name-tag anchor. */
+        fun icon(stack: ItemStack, pos: Vec3, pixels: Float = 16f) {
+            if (!stack.isEmpty && pixels.isFinite() && pixels in 4f..64f)
+                icons.add(ItemIcon(stack, pos, pixels))
+        }
 
         /** Dünyada, her zaman kameraya dönük ve duvar arkasından görünen yazı. line = alt alta satır sırası. */
         fun label(text: String, pos: Vec3, color: Int, bold: Boolean = false, line: Int = 0) {
@@ -101,6 +114,7 @@ object WorldRender {
 
         Esp.collect(client, batch)
         Structures.collect(client, batch)
+        ScrappyFoodHints.collect(client, batch)
         safaripatron.contest.Honeyhives.collect(client, batch)
         SparklingFinder.collect(batch)
         Trajectory.collect(client, batch)
@@ -113,6 +127,30 @@ object WorldRender {
             }
         }
         if (batch.labels.isNotEmpty()) drawLabels(context, client, cam, batch.labels)
+        if (batch.icons.isNotEmpty()) drawIcons(context, client, cam, batch.icons)
+    }
+
+    private fun drawIcons(context: LevelRenderContext, client: Minecraft, cam: Vec3, icons: List<Batch.ItemIcon>) {
+        val camera = client.gameRenderer.mainCamera()
+        val poses = context.poseStack()
+        for (icon in icons) {
+            val dx = icon.pos.x - cam.x; val dy = icon.pos.y - cam.y; val dz = icon.pos.z - cam.z
+            val distance = kotlin.math.sqrt(dx * dx + dy * dy + dz * dz).toFloat()
+            if (!distance.isFinite()) continue
+            val pixelScale = 0.025f * maxOf(1f, distance / 10f)
+            val size = icon.pixels * pixelScale
+            val itemState = ItemStackRenderState()
+            client.itemModelResolver.updateForTopItem(itemState, icon.stack, ItemDisplayContext.GUI, client.level, client.player, 0)
+            poses.pushPose()
+            try {
+                poses.translate(dx, dy + size / 2f + pixelScale * 2f, dz)
+                poses.mulPose(camera.rotation())
+                poses.scale(size, size, size)
+                itemState.submit(poses, context.submitNodeCollector(), LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0)
+            } finally {
+                poses.popPose()
+            }
+        }
     }
 
     private fun drawLabels(context: LevelRenderContext, client: Minecraft, cam: Vec3, labels: List<Batch.Label>) {

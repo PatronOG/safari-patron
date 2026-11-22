@@ -101,8 +101,8 @@ object SettingsModel {
                 )),
             )
         },
-        Category("capsule", "Helpers", "➶", 0xFF85B7EB.toInt(), "Capsule, skips and timers",
-            { s.capsuleTrajectory || s.wumpaSkip || s.doomspiralTimer }) {
+        Category("capsule", "Helpers", "➶", 0xFF85B7EB.toInt(), "Capsules, gems and food",
+            { s.capsuleTrajectory || s.wumpaSkip || s.doomspiralTimer || s.cavernGemPlacer || s.scrappyFoodHints || s.hideyhoAutoSure }) {
             listOf(
                 toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §cUse at your own risk.", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
                 toggle("Capsule Helper Hitbox Editor", "Use the default settings unless you know what you're doing",
@@ -115,6 +115,13 @@ object SettingsModel {
                     { String.format(java.util.Locale.ROOT, "%.1fs", it / 10.0) },
                     { s.masterfulDelayTenths }) { s.masterfulDelayTenths = it; Config.save() },
                 toggle("Doomspiral Timer", "Where to stand and aim, and when to throw the Masterful Capsule", { s.doomspiralTimer }) { s.doomspiralTimer = it },
+                toggle("Cavern Gem Helper", "Selects the matching hotbar gem while looking at its podium", { s.cavernGemPlacer }) { s.cavernGemPlacer = it },
+                choice("Gem action", "Choose who right-clicks the podium", listOf("select", "auto"),
+                    { if (it == "auto") "Select and place automatically" else "Select gem; I right-click" },
+                    { s.cavernGemMode }) { s.cavernGemMode = it },
+                toggle("Gem placement delay (0.3s + 0.2s)", "Automatic mode: wait before selecting, then wait before placing", { s.cavernGemPlacementDelay }) { s.cavernGemPlacementDelay = it },
+                toggle("Scrappy food", "Shows its food icon before feeding, identified by the nearby Hunter", { s.scrappyFoodHints }) { s.scrappyFoodHints = it },
+                toggle("Hideyho auto Sure", "Accepts Hideyho's offer after 0.3 seconds", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
                 toggle("Helper sounds", "Bell when it is time to throw", { s.prefireSound }) { s.prefireSound = it },
             )
         },

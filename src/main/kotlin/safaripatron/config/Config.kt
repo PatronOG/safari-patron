@@ -70,7 +70,8 @@ class Settings {
     var floorRewardDrops = true
     var floorFoodOnly = false
     var incenseCandleTarget = true
-    var rockmiteHoldClick = true
+    /** Off by default: it attacks for you while the button is held. */
+    var rockmiteHoldClick = false
     var safariEntryGuard = true
     var beeNests = true
     var snoozleWalls = true

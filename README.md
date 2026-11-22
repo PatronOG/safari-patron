@@ -26,18 +26,6 @@
 
 ## Features
 
-### Resource and interaction helpers
-
-- **Floor drop content icons:** Predicted gems, bird food, incense, coins and Icebreakers are drawn flat on the top block face. Looking at a marker shows its predicted name. Unknown contents keep a `?`; XP, Essence and Shards remain a combined reward category.
-- **Needed resource emphasis:** Highlights resources still needed for the run. Acquiring a gem color hides every remaining marker of that color; confirmed podium placements keep it hidden after use. Lost, unplaced gems become needed again. Unknown markers remain visible in the optional bird-food-only view.
-- **Incense candle targeting:** While holding Soothing Incense in Haunted, target the whole red candle block. Collision and server block state are unchanged.
-- **Rockmite hold click:** Hold the physical left mouse button while aiming at a Rockmite mound to repeat ordinary attacks. Releasing the button, looking away, opening a menu, using an item or losing focus stops the helper.
-- **Safari entry guard:** Blocks Manager attacks/interactions, held tickets and entry-menu ticket controls until the current party is present and the loaded-entity scan has settled. Hold physical **Shift** to bypass a blocked interaction. It never starts a run automatically and only protects the client running the mod.
-
-Floor drop controls are under **ESP**; candle targeting, Rockmite hold click and the entry guard are under **Helpers**. Each helper has its own switch. No extra objectives HUD is added.
-
-Floor contents are inferred from observed entity ordering, not a server reward field. Missing observations, conflicting pickups or an unsupported layout retain unknown labels rather than forcing a result. This does not predict whether bird food will summon a Macaw. The entry scan covers entities already delivered to the client, not unseen chunks; its readiness needs repeated scans, no unresolved Sparkling labels and 0.5 seconds without identity/name changes.
-
 <table>
 <tr>
 <td width="33%" valign="top">
@@ -111,7 +99,7 @@ Honeyhive waypoints and refill timers.
 <td width="33%" valign="top">
 
 ### ◈ ESP
-Critters and floor drops through walls.<br>
+Critters and floor drops through walls, with what's inside each drop.<br>
 Bee nests and Snoozle walls.<br>
 Clear water in the Safari.
 
@@ -123,7 +111,8 @@ Clear water in the Safari.
 ### ➶ Helpers
 Capsule path and hit check.<br>
 Doomspiral timer and Wumpa skip spots.<br>
-Gem, Scrappy food and Hideyho helpers.
+Gem, Scrappy food and Hideyho helpers.<br>
+Rockmite, incense and Safari entry helpers.
 
 </td>
 <td width="33%" valign="top">
@@ -181,9 +170,12 @@ Reset buttons ask before deleting.
 - **Scrappy Food:** Shows what each Scrappy eats before you feed it, worked out from the Hunter nearby (Luigi: Flavor-packed Fish, Jasper: Lush Lily Pad, Reeves: Wholesale Wheat). Once two foods are known, the third is marked with `*`.
 - **Scrappy Food Priority:** Scrappies whose food you carry are highlighted in green, the others stay in gray. They disappear once your party has caught one.
 - **Hideyho Auto-Sure:** Off by default. Accepts Hideyho's challenge in Haunted by clicking `[Sure]` for you.
+- **Rockmite Hold Click:** Off by default. Hold left click on a Rockmite mound in Cavern and it keeps hitting until the mound breaks. Let go, look away or open a menu to stop.
+- **Incense Candle Targeting:** With Soothing Incense in hand in Haunted, the whole red candle block counts as the candle, so it's easier to aim at.
+- **Safari Entry Guard:** Stops you from entering the Safari at the Manager, with a ticket or from the entry menu until your whole party is there and the critters have loaded. Hold Shift to enter anyway.
 - **Helper Sounds:** A bell when it is time to throw. Each helper can be turned off on its own.
 
-> Moving, aiming and throwing are always up to you. The Cavern Gem Helper and Hideyho Auto-Sure can act for you; each has its own settings under Helpers.
+> Moving, aiming and throwing are always up to you. The Cavern Gem Helper, Hideyho Auto-Sure and Rockmite Hold Click can act for you; each has its own settings under Helpers.
 
 ### ✪ Miria's Contest
 - **Contest Tracker:** Time left, bracket and score, read from the scoreboard.
@@ -223,6 +215,8 @@ Reset buttons ask before deleting.
 - **Sparkling ESP:** Spots Sparkling critters and alerts you in chat with their distance and coordinates. Marks the critter with a box in the world.
 - **Critter ESP:** Boxes around critters.
 - **Floor Drop ESP:** Marks floor drop spots.
+- **Floor Drop Icons:** Shows what each drop most likely holds on top of its block: gems, bird food, incense, coins or Icebreakers. Look at one to see its name. `?` means unknown; XP, Essence and Shards share one icon.
+- **Needed Resources:** Drops you still need for the run stand out. Once you hold or place a gem color, the rest of that color is hidden. Optionally, in Forest only bird food and unknown drops are shown.
 - **Bee Nest ESP:** Honeybug nests in Forest. A nest goes away once you hit it.
 - **Snoozle Walls:** Breakable walls in Cavern.
 - **Clear Water:** See through the water in the Safari, with adjustable opacity.
@@ -282,7 +276,7 @@ Every toggle is also available in the `/sp` menu.
 
 ## Use at Your Own Risk
 
-Safari Patron is a client-side mod. Most features only show information on your screen, and it only sends the party chat messages you turn on. A few optional helpers act in the game for you: the Cavern Gem Helper picks or places gems, the Masterful Target Filter can hold back a throw, and Hideyho Auto-Sure clicks for you. Some features, like ESP, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
+Safari Patron is a client-side mod. Most features only show information on your screen, and it only sends the party chat messages you turn on. A few optional helpers act in the game for you: the Cavern Gem Helper picks or places gems, the Masterful Target Filter can hold back a throw, Hideyho Auto-Sure clicks for you and Rockmite Hold Click keeps attacking while you hold the button. Some features, like ESP, Floor Drop Icons, the Sparkling Finder and the Capsule Helper, show information the game doesn't, and Hypixel's rules on mods can change at any time.
 
 If something needs to be changed or fixed, [open an issue](https://github.com/PatronOG/safari-patron/issues) and we'll fix it as soon as we can.
 

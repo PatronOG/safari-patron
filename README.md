@@ -25,6 +25,11 @@
   <img src="docs/images/showcase.gif" alt="Safari Patron showcase" width="800">
 </p>
 
+<p align="center">
+  <img src="docs/images/cinematic.gif" alt="Sparkling Finder Cinematic" width="800"><br>
+  <i>Sparkling Finder Cinematic</i>
+</p>
+
 ## Features
 
 <table>

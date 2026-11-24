@@ -59,8 +59,8 @@ object SettingsModel {
             listOf(
                 toggle("Sparkling Finder", "Alert, box and waypoint §c(Use at your own risk)", { s.sparklingFinder }) { s.sparklingFinder = it },
                 toggle("Sparkling Finder Cinematic", "A full-screen scene when a sparkling is found, the HUD hides while it plays", { s.sparklingCinematic }) { s.sparklingCinematic = it },
-                choice("Cinematic Hides Held Item", "Throws on: clicks and throws still work. Throws locked: right click does nothing while it plays",
-                    listOf("off", "hide", "lock"), { when (it) { "hide" -> "Throws on"; "lock" -> "Throws locked"; else -> "Off" } },
+                choice("Cinematic Hides Held Item", "Hides your hand and held item while it plays. Hide and lock throws also stops right clicks, so nothing is thrown by mistake",
+                    listOf("off", "hide", "lock"), { when (it) { "hide" -> "Just hide held item"; "lock" -> "Hide and lock throws"; else -> "Off" } },
                     { s.sparklingCinematicHand }) { s.sparklingCinematicHand = it },
                 toggle("Auto share to party", "Sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
                 toggle("Last Sparkling Message", "Runs and time since the last one", { s.sparklingInterval }) { s.sparklingInterval = it },

@@ -18,6 +18,8 @@ import safaripatron.safari.ChatParser
  * - Two or more on one biome: the one who lost the most hotspot clashes (saved) goes; the others go to the
  *   biomes left over and their count goes up, the winner's back to 0.
  * Only reads chat and sends one party message (can be turned off); nothing is done in the game for anyone.
+ *
+ * Everyone else in the party with Safari Patron reads that message and sees where they go on screen too.
  */
 object HotspotAssign {
     private val log = LoggerFactory.getLogger("safari-patron/hotspot")
@@ -45,12 +47,43 @@ object HotspotAssign {
     // "Party > [MVP+] Name: text"
     val partyLine = Regex("""^Party > (?:\[[^\]]+] )?(\w{1,16}): (.*)$""")
 
-    /** Every chat line: party messages may hold someone's hotspot. */
+    /** Every chat line: party messages may hold someone's hotspot, or the assignment someone else posted. */
     fun onChatLine(raw: String) {
-        if (!Config.s.hotspotAssign || done || hotspotAt == 0L && reports.isEmpty() && !safaripatron.safari.Run.running) return
         val m = partyLine.matchEntire(ChatParser.clean(raw)) ?: return
+        showAssignment(m.groupValues[1], m.groupValues[2])
+        if (!Config.s.hotspotAssign || done || hotspotAt == 0L && reports.isEmpty() && !safaripatron.safari.Run.running) return
         val biome = parseReport(m.groupValues[2]) ?: return
         put(m.groupValues[1], biome)
+    }
+
+    /** The last assignment shown, so the same message isn't shown twice. */
+    private var shownText = ""
+    private var shownAt = 0L
+
+    /**
+     * Someone else posted the assignment (`[✦SP✦] Alex: Cavern ✦ | Steve: Icy`): show where we go, the same way
+     * the one who posted it sees it. Our own post is skipped, we showed it when we sent it.
+     */
+    private fun showAssignment(sender: String, text: String) {
+        val self = Minecraft.getInstance().player?.name?.string ?: return
+        if (sender.equals(self, true)) return
+        val biome = assignedTo(text, self) ?: return
+        val now = System.currentTimeMillis()
+        if (text == shownText && now - shownAt < 60_000) return
+        shownText = text; shownAt = now
+        log.info("Hotspot assignment from {}: go to {}", sender, biome.label)
+        Toasts.show(Toasts.Kind.ANNOUNCE, "Go: ${biome.label}", biome.color, 5000)
+    }
+
+    /** Where [self] goes in an assignment message, or null when it isn't one or doesn't name them. */
+    fun assignedTo(text: String, self: String): Biome? {
+        if (!text.startsWith("[✦SP✦] ")) return null
+        // At least two "Name: Biome" pairs: the single "[✦SP✦] Hotspot: Icy" share is not an assignment
+        val pairs = text.removePrefix("[✦SP✦] ").split(" | ").map { it.substringBefore(": ") to it.substringAfter(": ", "") }
+        if (pairs.size < 2) return null
+        val biomes = pairs.map { (_, b) -> Biome.entries.firstOrNull { it.label.equals(b.removeSuffix("✦").trim(), true) } }
+        if (biomes.any { it == null }) return null
+        return pairs.indexOfFirst { it.first.trim().equals(self, true) }.takeIf { it >= 0 }?.let { biomes[it] }
     }
 
     private fun put(name: String, biome: Biome) {

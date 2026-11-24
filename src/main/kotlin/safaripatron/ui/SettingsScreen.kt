@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.screens.Screen
+import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.network.chat.Component
 import safaripatron.Brand
@@ -25,6 +26,8 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
     // Open dropdown (Multi item) and where its button was drawn this frame
     // Items are rebuilt every frame, so the open dropdown is remembered by name
     private var openKey: String? = null
+    /** The key row waiting for a key press, if any. */
+    private var listening: SettingsModel.Key? = null
     /** The reset button waiting for its second click, and since when. */
     private var pendingConfirm: String? = null
     private var confirmAt = 0L
@@ -32,6 +35,7 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
     private val CONFIRM_MS = 3000L
     /** Width of the − value + control. */
     private val STEPPER_W = 76
+    private val KEY_W = 90
     private var openMulti: SettingsModel.Multi? = null
     private var multiAnchor: IntArray? = null
     private var popupRect: IntArray? = null
@@ -211,6 +215,7 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
         is SettingsModel.Multi -> rw - maxOf(font.width(multiSummary(item)) + font.width("▼") + 20, 80) - 30
         is SettingsModel.Text -> rw - minOf(150, rw / 2) - 30
         is SettingsModel.Stepper -> rw - STEPPER_W - 30
+        is SettingsModel.Key -> rw - KEY_W - 30
         else -> null
     }
 
@@ -337,6 +342,16 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
                 button(bx, "-", v > item.min, -1)
                 button(bx + STEPPER_W - 14, "+", v < item.max, +1)
             }
+            is SettingsModel.Key -> {
+                g.text(font, Ui.fit(font, item.name, rw - KEY_W - 30), rx + 10, ry + 5, Ui.WHITE, false)
+                drawDesc()
+                val waiting = listening === item
+                val bx = rx + rw - KEY_W - 12
+                Ui.box(g, bx, ry + 6, KEY_W, 14, if (waiting || hover) 0xFF26401C.toInt() else Ui.CARD, if (waiting) Ui.GREEN else Ui.FEATURE_BORDER)
+                val label = if (waiting) "Press a key..." else Ui.fit(font, safaripatron.input.Keys.label(item.get()).string, KEY_W - 10)
+                g.text(font, label, bx + (KEY_W - font.width(label)) / 2, ry + 9, if (waiting) Ui.WHITE else Ui.PILL_ON_TEXT, false)
+                hit { listening = if (waiting) null else item }
+            }
             is SettingsModel.Info -> {
                 g.text(font, item.name, rx + 10, ry + 9, 0xFFCFDAC6.toInt(), false)
                 val d = Ui.fit(font, desc, rw - 30 - font.width(item.name))
@@ -363,7 +378,24 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
         if (focused === textBox) setFocused(null)
     }
 
+    override fun keyPressed(event: KeyEvent): Boolean {
+        val row = listening ?: return super.keyPressed(event)
+        listening = null
+        // Esc clears the key; any other key becomes it
+        row.set(if (event.key() == InputConstants.KEY_ESCAPE) "" else InputConstants.getKey(event).name)
+        return true
+    }
+
     override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
+        listening?.let { row ->
+            // A side, middle or right mouse button becomes the key; a left click elsewhere stops waiting
+            if (event.button() != InputConstants.MOUSE_BUTTON_LEFT) {
+                listening = null
+                row.set(InputConstants.Type.MOUSE.getOrCreate(event.button()).name)
+                return true
+            }
+            listening = null
+        }
         if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && editingKey != null) {
             // Clicks inside the field go to the field (cursor placement); anywhere else ends editing
             if (textBox.isMouseOver(event.x(), event.y())) return super.mouseClicked(event, doubleClick)

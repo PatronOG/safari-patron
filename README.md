@@ -165,7 +165,7 @@ Reset buttons ask before deleting.
 - **Last Sparkling:** When a Sparkling is caught, tells you how many runs and how long ago the previous one was.
 
 ### ➶ Helpers
-- **Capsule Helper:** Shows where your capsule will fly and whether it will hit a critter.
+- **Capsule Helper:** Shows where your capsule will fly and whether it will hit a critter. Set a key or mouse button in the settings to turn it on and off.
 - **Masterful Target Filter:** Off by default. With a Masterful Critter Capsule in hand, a right click only throws when the Capsule Helper's flight path hits Doomspiral, Wumpa, Macaw, Gemzie or Scrappy. Other targets show in red.
 - **Hitbox Editor:** Every critter has its own box size, measured in game, used for the Capsule Helper and ESP. Change any of them with `/sp boxes`. Use the default settings unless you know what you're doing.
 - **Doomspiral Timer:** Marks where to stand and where to aim, then counts down to the perfect Masterful Capsule throw while Doomspiral rises.

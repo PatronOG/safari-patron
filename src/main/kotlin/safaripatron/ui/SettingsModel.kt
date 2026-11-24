@@ -20,6 +20,8 @@ object SettingsModel {
     /** − value + buttons: an Int from min to max in steps of 1, shown by [format]. */
     class Stepper(name: String, desc: String, val min: Int, val max: Int, val format: (Int) -> String,
                   val get: () -> Int, val set: (Int) -> Unit) : Item(name, desc)
+    /** A key, set by clicking the row and pressing it; Esc sets it to none. [get] / [set] use the game's key names. */
+    class Key(name: String, desc: String, val get: () -> String, val set: (String) -> Unit) : Item(name, desc)
     class Option(val label: String, val get: () -> Boolean, val set: (Boolean) -> Unit)
 
     class Category(
@@ -123,6 +125,8 @@ object SettingsModel {
             { s.capsuleTrajectory || s.masterfulTargetFilter || s.wumpaSkip || s.doomspiralTimer || s.cavernGemMode != "off" || s.scrappyFoodHints || s.hideyhoAutoSure || s.incenseCandleTarget || s.rockmiteHoldClick }) {
             listOf(
                 toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §c(Use at your own risk)", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
+                Key("Capsule Helper Key", "Turns the Capsule Helper on or off. Click, then press a key or mouse button, Esc for none",
+                    { s.capsuleHelperKey }) { safaripatron.input.Keys.setCapsuleHelper(it) },
                 Action("Open Hitbox Editor", "Box size of each critter, for capsules and ESP §eUse the default settings§r unless you know what you're doing.", "Open") {
                     MenuNav.open(BoxScreen())
                 },

@@ -42,6 +42,8 @@ class PartyMember(var name: String = "", var biome: String? = null)
 class Settings {
     // Capsule
     var capsuleTrajectory = true
+    /** Key that turns the Capsule Helper on or off, as the game names it ("key.keyboard.r", "key.mouse.4"); "" = none. */
+    var capsuleHelperKey = ""
     /** Show the bundled creature sprite next to each name in the biome and collection lists. */
     var critterListIcons = true
     /** Allow Masterful throws only when the capsule prediction hits one of the five selected species. */

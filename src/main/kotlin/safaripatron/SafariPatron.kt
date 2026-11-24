@@ -46,6 +46,7 @@ object SafariPatron : ClientModInitializer {
         safaripatron.resources.FloorDrops.init()
         HideyhoClick.init()
         Commands.init()
+        safaripatron.input.Keys.init()
         UpdateChecker.init()
         safaripatron.history.History.init()
         safaripatron.achievements.Achievements.init()

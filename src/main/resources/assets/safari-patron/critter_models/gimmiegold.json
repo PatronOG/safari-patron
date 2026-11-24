@@ -1,0 +1,11 @@
+{
+  "critter": "Gimmiegold",
+  "parts": [
+    {
+      "dx": 0.0,
+      "dy": 0.0,
+      "dz": 0.0,
+      "nbt": "{Air:300s,Fire:0s,Invulnerable:0b,NoGravity:1b,OnGround:0b,PortalCooldown:0,Rotation:[180.0f,0.0f],billboard:\"fixed\",fall_distance:0.0d,glow_color_override:-1,height:0.0f,id:\"minecraft:item_display\",interpolation_duration:1,item:{components:{\"minecraft:profile\":{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGIzMjllMTA4YWMyOGIwYmVjOGQ0N2I3Y2RjZTI1M2RmMWRiODBiNDYwNTJiNTkxNWQ5NjNlMWJjYmFiMGRiNCIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19\"}]}},count:1,id:\"minecraft:player_head\"},item_display:\"none\",shadow_radius:0.0f,shadow_strength:1.0f,teleport_duration:3,transformation:{left_rotation:[0.0f,0.0f,0.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[0.8f,0.8f,0.8f],translation:[0.0f,0.0f,0.0f]},view_range:1.0f,width:0.0f}"
+    }
+  ]
+}

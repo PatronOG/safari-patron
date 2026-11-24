@@ -39,6 +39,7 @@ object SafariPatron : ClientModInitializer {
         Config.load()
         WorldRender.init()
         Hud.init()
+        safaripatron.cinematic.SparklingCinematic.init()
         Hud.initScroll()
         Party.init()
         Structures.init()

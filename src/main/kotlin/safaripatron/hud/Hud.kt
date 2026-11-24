@@ -272,6 +272,8 @@ object Hud {
         ensureLayout()
         if (client.gui.hud.isHidden) return
         if (client.gui.screen() is HudEditScreen) return
+        // All our panels step aside while the sparkling cinematic plays
+        if (safaripatron.cinematic.SparklingCinematic.active) return
         val width = client.window.guiScaledWidth
         val height = client.window.guiScaledHeight
         val container = client.gui.screen() is net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<*>

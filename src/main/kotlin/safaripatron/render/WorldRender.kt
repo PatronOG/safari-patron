@@ -118,6 +118,8 @@ object WorldRender {
     private fun render(context: LevelRenderContext) {
         val client = Minecraft.getInstance()
         if (client.level == null || client.player == null) return
+        // Boxes, labels and markers step aside while the sparkling cinematic plays
+        if (safaripatron.cinematic.SparklingCinematic.active) return
         val cam = client.gameRenderer.mainCamera().position()
         val batch = Batch(cam)
 

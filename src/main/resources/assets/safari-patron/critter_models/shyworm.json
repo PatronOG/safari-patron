@@ -1,0 +1,53 @@
+{
+  "critter": "Shyworm",
+  "parts": [
+    {
+      "dx": -1.263427734375,
+      "dy": 0.0,
+      "dz": -0.203125,
+      "nbt": "{AbsorptionAmount:0.0f,Air:300s,Brain:{memories:{}},DeathTime:0s,DisabledSlots:0,FallFlying:0b,Fire:0s,Health:20.0f,HurtTime:0s,Invisible:1b,Invulnerable:0b,Marker:1b,NoBasePlate:0b,OnGround:0b,PortalCooldown:0,Pose:{},Rotation:[0.0f,0.0f],ShowArms:0b,Silent:1b,Small:0b,attributes:[{base:20.0d,id:\"minecraft:max_health\"},{base:1.0d,id:\"minecraft:scale\"},{base:0.10000000149011612d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,equipment:{head:{components:{\"minecraft:profile\":{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTY4NGUwMGU3Mzk0Y2IwYzg0YzA4MmU0ZGJjN2M3ZTkxZWE2N2Y2YmM3MThhMWFhY2U3Zjk5NTk2YjY1ZDQyMiIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19\"}]}},count:1,id:\"minecraft:player_head\"}},fall_distance:0.0d,id:\"minecraft:armor_stand\"}"
+    },
+    {
+      "dx": 0.705322265625,
+      "dy": 2.53125,
+      "dz": 0.328125,
+      "nbt": "{AbsorptionAmount:0.0f,Air:300s,Brain:{memories:{}},DeathTime:0s,DisabledSlots:0,FallFlying:0b,Fire:0s,Health:20.0f,HurtTime:0s,Invisible:1b,Invulnerable:0b,Marker:1b,NoBasePlate:0b,OnGround:0b,PortalCooldown:0,Pose:{},Rotation:[0.0f,0.0f],ShowArms:0b,Silent:1b,Small:0b,attributes:[{base:20.0d,id:\"minecraft:max_health\"},{base:1.0d,id:\"minecraft:scale\"},{base:0.10000000149011612d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,equipment:{head:{components:{\"minecraft:profile\":{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTY4NGUwMGU3Mzk0Y2IwYzg0YzA4MmU0ZGJjN2M3ZTkxZWE2N2Y2YmM3MThhMWFhY2U3Zjk5NTk2YjY1ZDQyMiIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19\"}]}},count:1,id:\"minecraft:player_head\"}},fall_distance:0.0d,id:\"minecraft:armor_stand\"}"
+    },
+    {
+      "dx": 0.705322265625,
+      "dy": 0.59375,
+      "dz": -0.078125,
+      "nbt": "{AbsorptionAmount:0.0f,Air:300s,Brain:{memories:{}},DeathTime:0s,DisabledSlots:0,FallFlying:0b,Fire:0s,Health:20.0f,HurtTime:0s,Invisible:1b,Invulnerable:0b,Marker:1b,NoBasePlate:0b,OnGround:0b,PortalCooldown:0,Pose:{},Rotation:[0.0f,0.0f],ShowArms:0b,Silent:1b,Small:0b,attributes:[{base:20.0d,id:\"minecraft:max_health\"},{base:1.0d,id:\"minecraft:scale\"},{base:0.10000000149011612d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,equipment:{head:{components:{\"minecraft:profile\":{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTY4NGUwMGU3Mzk0Y2IwYzg0YzA4MmU0ZGJjN2M3ZTkxZWE2N2Y2YmM3MThhMWFhY2U3Zjk5NTk2YjY1ZDQyMiIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19\"}]}},count:1,id:\"minecraft:player_head\"}},fall_distance:0.0d,id:\"minecraft:armor_stand\"}"
+    },
+    {
+      "dx": 0.424072265625,
+      "dy": 0.0,
+      "dz": -0.203125,
+      "nbt": "{AbsorptionAmount:0.0f,Air:300s,Brain:{memories:{}},DeathTime:0s,DisabledSlots:0,FallFlying:0b,Fire:0s,Health:20.0f,HurtTime:0s,Invisible:1b,Invulnerable:0b,Marker:1b,NoBasePlate:0b,OnGround:0b,PortalCooldown:0,Pose:{},Rotation:[0.0f,0.0f],ShowArms:0b,Silent:1b,Small:0b,attributes:[{base:20.0d,id:\"minecraft:max_health\"},{base:1.0d,id:\"minecraft:scale\"},{base:0.10000000149011612d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,equipment:{head:{components:{\"minecraft:profile\":{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTY4NGUwMGU3Mzk0Y2IwYzg0YzA4MmU0ZGJjN2M3ZTkxZWE2N2Y2YmM3MThhMWFhY2U3Zjk5NTk2YjY1ZDQyMiIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19\"}]}},count:1,id:\"minecraft:player_head\"}},fall_distance:0.0d,id:\"minecraft:armor_stand\"}"
+    },
+    {
+      "dx": -0.013427734375,
+      "dy": 0.0,
+      "dz": -0.203125,
+      "nbt": "{AbsorptionAmount:0.0f,Air:300s,Brain:{memories:{}},DeathTime:0s,DisabledSlots:0,FallFlying:0b,Fire:0s,Health:20.0f,HurtTime:0s,Invisible:1b,Invulnerable:0b,Marker:1b,NoBasePlate:0b,OnGround:0b,PortalCooldown:0,Pose:{},Rotation:[0.0f,0.0f],ShowArms:0b,Silent:1b,Small:0b,attributes:[{base:20.0d,id:\"minecraft:max_health\"},{base:1.0d,id:\"minecraft:scale\"},{base:0.10000000149011612d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,equipment:{head:{components:{\"minecraft:profile\":{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTY4NGUwMGU3Mzk0Y2IwYzg0YzA4MmU0ZGJjN2M3ZTkxZWE2N2Y2YmM3MThhMWFhY2U3Zjk5NTk2YjY1ZDQyMiIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19\"}]}},count:1,id:\"minecraft:player_head\"}},fall_distance:0.0d,id:\"minecraft:armor_stand\"}"
+    },
+    {
+      "dx": -0.419677734375,
+      "dy": 0.0,
+      "dz": -0.203125,
+      "nbt": "{AbsorptionAmount:0.0f,Air:300s,Brain:{memories:{}},DeathTime:0s,DisabledSlots:0,FallFlying:0b,Fire:0s,Health:20.0f,HurtTime:0s,Invisible:1b,Invulnerable:0b,Marker:1b,NoBasePlate:0b,OnGround:0b,PortalCooldown:0,Pose:{},Rotation:[0.0f,0.0f],ShowArms:0b,Silent:1b,Small:0b,attributes:[{base:20.0d,id:\"minecraft:max_health\"},{base:1.0d,id:\"minecraft:scale\"},{base:0.10000000149011612d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,equipment:{head:{components:{\"minecraft:profile\":{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTY4NGUwMGU3Mzk0Y2IwYzg0YzA4MmU0ZGJjN2M3ZTkxZWE2N2Y2YmM3MThhMWFhY2U3Zjk5NTk2YjY1ZDQyMiIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19\"}]}},count:1,id:\"minecraft:player_head\"}},fall_distance:0.0d,id:\"minecraft:armor_stand\"}"
+    },
+    {
+      "dx": -0.857177734375,
+      "dy": 0.0,
+      "dz": -0.203125,
+      "nbt": "{AbsorptionAmount:0.0f,Air:300s,Brain:{memories:{}},DeathTime:0s,DisabledSlots:0,FallFlying:0b,Fire:0s,Health:20.0f,HurtTime:0s,Invisible:1b,Invulnerable:0b,Marker:1b,NoBasePlate:0b,OnGround:0b,PortalCooldown:0,Pose:{},Rotation:[0.0f,0.0f],ShowArms:0b,Silent:1b,Small:0b,attributes:[{base:20.0d,id:\"minecraft:max_health\"},{base:1.0d,id:\"minecraft:scale\"},{base:0.10000000149011612d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,equipment:{head:{components:{\"minecraft:profile\":{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTY4NGUwMGU3Mzk0Y2IwYzg0YzA4MmU0ZGJjN2M3ZTkxZWE2N2Y2YmM3MThhMWFhY2U3Zjk5NTk2YjY1ZDQyMiIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19\"}]}},count:1,id:\"minecraft:player_head\"}},fall_distance:0.0d,id:\"minecraft:armor_stand\"}"
+    },
+    {
+      "dx": 0.718994140625,
+      "dy": 2.93212890625,
+      "dz": 0.765625,
+      "nbt": "{AbsorptionAmount:0.0f,Air:300s,Brain:{memories:{}},DeathTime:0s,DisabledSlots:0,FallFlying:0b,Fire:0s,Health:20.0f,HurtTime:0s,Invisible:1b,Invulnerable:0b,Marker:1b,NoBasePlate:0b,OnGround:0b,PortalCooldown:0,Pose:{},Rotation:[0.0f,0.0f],ShowArms:0b,Silent:1b,Small:0b,attributes:[{base:20.0d,id:\"minecraft:max_health\"},{base:1.0d,id:\"minecraft:scale\"},{base:0.10000000149011612d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,equipment:{head:{components:{\"minecraft:profile\":{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjQyODdiOGEwYTY0MmRhYzUzNWE2ZWUyOTQ1OWVmZDE3ZDVjZWUxZWIzNTllNDM2YmM4ZTdhYmJhM2RhMTRiNyIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19\"}]}},count:1,id:\"minecraft:player_head\"}},fall_distance:0.0d,id:\"minecraft:armor_stand\"}"
+    }
+  ]
+}

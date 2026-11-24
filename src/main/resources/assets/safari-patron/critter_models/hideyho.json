@@ -1,0 +1,11 @@
+{
+  "critter": "Hideyho",
+  "parts": [
+    {
+      "dx": 0.0,
+      "dy": 0.0,
+      "dz": 0.0,
+      "nbt": "{id:\"minecraft:mannequin\",hide_description:1b,Rotation:[0.0f,0.0f],profile:{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzUwNGYxZjIzMjdhNTExMGU2NDNiYjg2NjcwODI1MTI4MTVmYTQzNGEyOWVkMzdmNGNhODNiYjE2ZDJkYjUzMyJ9fX0=\"}]}}"
+    }
+  ]
+}

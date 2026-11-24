@@ -1,0 +1,11 @@
+{
+  "critter": "Duplico",
+  "parts": [
+    {
+      "dx": 0.0,
+      "dy": 0.0,
+      "dz": 0.0,
+      "nbt": "{id:\"minecraft:item_display\",item:{id:\"minecraft:bookshelf\",count:1}}"
+    }
+  ]
+}

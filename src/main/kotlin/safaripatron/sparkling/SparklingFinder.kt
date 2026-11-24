@@ -154,6 +154,8 @@ object SparklingFinder {
                 .append(Component.literal("§f[Share to §eALL §fchat]")
                     .withStyle { it.withClickEvent(ClickEvent.RunCommand("/sp share all $id")) }))
         if (Config.s.sparklingSound) player.playSound(SoundEvents.PLAYER_LEVELUP, 1f, 1.6f)
+        if (Config.s.sparklingCinematic)
+            safaripatron.cinematic.SparklingCinematic.start(s.species, safaripatron.cinematic.SparklingCinematic.entitiesAround(s.body))
         // Auto share: goes through the party chat queue, skipped when not in a party
         if (Config.s.sparklingAutoShare)
             safaripatron.party.Party.chat("[✦Safari Patron✦] A SPARKLING ${s.species} was spotted! x: ${p.x}, y: ${p.y}, z: ${p.z}")

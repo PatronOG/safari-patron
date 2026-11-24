@@ -215,7 +215,7 @@ Reset buttons ask before deleting.
 - **Critter ESP:** Boxes around critters.
 - **Floor Drop ESP:** Marks floor drop spots.
 - **Floor Drop Holograms:** The item each drop most likely holds floats above it: gems, bird food, incense, coins or Icebreakers. A red drop means its contents aren't worked out yet.
-- **Needed Resources:** Drops you still need for the run are purple, the rest green. Choose when each one turns green, e.g. gems once you have that color, incense at 4. Optionally, in Forest only bird food is shown.
+- **Needed Resources:** Drops you still need for the run are purple (a Shining Coin is gold), the rest green. Choose when each one turns green, e.g. gems once you have that color, incense at 4. Optionally, in Forest only bird food is shown.
 - **Bee Nest ESP:** Honeybug nests in Forest. A nest goes away once you hit it.
 - **Snoozle Walls:** Breakable walls in Cavern.
 - **Clear Water:** See through the water in the Safari, with adjustable opacity.

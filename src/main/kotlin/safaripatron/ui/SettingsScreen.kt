@@ -26,8 +26,9 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
     // Open dropdown (Multi item) and where its button was drawn this frame
     // Items are rebuilt every frame, so the open dropdown is remembered by name
     private var openKey: String? = null
-    /** The key row waiting for a key press, if any. */
-    private var listening: SettingsModel.Key? = null
+    /** The key row waiting for a key press ("category:name", since rows are rebuilt every frame) and how to set it. */
+    private var listening: String? = null
+    private var listeningSet: ((String) -> Unit)? = null
     /** The reset button waiting for its second click, and since when. */
     private var pendingConfirm: String? = null
     private var confirmAt = 0L
@@ -345,12 +346,13 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
             is SettingsModel.Key -> {
                 g.text(font, Ui.fit(font, item.name, rw - KEY_W - 30), rx + 10, ry + 5, Ui.WHITE, false)
                 drawDesc()
-                val waiting = listening === item
+                val key = "${row.category.id}:${item.name}"
+                val waiting = listening == key
                 val bx = rx + rw - KEY_W - 12
                 Ui.box(g, bx, ry + 6, KEY_W, 14, if (waiting || hover) 0xFF26401C.toInt() else Ui.CARD, if (waiting) Ui.GREEN else Ui.FEATURE_BORDER)
                 val label = if (waiting) "Press a key..." else Ui.fit(font, safaripatron.input.Keys.label(item.get()).string, KEY_W - 10)
                 g.text(font, label, bx + (KEY_W - font.width(label)) / 2, ry + 9, if (waiting) Ui.WHITE else Ui.PILL_ON_TEXT, false)
-                hit { listening = if (waiting) null else item }
+                hit { if (waiting) stopListening() else { listening = key; listeningSet = item.set } }
             }
             is SettingsModel.Info -> {
                 g.text(font, item.name, rx + 10, ry + 9, 0xFFCFDAC6.toInt(), false)
@@ -378,23 +380,25 @@ class SettingsScreen(initial: String?, private val parent: Screen?) : Screen(Com
         if (focused === textBox) setFocused(null)
     }
 
+    private fun stopListening() { listening = null; listeningSet = null }
+
     override fun keyPressed(event: KeyEvent): Boolean {
-        val row = listening ?: return super.keyPressed(event)
-        listening = null
+        val set = listeningSet ?: return super.keyPressed(event)
+        stopListening()
         // Esc clears the key; any other key becomes it
-        row.set(if (event.key() == InputConstants.KEY_ESCAPE) "" else InputConstants.getKey(event).name)
+        set(if (event.key() == InputConstants.KEY_ESCAPE) "" else InputConstants.getKey(event).name)
         return true
     }
 
     override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
-        listening?.let { row ->
-            // A side, middle or right mouse button becomes the key; a left click elsewhere stops waiting
+        listeningSet?.let { set ->
+            // A side, middle or right mouse button becomes the key; a left click stops waiting
+            stopListening()
             if (event.button() != InputConstants.MOUSE_BUTTON_LEFT) {
-                listening = null
-                row.set(InputConstants.Type.MOUSE.getOrCreate(event.button()).name)
+                set(InputConstants.Type.MOUSE.getOrCreate(event.button()).name)
                 return true
             }
-            listening = null
+            return true
         }
         if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && editingKey != null) {
             // Clicks inside the field go to the field (cursor placement); anywhere else ends editing

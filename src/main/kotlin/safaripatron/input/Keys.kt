@@ -12,8 +12,7 @@ import safaripatron.config.Config
  */
 object Keys {
     /** Turns the Capsule Helper on or off. */
-    private val capsuleHelper = KeyMapping("key.safari-patron.capsule_helper", InputConstants.Type.KEYBOARD,
-        InputConstants.UNKNOWN.value, KeyMapping.Category.MISC)
+    private val capsuleHelper = KeyMapping("key.safari-patron.capsule_helper", InputConstants.UNKNOWN.value, KeyMapping.Category.MISC)
 
     fun init() {
         apply(capsuleHelper, Config.s.capsuleHelperKey)

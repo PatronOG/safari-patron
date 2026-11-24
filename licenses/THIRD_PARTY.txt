@@ -24,6 +24,11 @@ Sparkling Mutuals (johnceoskyblock) - CC0 1.0
   (https://github.com/javabetter/ShinyHunter)
   (assets/safari-patron/honeyhives.txt)
 
+Tiny5 (Copyright 2022-2024 The Tiny5 Project Authors) - SIL Open Font License 1.1
+  https://github.com/Gissio/font_tiny5
+  Title font of the Sparkling Finder Cinematic
+  (assets/safari-patron/font/tiny5.ttf, license next to it in assets/safari-patron/font/Tiny5-OFL.txt)
+
 SkyCofl (https://sky.coflnet.com) - public API
   Auction House lowest BIN prices for the Emerald Dye (profit/Auction.kt)
 

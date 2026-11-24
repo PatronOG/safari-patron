@@ -172,7 +172,6 @@ Reset buttons ask before deleting.
 - **Hideyho Auto-Sure:** Off by default. Accepts Hideyho's challenge in Haunted by clicking `[Sure]` for you.
 - **Rockmite Clicker:** Off by default. Hold left click on a Rockmite mound in Cavern and it keeps hitting until the mound breaks. Let go, look away or open a menu to stop.
 - **Incense Candle Hitbox:** With Soothing Incense in hand in Haunted, the whole red candle block counts as the candle, so it's easier to aim at.
-- **Safari Entry Guard:** Stops you from entering the Safari at the Manager, with a ticket or from the entry menu until your whole party is there and the critters have loaded. Hold Shift to enter anyway.
 - **Helper Sounds:** A bell when it is time to throw. Each helper can be turned off on its own.
 
 > Moving, aiming and throwing are always up to you. The Cavern Gem Helper, Hideyho Auto-Sure and Rockmite Clicker can act for you; each has its own settings under Helpers.
@@ -283,7 +282,7 @@ If something needs to be changed or fixed, [open an issue](https://github.com/Pa
 ## Credits
 
 - [PatronOG](https://github.com/PatronOG): creator and maintainer
-- [plutonmoyai](https://github.com/plutonmoyai): floor drop holograms, Cavern Gem Helper, Scrappy Food, Hideyho Auto-Sure, Rockmite Clicker, Incense Candle Hitbox, Safari Entry Guard, Masterful Target Filter and critter list icons
+- [plutonmoyai](https://github.com/plutonmoyai): floor drop holograms, Cavern Gem Helper, Scrappy Food, Hideyho Auto-Sure, Rockmite Clicker, Incense Candle Hitbox, Masterful Target Filter and critter list icons
 - [z1rr31](https://github.com/z1rr31): profit panels
 
 ## License

@@ -77,7 +77,6 @@ class Settings {
     var incenseCandleTarget = true
     /** Off by default: it attacks for you while the button is held. */
     var rockmiteHoldClick = false
-    var safariEntryGuard = true
     var beeNests = true
     var snoozleWalls = true
 

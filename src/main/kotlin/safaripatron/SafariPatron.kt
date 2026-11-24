@@ -61,7 +61,6 @@ object SafariPatron : ClientModInitializer {
             ScrappyFoodHints.tick(client)
             HideyhoClick.tick(client)
             SparklingFinder.tick(client)
-            safaripatron.helpers.SafariEntryGuard.tick(client)
             Party.tick(client)
             safaripatron.party.HotspotAssign.tick(client)
             Contest.tick(client)

@@ -50,7 +50,7 @@ internal class GemPlacer(podiums: Map<BlockPos, CavernGem>) {
             if (stack.isEmpty) null else stack.get(DataComponents.CUSTOM_DATA)?.copyTag()?.getStringOr("id", "")
         }
         when (val action = state.nextAction(ids, inventory.selectedSlot, tick,
-            GemMode.fromSetting(Config.s.cavernGemMode), true) ?: return) {
+            GemMode.fromSetting(Config.s.cavernGemMode), false) ?: return) {
             is GemPlacementState.Action.Select -> { inventory.selectedSlot = action.slot; return }
             is GemPlacementState.Action.Place -> if (inventory.selectedSlot != action.slot) return
         }

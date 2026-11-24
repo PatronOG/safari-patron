@@ -9,6 +9,7 @@
 
 <p align="center">
   <a href="https://github.com/PatronOG/safari-patron/releases/latest"><img src="https://img.shields.io/github/v/release/PatronOG/safari-patron?label=download&color=c9a43a" alt="Download"></a>
+  <a href="https://github.com/PatronOG/safari-patron/releases"><img src="https://img.shields.io/github/downloads/PatronOG/safari-patron/total?label=downloads&color=c9a43a" alt="Total downloads"></a>
   <a href="https://www.minecraft.net"><img src="https://img.shields.io/badge/Minecraft-26.2%20%7C%2026.3-4f7a28" alt="Minecraft 26.2 | 26.3"></a>
   <a href="https://fabricmc.net/use/installer/"><img src="https://img.shields.io/badge/Fabric-0.19.5%2B-dbd0b4" alt="Fabric 0.19.5+"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-3a4a30" alt="License: Apache-2.0"></a>
@@ -32,6 +33,7 @@
 
 ### ✦ Sparkling Finder
 Spots Sparkling critters and marks them in the world until caught.<br>
+A cinematic scene for every find.<br>
 Share their location in one click.<br>
 Your Critterdex sparklings, synced from the game.
 
@@ -155,6 +157,8 @@ Reset buttons ask before deleting.
 ### ✦ Sparkling Finder
 - **Sparkling ESP:** Spots Sparkling critters and boxes.
 - **Sparkling Waypoint:** Marks the critter with a box in the world when seen. Waypoint disappears after catching.
+- **Sparkling Finder Cinematic:** When a Sparkling is spotted, a short full-screen scene plays: the names of the biome's critters roll by with their 3D models, then the Sparkling's own model lands with an extra effect for its rarity, from fireflies for an Uncommon to a gold fountain for a Legendary. The HUD hides while it plays. On by default; turn it off under Sparkling.
+- **Cinematic Hides Held Item:** Hides your hand and held item while the cinematic plays. **Throws on** keeps your clicks working, **Throws locked** makes right clicks do nothing, so nothing gets thrown by mistake. Off by default.
 - **Sparkling Share:** One-click buttons to share its location in party or all chat.
 - **Auto Share:** Optionally sends every Sparkling straight to party chat.
 - **Critterdex Sync:** Opening the Sparkling Critterdex in game updates your sparklings list automatically.
@@ -284,9 +288,10 @@ If something needs to be changed or fixed, [open an issue](https://github.com/Pa
 - [PatronOG](https://github.com/PatronOG): creator and maintainer
 - [plutonmoyai](https://github.com/plutonmoyai): floor drop holograms, Cavern Gem Helper, Scrappy Food, Hideyho Auto-Sure, Rockmite Clicker, Incense Candle Hitbox, Masterful Target Filter and critter list icons
 - [z1rr31](https://github.com/z1rr31): profit panels
+- [Tiny5](https://github.com/Gissio/font_tiny5) by the Tiny5 Project Authors: the cinematic's title font, under the SIL Open Font License 1.1
 
 ## License
 
 Safari Patron is released under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
 
-Some parts are based on code and data from other open-source projects, which keep their own licenses. The critter and floor drop icons come from the Hypixel SkyBlock Wiki and the Minecraft Wiki under CC BY-NC-SA. See the [`licenses`](licenses) folder for details.
+Some parts are based on code and data from other open-source projects, which keep their own licenses. The critter and floor drop icons come from the Hypixel SkyBlock Wiki and the Minecraft Wiki under CC BY-NC-SA, and the cinematic's title font is Tiny5 under the SIL Open Font License 1.1. See the [`licenses`](licenses) folder for details.

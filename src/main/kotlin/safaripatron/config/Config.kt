@@ -53,6 +53,11 @@ class Settings {
     var sparklingFinder = true
     /** Full-screen scene when the finder spots a sparkling; the HUD steps aside while it plays. */
     var sparklingCinematic = true
+    /**
+     * Your hand while the cinematic plays: "off" = shown, "hide" = hidden but clicks and throws still work,
+     * "lock" = hidden and right clicks do nothing, so nothing gets thrown by mistake.
+     */
+    var sparklingCinematicHand = "off"
     var sparklingSound = true
     var sparklingAutoShare = false
     /** Sparkling collection panel: which critters' sparkling form has been caught (by you or your party), all time. */
@@ -259,6 +264,7 @@ object Config {
             if (s.cavernGemPlacer == false) s.cavernGemMode = "off"
             s.cavernGemPlacer = null
             if (s.cavernGemMode !in setOf("off", "select", "auto")) s.cavernGemMode = "off"
+            if (s.sparklingCinematicHand !in setOf("off", "hide", "lock")) s.sparklingCinematicHand = "off"
             if (s.contestWarnTitle == false) s.contestWarnTitleMode = "off"
             s.contestWarnTitle = null
             if (s.contestWarnTitleMode !in setOf("off", "incomplete", "custom")) s.contestWarnTitleMode = "incomplete"

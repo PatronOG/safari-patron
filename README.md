@@ -158,7 +158,7 @@ Reset buttons ask before deleting.
 - **Sparkling ESP:** Spots Sparkling critters and boxes.
 - **Sparkling Waypoint:** Marks the critter with a box in the world when seen. Waypoint disappears after catching.
 - **Sparkling Finder Cinematic:** When a Sparkling is spotted, a short full-screen scene plays: the names of the biome's critters roll by with their 3D models, then the Sparkling's own model lands with an extra effect for its rarity, from fireflies for an Uncommon to a gold fountain for a Legendary. The HUD hides while it plays. On by default; turn it off under Sparkling.
-- **Cinematic Hides Held Item:** Hides your hand and held item while the cinematic plays. **Throws on** keeps your clicks working, **Throws locked** makes right clicks do nothing, so nothing gets thrown by mistake. Off by default.
+- **Cinematic Hides Held Item:** Hides your hand and held item while the cinematic plays. **Just hide held item** keeps your clicks working, **Hide and lock throws** makes right clicks do nothing, so nothing gets thrown by mistake. Off by default.
 - **Sparkling Share:** One-click buttons to share its location in party or all chat.
 - **Auto Share:** Optionally sends every Sparkling straight to party chat.
 - **Critterdex Sync:** Opening the Sparkling Critterdex in game updates your sparklings list automatically.

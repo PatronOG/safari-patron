@@ -205,7 +205,7 @@ Reset buttons ask before deleting.
 ### ⚑ Party Messages
 - **Warp Check:** Sends `[✦SP✦] 4/4 Players in Safari.` or `[✦SP✦] Someone missing!` in party chat within a couple of seconds of arriving. Only players who really reached the new Safari count, so someone kicked on the way shows as missing.
 - **Hotspot Sharing:** It shares the hotspot area assigned to you in the party chat.
-- **Hotspot Assignment:** One player in the party turns it on. It reads everyone's hotspot from party chat, whether it comes from Safari Patron, another mod or someone typing `c`, `cave` or `my hotspot is icy`, and then sends where each player goes, e.g. `[✦SP✦] Alex: Cavern ✦ | Steve: Icy ✦ | Zoe: Forest`. On a clash, whoever lost the last one goes first. Anyone who stays quiet gets a free biome after a wait you can set.
+- **Hotspot Assignment:** One player in the party turns it on. It reads everyone's hotspot from party chat, whether it comes from Safari Patron, another mod or someone typing `c`, `cave` or `my hotspot is icy`, and then sends where each player goes, e.g. `[✦SP✦] Alex: Cavern ✦ | Steve: Icy ✦ | Zoe: Forest`. On a clash, whoever lost the last one goes first. Anyone who stays quiet gets a free biome after a wait you can set. Everyone else in the party with Safari Patron sees where they go on screen too.
 - **Biome Announcements:** {Area} Done!, Everything except Macaw done!, Everything Done!
 - **Best Parties:** Your Everything PBs remember who was in your party. `/sp bestparty` shows them in chat, each player in the color of the biome they started in, with times to a tenth of a second.
 - **Alert panels:** Each alert can go to party chat, your screen, or both. 

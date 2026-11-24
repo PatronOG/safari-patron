@@ -97,6 +97,8 @@ object FloorDrops {
     private const val GREEN = 0xFF00FF00.toInt()
     private const val PURPLE = 0xFFB04CFF.toInt()
     private const val RED = 0xFFFF5555.toInt()
+    /** A Shining Coin you still need is gold instead of purple. */
+    private const val GOLD = 0xFFFFAA00.toInt()
 
     fun collect(client: Minecraft, out: WorldRender.Batch) {
         if (!Config.s.floorDrops || !Safari.inSafari || !Run.running) return
@@ -111,7 +113,7 @@ object FloorDrops {
                 s.floorRewardDrops, s.floorFoodOnly && Safari.biome == Biome.FOREST, rules)
             val color = when (emphasis) {
                 DropEmphasis.HIDDEN -> continue
-                DropEmphasis.NEEDED -> PURPLE
+                DropEmphasis.NEEDED -> if (kind == DropKind.COIN) GOLD else PURPLE
                 DropEmphasis.UNKNOWN -> RED
                 DropEmphasis.NORMAL -> GREEN
             }

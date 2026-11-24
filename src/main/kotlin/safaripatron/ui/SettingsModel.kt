@@ -89,7 +89,7 @@ object SettingsModel {
                 choice("Incense", "When an incense drop turns green. Always green after Doomspiral", listOf("four", "always"),
                     { if (it == "four") "At 4 Incense" else "Always purple" }, { s.floorIncenseRule }) { s.floorIncenseRule = it },
                 choice("Shining Coin", "When a coin drop turns green", listOf("one", "always"),
-                    { if (it == "one") "At 1 Coin" else "Always purple" }, { s.floorCoinRule }) { s.floorCoinRule = it },
+                    { if (it == "one") "At 1 Coin" else "Always gold" }, { s.floorCoinRule }) { s.floorCoinRule = it },
                 toggle("Bee Nests", "Honeybug nests in Forest", { s.beeNests }) { s.beeNests = it },
                 toggle("Snoozle Walls", "Breakable walls in Cavern", { s.snoozleWalls }) { s.snoozleWalls = it },
                 toggle("Clear Water", "See through Safari water", { s.clearWater }) { s.clearWater = it },

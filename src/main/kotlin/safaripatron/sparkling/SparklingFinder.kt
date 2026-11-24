@@ -23,8 +23,6 @@ import kotlin.math.sqrt
  * İlk görüldüğü bloğa köşeleri vurgulanan bir waypoint konur.
  */
 object SparklingFinder {
-    private val scan = safaripatron.helpers.ScanStability()
-    fun scanReady(world: Any?, now: Long) = scan.ready(world, now)
     private const val GOLD = 0xFFFFAA00.toInt()
     private const val WAYPOINT = 0xFFFFE066.toInt()
 
@@ -53,7 +51,7 @@ object SparklingFinder {
     private class Caught(val key: UUID, val species: String, val pos: Vec3, val at: Long)
     private val recentlyCaught = ArrayList<Caught>()
 
-    fun clear() { sparks.clear(); recentlyCaught.clear(); othersCaught.clear(); waiting.clear(); scan.reset() }
+    fun clear() { sparks.clear(); recentlyCaught.clear(); othersCaught.clear(); waiting.clear() }
 
     /** Partideki başkasının yakaladığı türler: o türün yazısı kaybolunca sparkling listeden çıkar. */
     private val othersCaught = ArrayList<Pair<String, Long>>()
@@ -129,7 +127,6 @@ object SparklingFinder {
         othersCaught.removeIf { now - it.second > 15_000 }
         sparks.removeIf { s -> !s.live && othersCaught.any { it.first.equals(s.species, true) } }
         waiting.keys.retainAll(all.mapTo(HashSet()) { it.uuid })
-        scan.observe(level, all.mapTo(HashSet()) { it.id to it.customName?.string }, waiting.isNotEmpty(), now)
     }
 
     private val waiting = HashMap<UUID, Int>()

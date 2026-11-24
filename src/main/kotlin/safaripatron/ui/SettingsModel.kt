@@ -116,7 +116,7 @@ object SettingsModel {
             )
         },
         Category("capsule", "Helpers", "➶", 0xFF85B7EB.toInt(), "Capsules, gems and food",
-            { s.capsuleTrajectory || s.masterfulTargetFilter || s.wumpaSkip || s.doomspiralTimer || s.cavernGemMode != "off" || s.scrappyFoodHints || s.hideyhoAutoSure || s.incenseCandleTarget || s.rockmiteHoldClick || s.safariEntryGuard }) {
+            { s.capsuleTrajectory || s.masterfulTargetFilter || s.wumpaSkip || s.doomspiralTimer || s.cavernGemMode != "off" || s.scrappyFoodHints || s.hideyhoAutoSure || s.incenseCandleTarget || s.rockmiteHoldClick }) {
             listOf(
                 toggle("Capsule Helper", "Shows the capsule's flight path and where it lands §c(Use at your own risk)", { s.capsuleTrajectory }) { s.capsuleTrajectory = it },
                 Action("Open Hitbox Editor", "Box size of each critter, for capsules and ESP §eUse the default settings§r unless you know what you're doing.", "Open") {
@@ -136,7 +136,6 @@ object SettingsModel {
                 toggle("Rockmite Clicker", "Hold left mouse on a Rockmite mound to repeat attacks §c(Use at your own risk)", { s.rockmiteHoldClick }) { s.rockmiteHoldClick = it },
                 toggle("Hideyho Auto-Sure", "Accepts Hideyho's challenge §c(Use at your own risk)", { s.hideyhoAutoSure }) { s.hideyhoAutoSure = it },
                 toggle("Incense Candle Hitbox", "Target the full red candle block while holding Soothing Incense in Haunted §c(Use at your own risk)", { s.incenseCandleTarget }) { s.incenseCandleTarget = it },
-                toggle("Safari Entry Guard", "Wait for party presence and the loaded-entity scan; hold Shift to bypass", { s.safariEntryGuard }) { s.safariEntryGuard = it },
             )
         },
         Category("contest", "Miria's Contest", "✪", 0xFFFFCC66.toInt(), "Timer, ticket, alerts", { s.contest }) {

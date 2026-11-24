@@ -71,7 +71,7 @@ object Party {
     fun onChatLine(raw: String) {
         val l = ChatParser.clean(raw)
         if (rosterChange.any { l.contains(it, ignoreCase = true) }) {
-            if (safaripatron.helpers.EntryRecognition.rosterChange(l)) known = false
+            if (RosterChange.matches(l)) known = false
             request(force = true)
         }
     }

@@ -56,6 +56,7 @@ object SettingsModel {
         Category("sparkling", "Sparkling", "✦", 0xFFFFB627.toInt(), "Finder and panels", { s.sparklingFinder }) {
             listOf(
                 toggle("Sparkling Finder", "Alert, box and waypoint §c(Use at your own risk)", { s.sparklingFinder }) { s.sparklingFinder = it },
+                toggle("Sparkling Finder Cinematic", "A full-screen scene when a sparkling is found, the HUD hides while it plays", { s.sparklingCinematic }) { s.sparklingCinematic = it },
                 toggle("Auto share to party", "Sends its location to party chat", { s.sparklingAutoShare }) { s.sparklingAutoShare = it },
                 toggle("Last Sparkling Message", "Runs and time since the last one", { s.sparklingInterval }) { s.sparklingInterval = it },
                 toggle("Sound", "Ding when a sparkling is found", { s.sparklingSound }) { s.sparklingSound = it },

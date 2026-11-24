@@ -1,0 +1,11 @@
+{
+  "critter": "Shuddersquid",
+  "parts": [
+    {
+      "dx": 0.0,
+      "dy": 0.0,
+      "dz": 0.0,
+      "nbt": "{AbsorptionAmount:0.0f,Age:1,AgeLocked:0b,Air:300s,Brain:{memories:{}},CanPickUpLoot:0b,DarkTicksRemaining:0,DeathTime:0s,FallFlying:0b,Fire:0s,ForcedAge:0,Health:1.0f,HurtTime:0s,Invulnerable:0b,LeftHanded:0b,OnGround:0b,PersistenceRequired:0b,PortalCooldown:0,Rotation:[-176.25912f,0.0f],attributes:[{base:1.0d,id:\"minecraft:max_health\"},{base:1.0d,id:\"minecraft:scale\"},{base:0.699999988079071d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,fall_distance:0.0d,id:\"minecraft:glow_squid\"}"
+    }
+  ]
+}

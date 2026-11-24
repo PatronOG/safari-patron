@@ -1,0 +1,11 @@
+{
+  "critter": "Driftling",
+  "parts": [
+    {
+      "dx": 0.0,
+      "dy": 0.0,
+      "dz": 0.0,
+      "nbt": "{AbsorptionAmount:0.0f,Air:300s,Brain:{memories:{}},DeathTime:0s,DisabledSlots:0,FallFlying:0b,Fire:0s,Health:20.0f,HurtTime:0s,Invisible:1b,Invulnerable:0b,NoBasePlate:0b,OnGround:1b,PortalCooldown:0,Pose:{Head:[4.46875f,0.0f,0.0f]},Rotation:[31.253313f,0.0f],ShowArms:0b,Silent:1b,Small:0b,attributes:[{base:20.0d,id:\"minecraft:max_health\"},{base:1.25d,id:\"minecraft:scale\"},{base:0.10000000149011612d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,equipment:{head:{components:{\"minecraft:profile\":{properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjRjNGY4ZTVmY2UxZWMyZDI5OWNiOGEzOTU3OTJlY2RkYzQ5N2ExZDhhZjg2ZmFhYTVlMjAzNzMwMTZjNzIyNSIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19\"}]}},count:1,id:\"minecraft:player_head\"}},fall_distance:0.0d,id:\"minecraft:armor_stand\"}"
+    }
+  ]
+}

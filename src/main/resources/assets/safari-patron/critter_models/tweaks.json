@@ -1,0 +1,248 @@
+{
+  "foxtrot": {
+    "yaw": 76.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.5,
+    "lift": 0.0
+  },
+  "bluebird": {
+    "yaw": 5.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.0,
+    "lift": 0.0
+  },
+  "honeybug": {
+    "yaw": 190.0,
+    "pitch": 340.0,
+    "roll": 355.0,
+    "scale": 0.5,
+    "lift": -0.1
+  },
+  "parakeet": {
+    "yaw": 105.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.0,
+    "lift": 0.0
+  },
+  "treefrog": {
+    "yaw": 340.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.5,
+    "lift": 0.0
+  },
+  "woodchucker": {
+    "yaw": 0.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.5,
+    "lift": 0.0
+  },
+  "fluffling": {
+    "yaw": 0.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.7,
+    "lift": 0.0
+  },
+  "macaw": {
+    "yaw": 65.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.4,
+    "lift": 0.0
+  },
+  "cavernfish": {
+    "yaw": 180.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.6,
+    "lift": 0.0
+  },
+  "flitter": {
+    "yaw": 75.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.0,
+    "lift": 0.15
+  },
+  "driftling": {
+    "yaw": 150.0,
+    "pitch": 350.0,
+    "roll": 0.0,
+    "scale": 1.5,
+    "lift": -0.72
+  },
+  "chuckwalla": {
+    "yaw": 255.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.0,
+    "lift": 0.15
+  },
+  "rockmite": {
+    "yaw": 350.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.7,
+    "lift": 0.0
+  },
+  "scrappy": {
+    "yaw": 70.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.7,
+    "lift": 0.0
+  },
+  "snoozle": {
+    "yaw": 260.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.55,
+    "lift": 0.0
+  },
+  "gemzie": {
+    "yaw": 75.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.0,
+    "lift": 0.0
+  },
+  "strongarm": {
+    "yaw": 40.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.0,
+    "lift": 0.0
+  },
+  "tepid": {
+    "yaw": 140.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.6,
+    "lift": 0.1
+  },
+  "polaris": {
+    "yaw": 110.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.7,
+    "lift": 0.0
+  },
+  "shuddersquid": {
+    "yaw": 180.0,
+    "pitch": 0.0,
+    "roll": 60.0,
+    "scale": 0.45,
+    "lift": 0.2
+  },
+  "billygoat": {
+    "yaw": 60.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.0,
+    "lift": 0.0
+  },
+  "mantis shrimp": {
+    "yaw": 320.0,
+    "pitch": 348.0,
+    "roll": 2.0,
+    "scale": 1.0,
+    "lift": 0.1
+  },
+  "nozzlenose": {
+    "yaw": 100.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.65,
+    "lift": 0.0
+  },
+  "troodon": {
+    "yaw": 210.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.0,
+    "lift": 0.2
+  },
+  "wumpa": {
+    "yaw": 170.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.2,
+    "lift": 0.0
+  },
+  "areita": {
+    "yaw": 150.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.55,
+    "lift": -0.05
+  },
+  "bloodbat": {
+    "yaw": 320.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.8,
+    "lift": 0.0
+  },
+  "duplico": {
+    "yaw": 315.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.6,
+    "lift": 0.0
+  },
+  "gazer": {
+    "yaw": 155.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.4,
+    "lift": -0.7
+  },
+  "litterbug": {
+    "yaw": 45.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.5,
+    "lift": 0.1
+  },
+  "solsnatcher": {
+    "yaw": 295.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 0.5,
+    "lift": 0.0
+  },
+  "gimmiegold": {
+    "yaw": 145.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.0,
+    "lift": 0.15
+  },
+  "hideyho": {
+    "yaw": 195.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.6,
+    "lift": 0.0
+  },
+  "doomspiral": {
+    "yaw": 155.0,
+    "pitch": 0.0,
+    "roll": 0.0,
+    "scale": 1.8,
+    "lift": 0.0
+  },
+  "shyworm": {
+    "yaw": 50.0,
+    "pitch": 0.0,
+    "roll": 10.0,
+    "scale": 1.5,
+    "lift": -1.7,
+    "side": 0.0
+  }
+}

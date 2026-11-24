@@ -1,0 +1,11 @@
+{
+  "critter": "Strongarm",
+  "parts": [
+    {
+      "dx": 0.0,
+      "dy": 0.0,
+      "dz": 0.0,
+      "nbt": "{AbsorptionAmount:0.0f,Air:300s,Brain:{memories:{}},CanPickUpLoot:0b,DeathTime:0s,FallFlying:0b,Fire:0s,Health:1.0f,HurtTime:0s,Invulnerable:0b,LeftHanded:0b,OnGround:1b,PersistenceRequired:0b,PortalCooldown:0,Pumpkin:1b,Rotation:[-106.875f,9.84375f],attributes:[{base:1.0d,id:\"minecraft:max_health\"},{base:1.0d,id:\"minecraft:scale\"},{base:0.20000000298023224d,id:\"minecraft:movement_speed\"},{base:0.42d,id:\"minecraft:jump_strength\"},{base:64.0d,id:\"minecraft:name_tag_distance\"},{base:10.0d,id:\"minecraft:below_name_distance\"}],current_impulse_context_reset_grace_time:0,equipment:{head:{count:1,id:\"minecraft:carved_pumpkin\"}},fall_distance:0.0d,id:\"minecraft:snow_golem\"}"
+    }
+  ]
+}

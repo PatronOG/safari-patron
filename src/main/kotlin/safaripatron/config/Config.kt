@@ -51,6 +51,8 @@ class Settings {
 
     // Sparkling
     var sparklingFinder = true
+    /** Full-screen scene when the finder spots a sparkling; the HUD steps aside while it plays. */
+    var sparklingCinematic = true
     var sparklingSound = true
     var sparklingAutoShare = false
     /** Sparkling collection panel: which critters' sparkling form has been caught (by you or your party), all time. */

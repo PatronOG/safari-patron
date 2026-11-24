@@ -38,4 +38,14 @@ internal object CritterIcons {
         g.blit(RenderPipelines.GUI_TEXTURED, icon.texture, x + (SIZE - width) / 2, y + (SIZE - height) / 2,
             0f, 0f, width, height, icon.width, icon.height, icon.width, icon.height)
     }
+
+    /** The icon centered on (0, 0), 16 pixels at most, whatever the list icon setting is (the cinematic's fallback). */
+    fun drawCentered(g: GuiGraphicsExtractor, name: String) {
+        val icon = icons[name] ?: return
+        val scale = 16.0 / maxOf(icon.width, icon.height)
+        val width = (icon.width * scale).roundToInt().coerceAtLeast(1)
+        val height = (icon.height * scale).roundToInt().coerceAtLeast(1)
+        g.blit(RenderPipelines.GUI_TEXTURED, icon.texture, -width / 2, -height / 2,
+            0f, 0f, width, height, icon.width, icon.height, icon.width, icon.height)
+    }
 }
